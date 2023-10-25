@@ -6,7 +6,7 @@
 /*   By: lbapart <lbapart@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/21 14:50:26 by lbapart           #+#    #+#             */
-/*   Updated: 2023/10/26 01:12:13 by lbapart          ###   ########.fr       */
+/*   Updated: 2023/10/26 01:42:09 by lbapart          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,22 +14,25 @@
 
 typedef struct s_smplcmd
 {
-	char	*cmd;
-	char	**args;
-	char	*bultin;
-	char	*input;
-	char	*output;
+	char	*cmd; // do we need this? no i guess
+	char	**args; // args for execve
+	char	*bultin; // if it's a builtin command
+	char	*input;  // input file
+	int		input_redirection; // 0 for no redirection, 1 for <, 2 for << need to define macros
+	char	*output; // output file
+	int		output_redirection; // 0 for no redirection, 1 for >, 2 for >> need to define macros
 } t_smplcmd;
 
 typedef struct s_cmd
 {
-	char *cmd;
-	char **args;
-	t_smplcmd	*smplcmd;
-	struct s_cmd *next;
-	struct s_cmd *prev;
+	char *cmd; // cmd to execute for history
+	int	signal_received; // 0 for no signal, 1 for SIGINT, 2 for SIGQUIT can we put it here and use this struct as global? 
+	t_smplcmd	*smplcmd; // every simple command separated by pipe. Do you need counter for simple commands?
+	struct s_cmd *next; // next command in history
+	struct s_cmd *prev; // previous command in history
 } t_cmd;
 
+// to libft?
 void	*ft_realloc(void *ptr, size_t size)
 {
 	void *new_ptr;
@@ -45,6 +48,7 @@ void	*ft_realloc(void *ptr, size_t size)
 	return (new_ptr);
 }
 
+// to libft?
 void ft_strncpy(char *dest, const char *src, size_t n)
 {
 	size_t i;
@@ -60,6 +64,7 @@ void ft_strncpy(char *dest, const char *src, size_t n)
 	dest[i] = '\0';
 }
 
+// is_whitespace and is_redirection and free_and_null to utils.c
 int is_whitespace(char c)
 {
 	if (c == ' ' || c == '\t' || c == '\n')
@@ -81,6 +86,8 @@ void	free_and_null(char **str)
 	*str = NULL;
 }
 
+
+// all these fucking functions need to be tested. to think about free and exit also
 void	delete_parsed_cmd(char **cmd, size_t n)
 {
 	char *new_cmd;
@@ -108,7 +115,7 @@ void	delete_parsed_cmd(char **cmd, size_t n)
 	*cmd = new_cmd;
 }
 
-int	set_in_quotes(char c, int *in_quotes, char **ptr)
+int	set_in_quotes_flag(char c, int *in_quotes, char **ptr)
 {
 	if (c == '\'' && *in_quotes != 2)
 	{
@@ -159,7 +166,7 @@ int	handle_token(char **start, char **end, char ***tokens, size_t *token_count)
 
 int	handle_redirection(char **start, char **end, char ***tokens, size_t *token_count)
 {
-	handle_token(start, end, tokens, token_count);// redirection handling
+	handle_token(start, end, tokens, token_count);
 	if (**end == *(*end + 1))
 		*end += 2;
 	else
@@ -200,13 +207,13 @@ char	**split_command_to_tokens(char* cmd)
 {
 	char	**tokens = NULL;
 	size_t	token_count = 0;
-	int	in_quotes = 0;  // 0 for no quotes, 1 for single quotes, 2 for double quotes
+	int		in_quotes = 0;  // 0 for no quotes, 1 for single quotes, 2 for double quotes
 	char	*start = cmd;
 	char	*end = cmd;
 
 	while (*end) 
 	{
-		if (set_in_quotes(*end, &in_quotes, &end))
+		if (set_in_quotes_flag(*end, &in_quotes, &end))
 			;
 		else if (is_whitespace(*end) && !in_quotes) 
 			handle_token(&start, &end, &tokens, &token_count);
@@ -230,7 +237,8 @@ void	put_tokens_to_struct(char **tokens)
 	;
 }
 
-void	extract_cmd(char **cmd, size_t n)
+// probably better to return simple command here
+void	extract_cmd(char **cmd, size_t n, t_cmd *cmds)
 {
 	char *cmd_to_exec;
 	size_t i;
@@ -255,11 +263,21 @@ void	extract_cmd(char **cmd, size_t n)
 		remove_unnecessary_quotes(tokens[i++]);
 }
 
-void parse_commands(char *cmd)
+void	init_new_cmd(char *cmd, t_cmd *new_cmd)
+{
+	new_cmd->cmd = ft_strdup(cmd);
+	if (!new_cmd->cmd)
+		return (NULL); // throw error here and free everything and exit
+	new_cmd->smplcmd = NULL;
+	new_cmd->next = NULL;
+	new_cmd->prev = NULL;
+}
+
+void parse_commands(char *cmd, t_cmd *cmds)
 {
 	size_t i;
 	size_t last_pipe;
-	t_cmd *cmds;
+	t_cmd *new_cmd;
 	int	is_open_single_quote;
 	int	is_open_double_quote;
 
@@ -267,6 +285,10 @@ void parse_commands(char *cmd)
 	last_pipe = 0;
 	is_open_single_quote = 0;
 	is_open_double_quote = 0;
+	new_cmd = (t_cmd *)malloc(sizeof(t_cmd));
+	if (!new_cmd)
+		return (NULL); // throw error here and free everything and exit
+	init_new_cmd(cmd, new_cmd);
 	while (cmd && cmd[i])
 	{
 		if (cmd[i] == '\'' && !is_open_double_quote)
@@ -278,8 +300,8 @@ void parse_commands(char *cmd)
 		else if (cmd[i] == ';' || cmd[i] == '\\' && !is_open_single_quote && !is_open_double_quote)
 			return ; // throw an error here. ; and \ are not supported
 		else if (cmd[i] == '|' && !is_open_single_quote && !is_open_double_quote)
-			extract_cmd(&cmd, i);
+			extract_cmd(&cmd, i, cmds);
 		i++;
 	}
-	extract_cmd(&cmd, i);
+	extract_cmd(&cmd, i, cmds);
 }
