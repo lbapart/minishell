@@ -6,7 +6,7 @@
 /*   By: lbapart <lbapart@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/21 14:50:26 by lbapart           #+#    #+#             */
-/*   Updated: 2023/10/25 23:28:08 by lbapart          ###   ########.fr       */
+/*   Updated: 2023/10/25 23:30:24 by lbapart          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -114,7 +114,8 @@ void	delete_parsed_cmd(char **cmd, size_t n)
 // init cmd for vars??))))
 // mb here also handle pipes
 // in_quotes replace with is_single_quote and is_double_quote?? - guess no
-char	**split_to_tokens_command(char* cmd) {
+char	**split_command_to_tokens(char* cmd) 
+{
 	char	**tokens = NULL;
 	size_t	token_count = 0;
 	int	in_quotes = 0;  // 0 for no quotes, 1 for single quotes, 2 for double quotes
@@ -201,7 +202,7 @@ void	extract_cmd(char **cmd, size_t n)
 	}
 	cmd_to_exec[i] = '\0';
 	delete_parsed_cmd(cmd, n);
-	tokens = split_to_tokens_command(cmd_to_exec);
+	tokens = split_command_to_tokens(cmd_to_exec);
 	
 }
 
