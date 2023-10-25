@@ -6,7 +6,7 @@
 /*   By: lbapart <lbapart@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/21 14:50:26 by lbapart           #+#    #+#             */
-/*   Updated: 2023/10/26 00:15:49 by lbapart          ###   ########.fr       */
+/*   Updated: 2023/10/26 01:12:13 by lbapart          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,15 +17,14 @@ typedef struct s_smplcmd
 	char	*cmd;
 	char	**args;
 	char	*bultin;
-	char	*redirect;
+	char	*input;
+	char	*output;
 } t_smplcmd;
 
 typedef struct s_cmd
 {
 	char *cmd;
 	char **args;
-	char *input;
-	char *output;
 	t_smplcmd	*smplcmd;
 	struct s_cmd *next;
 	struct s_cmd *prev;
@@ -168,10 +167,35 @@ int	handle_redirection(char **start, char **end, char ***tokens, size_t *token_c
 	handle_token(start, end, tokens, token_count);
 }
 
-// need to be splitted into smaller functions
-// init cmd for vars??))))
-// mb here also handle pipes
-// in_quotes replace with is_single_quote and is_double_quote?? - guess no
+void	remove_unnecessary_quotes(char *str)
+{
+	char	*str_in;
+	char	*str_out;
+	int		in_single_quotes;
+	int		in_double_quotes;
+
+	str_in = str;
+	str_out = str;
+	in_single_quotes = 0;
+	in_double_quotes = 0;
+	while (*str_in) 
+	{
+		if (*str_in == '\'' && !in_double_quotes) 
+		{
+			in_single_quotes = !in_single_quotes;
+			str_in++;
+		} 
+		else if (*str_in == '"' && !in_single_quotes)
+		{
+			in_double_quotes = !in_double_quotes;
+			str_in++;
+		}
+		else
+			*(str_out++) = *(str_in++);
+	}
+	*str_out = '\0';
+}
+
 char	**split_command_to_tokens(char* cmd) 
 {
 	char	**tokens = NULL;
@@ -197,7 +221,13 @@ char	**split_command_to_tokens(char* cmd)
 	if (!tokens)
 		return (NULL); // throw error here and free everything and exit
 	tokens[token_count] = NULL;
-	return tokens;
+	return (tokens);
+}
+
+// to do
+void	put_tokens_to_struct(char **tokens)
+{
+	;
 }
 
 void	extract_cmd(char **cmd, size_t n)
@@ -218,15 +248,11 @@ void	extract_cmd(char **cmd, size_t n)
 	cmd_to_exec[i] = '\0';
 	delete_parsed_cmd(cmd, n);
 	tokens = split_command_to_tokens(cmd_to_exec);
-	
-}
-
-void	init_cmd(t_cmd *cmd)
-{
-	cmd->cmd = NULL;
-	cmd->args = NULL;
-	cmd->input = NULL;
-	cmd->output = NULL;
+	if (!tokens)
+		return (NULL); // throw error here and free everything and exit
+	i = 0;
+	while (tokens && tokens[i])
+		remove_unnecessary_quotes(tokens[i++]);
 }
 
 void parse_commands(char *cmd)
@@ -247,6 +273,10 @@ void parse_commands(char *cmd)
 			is_open_single_quote = !is_open_single_quote;
 		else if (cmd[i] == '"' && !is_open_single_quote)
 			is_open_double_quote = !is_open_double_quote;
+		else if (cmd[i] == '|' && cmd[i + 1] == '|' && !is_open_single_quote && !is_open_double_quote)
+			return ; // throw an error here. || is not supported
+		else if (cmd[i] == ';' || cmd[i] == '\\' && !is_open_single_quote && !is_open_double_quote)
+			return ; // throw an error here. ; and \ are not supported
 		else if (cmd[i] == '|' && !is_open_single_quote && !is_open_double_quote)
 			extract_cmd(&cmd, i);
 		i++;
