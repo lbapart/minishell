@@ -6,7 +6,7 @@
 /*   By: lbapart <lbapart@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/21 14:50:26 by lbapart           #+#    #+#             */
-/*   Updated: 2023/10/25 23:30:24 by lbapart          ###   ########.fr       */
+/*   Updated: 2023/10/26 00:15:49 by lbapart          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -109,6 +109,64 @@ void	delete_parsed_cmd(char **cmd, size_t n)
 	*cmd = new_cmd;
 }
 
+int	set_in_quotes(char c, int *in_quotes, char **ptr)
+{
+	if (c == '\'' && *in_quotes != 2)
+	{
+		if (*in_quotes == 1)
+			*in_quotes = 0;
+		else
+			*in_quotes = 1;
+		(*ptr)++;
+	}
+	else if (c == '"' && *in_quotes != 1)
+	{
+		if (*in_quotes == 2)
+			*in_quotes = 0;
+		else
+			*in_quotes = 2;
+		(*ptr)++;
+	}
+	else
+		return (0);
+	return (1);
+}
+
+int	handle_token(char **start, char **end, char ***tokens, size_t *token_count)
+{
+	size_t	token_length;
+	char	*token;
+
+	if (*start != *end)
+	{
+		// found a token
+		token_length = *end - *start;
+		token = (char *)malloc(token_length + 1);
+		if (!token)
+			return (0); // throw error here and free everything and exit
+		ft_strncpy(token, *start, token_length);
+		token[token_length] = '\0';
+		*tokens = (char **)ft_realloc(*tokens, (*token_count + 1) * sizeof(char *));
+		if (!*tokens)
+			return (0); // throw error here and free everything and exit
+		(*tokens)[*token_count] = token;
+		(*token_count)++;
+	}
+	while (is_whitespace(**end))
+		(*end)++;
+	*start = *end;
+	return (1);
+}
+
+int	handle_redirection(char **start, char **end, char ***tokens, size_t *token_count)
+{
+	handle_token(start, end, tokens, token_count);// redirection handling
+	if (**end == *(*end + 1))
+		*end += 2;
+	else
+		(*end)++;
+	handle_token(start, end, tokens, token_count);
+}
 
 // need to be splitted into smaller functions
 // init cmd for vars??))))
@@ -124,64 +182,21 @@ char	**split_command_to_tokens(char* cmd)
 
 	while (*end) 
 	{
-		if (*end == '\'' && in_quotes != 2) 
-		{
-			in_quotes = (in_quotes == 1) ? 0 : 1;
-			end++;
-		} 
-		else if (*end == '"' && in_quotes != 1) 
-		{
-			in_quotes = (in_quotes == 2) ? 0 : 2;
-			end++;
-		}
-		// rewrite part above to handle quotes
+		if (set_in_quotes(*end, &in_quotes, &end))
+			;
 		else if (is_whitespace(*end) && !in_quotes) 
-		{
-			if (start != end) 
-			{
-				// found a token
-				size_t token_length = end - start;
-				char* token = (char*)malloc(token_length + 1);
-				if (!token) 
-					return (NULL); // throw error here and free everything and exit
-				ft_strncpy(token, start, token_length);
-				token[token_length] = '\0';
-				tokens = (char**)ft_realloc(tokens, (token_count + 1) * sizeof(char*));
-				if (!tokens) 
-					return (NULL); // throw error here and free everything and exit
-				tokens[token_count] = token;
-				token_count++;
-			}
-			while (is_whitespace(*end))
-				end++;
-			start = end;
-		}
-		// put part above in a function
-		else if (is_redirection(*end) && !in_quotes) {
-			// redirection handling
-		} 
+			handle_token(&start, &end, &tokens, &token_count);
+		else if (is_redirection(*end) && !in_quotes)
+			handle_redirection(&start, &end, &tokens, &token_count);
 		else 
 			end++;
 	}
 	// last token
-	if (start != end) {
-		size_t token_length = end - start;
-		char* token = (char*)malloc(token_length + 1);
-		if (!token)
-			return (NULL); // throw error here and free everything and exit
-		ft_strncpy(token, start, token_length);
-		token[token_length] = '\0';
-		tokens = (char**)ft_realloc(tokens, (token_count + 1) * sizeof(char*));
-		if (!tokens)
-			return (NULL); // throw error here and free everything and exit
-		tokens[token_count] = token;
-		token_count++;
-	}
+	handle_token(&start, &end, &tokens, &token_count);
 	tokens = (char**)ft_realloc(tokens, (token_count + 1) * sizeof(char*));
 	if (!tokens)
 		return (NULL); // throw error here and free everything and exit
 	tokens[token_count] = NULL;
-
 	return tokens;
 }
 
