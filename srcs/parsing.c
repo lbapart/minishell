@@ -6,7 +6,7 @@
 /*   By: lbapart <lbapart@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/21 14:50:26 by lbapart           #+#    #+#             */
-/*   Updated: 2023/10/26 01:42:09 by lbapart          ###   ########.fr       */
+/*   Updated: 2023/10/26 01:47:14 by lbapart          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -27,6 +27,7 @@ typedef struct s_cmd
 {
 	char *cmd; // cmd to execute for history
 	int	signal_received; // 0 for no signal, 1 for SIGINT, 2 for SIGQUIT can we put it here and use this struct as global? 
+						// allocate and init it in main. after signal received set it to 1 or 2. then do signal stuff, and set it back to 0 
 	t_smplcmd	*smplcmd; // every simple command separated by pipe. Do you need counter for simple commands?
 	struct s_cmd *next; // next command in history
 	struct s_cmd *prev; // previous command in history
@@ -271,6 +272,7 @@ void	init_new_cmd(char *cmd, t_cmd *new_cmd)
 	new_cmd->smplcmd = NULL;
 	new_cmd->next = NULL;
 	new_cmd->prev = NULL;
+	new_cmd->signal_received = 0;
 }
 
 void parse_commands(char *cmd, t_cmd *cmds)
