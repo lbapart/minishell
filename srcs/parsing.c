@@ -6,11 +6,62 @@
 /*   By: lbapart <lbapart@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/21 14:50:26 by lbapart           #+#    #+#             */
-/*   Updated: 2023/10/28 17:48:57 by lbapart          ###   ########.fr       */
+/*   Updated: 2023/10/28 18:57:33 by lbapart          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "parsing.h"
+
+// free.c i think
+void	free_smplcmd(t_smplcmd *smplcmd)
+{
+	size_t i;
+	t_redirection *temp;
+
+	i = 0;
+	while (smplcmd->args && smplcmd->args[i])
+		free(smplcmd->args[i++]);
+	free(smplcmd->args);
+	temp = smplcmd->redir;
+	while (temp)
+	{
+		free(temp->file);
+		temp = temp->next;
+	}
+	free(smplcmd->redir);
+	free(smplcmd->path);
+	free(smplcmd->cmd);
+	free(smplcmd);
+}
+
+
+void	free_structs(t_cmd *cmds)
+{
+	t_cmd *tmp;
+	t_smplcmd *smplcmd;
+	t_redirection *temp;
+	size_t i;
+
+	tmp = cmds;
+	while (tmp)
+	{
+		smplcmd = tmp->smplcmd;
+		free_smplcmd(smplcmd);
+		cmds = tmp;
+		tmp = tmp->next;
+		free(cmds);
+	}
+}
+
+void	free_dbl_ptr(char **ptr)
+{
+	size_t i;
+
+	i = 0;
+	while (ptr && ptr[i])
+		free(ptr[i++]);
+	free(ptr);
+}
 
 void print_commands(t_cmd *cmds)
 {
@@ -51,8 +102,6 @@ void	*ft_realloc(void *ptr, size_t size)
 	void *new_ptr;
 
 	new_ptr = malloc(size);
-	if (!new_ptr)
-		return (NULL);
 	if (ptr)
 	{
 		ft_memcpy(new_ptr, ptr, size);
@@ -61,6 +110,7 @@ void	*ft_realloc(void *ptr, size_t size)
 	return (new_ptr);
 }
 
+// to libft?
 void	ft_strcat(char *dest, const char *src)
 {
 	size_t i;
@@ -90,7 +140,7 @@ void ft_strncpy(char *dest, const char *src, size_t n)
 }
 
 
-// is_whitespace and is_redirection and free_and_null to utils.c
+// is_whitespace and is_redirection to utils.c
 int is_whitespace(char c)
 {
 	if (c == ' ' || c == '\t' || c == '\n')
@@ -105,6 +155,7 @@ int is_redirection(char c)
 	return (0);
 }
 
+// free.c i think
 void	free_and_null(char **str)
 {
 	if (*str)
@@ -141,6 +192,7 @@ int	handle_token(char **start, char **end, char ***tokens, size_t *token_count)
 {
 	size_t	token_length;
 	char	*token;
+	char	**temp;
 
 	if (*start != *end)
 	{
@@ -148,12 +200,13 @@ int	handle_token(char **start, char **end, char ***tokens, size_t *token_count)
 		token_length = *end - *start;
 		token = (char *)malloc(token_length + 1);
 		if (!token)
-			return (0); // throw error here and free everything and exit
+			return (free_dbl_ptr(*tokens), 0); // throw error here and free everything and exit
 		ft_strncpy(token, *start, token_length);
 		token[token_length] = '\0';
-		*tokens = (char **)ft_realloc(*tokens, (*token_count + 1) * sizeof(char *));
-		if (!*tokens)
-			return (0); // throw error here and free everything and exit
+		temp = (char **)ft_realloc(*tokens, (*token_count + 1) * sizeof(char *));
+		if (!temp)
+			return (free_dbl_ptr(*tokens), 0); // throw error here and free everything and exit
+		*tokens = temp;
 		(*tokens)[*token_count] = token;
 		(*token_count)++;
 	}
@@ -205,30 +258,37 @@ void	remove_unnecessary_quotes(char *str)
 	*str_out = '\0';
 }
 
-char	**split_command_to_tokens(char* cmd) 
+char	**split_command_to_tokens(char *cmd) 
 {
 	char	**tokens = NULL;
 	size_t	token_count = 0;
 	int		in_quotes = 0;  // 0 for no quotes, 1 for single quotes, 2 for double quotes
 	char	*start = cmd;
 	char	*end = cmd;
+	char	**temp;
+	int		handling_result;
 
+	handling_result = 1;
 	while (*end) 
 	{
 		if (set_in_quotes_flag(*end, &in_quotes, &end))
 			;
 		else if (is_whitespace(*end) && !in_quotes) 
-			handle_token(&start, &end, &tokens, &token_count);
+			handling_result = handle_token(&start, &end, &tokens, &token_count);
 		else if (is_redirection(*end) && !in_quotes)
-			handle_redirection(&start, &end, &tokens, &token_count);
+			handling_result = handle_redirection(&start, &end, &tokens, &token_count);
 		else 
 			end++;
+		if (!handling_result)
+			return (free_dbl_ptr(tokens), NULL);
 	}
 	// last token
-	handle_token(&start, &end, &tokens, &token_count);
-	tokens = (char**)ft_realloc(tokens, (token_count + 1) * sizeof(char*));
-	if (!tokens)
-		return (NULL); // throw error here and free everything and exit
+	if (!handle_token(&start, &end, &tokens, &token_count))
+		return (free_dbl_ptr(tokens), NULL);
+	temp = (char **)ft_realloc(tokens, (token_count + 1) * sizeof(char*));
+	if (!temp)
+		return (free_dbl_ptr(tokens), NULL); // throw error here and free everything and exit
+	tokens = temp;
 	tokens[token_count] = NULL;
 	return (tokens);
 }
@@ -309,6 +369,7 @@ t_smplcmd	*put_tokens_to_struct(char **tokens, t_cmd *cmd)
 	size_t j;
 	t_smplcmd *smplcmd;
 	t_redirection *redir;
+	char **temp;
 
 	smplcmd = init_simple_command(cmd);
 	i = 0;
@@ -331,7 +392,7 @@ t_smplcmd	*put_tokens_to_struct(char **tokens, t_cmd *cmd)
 				redir->type = 3;
 			redir->file = ft_strdup(tokens[i + 1]);
 			if (!redir->file)
-				return (NULL); // throw error here and free everything and exit
+				return (free_dbl_ptr(tokens), free_structs(cmd), NULL); // throw error here and free everything and exit
 			i += 2;
 			lst_redir_add_back(&smplcmd->redir, redir);
 			if (!tokens[i + 1])
@@ -339,12 +400,13 @@ t_smplcmd	*put_tokens_to_struct(char **tokens, t_cmd *cmd)
 		}
 		else
 		{
-			smplcmd->args = (char **)ft_realloc(smplcmd->args, (j + 2) * sizeof(char *));
-			if (!smplcmd->args)
-				return (NULL); // throw error here and free everything and exit
+			temp = (char **)ft_realloc(smplcmd->args, (j + 2) * sizeof(char *));
+			if (!temp)
+				return (free_smplcmd(smplcmd), NULL); // throw error here and free everything and exit
+			smplcmd->args = temp;
 			smplcmd->args[j] = ft_strdup(tokens[i]);
 			if (!smplcmd->args[j])
-				return (NULL); // throw error here and free everything and exit
+				return (free_smplcmd(smplcmd), NULL); // throw error here and free everything and exit
 			smplcmd->args[j + 1] = NULL;
 			i++;
 			j++;
@@ -442,9 +504,9 @@ void	extract_cmd(char **str_cmd, size_t last_pipe, size_t n, t_cmd **cmds)
 	char **tokens;
 
 	i = 0;
-	cmd_to_exec = malloc(sizeof(char) * (n - last_pipe) + 1);
+	cmd_to_exec = (char *)malloc(sizeof(char) * (n - last_pipe) + 1);
 	if (!cmd_to_exec)
-		return (free_and_null(str_cmd)); // throw error here and free everything and exit
+		return (free_structs(*cmds), free(*str_cmd), exit(MALLOCEXIT)); // throw error here and free everything and exit
 	while ((*str_cmd) && (*str_cmd)[i + last_pipe] && i < n)
 	{
 		cmd_to_exec[i] = (*str_cmd)[i + last_pipe];
@@ -453,7 +515,7 @@ void	extract_cmd(char **str_cmd, size_t last_pipe, size_t n, t_cmd **cmds)
 	cmd_to_exec[i] = '\0';
 	tokens = split_command_to_tokens(cmd_to_exec);
 	if (!tokens)
-		return ; // throw error here and free everything and exit
+		return (free_structs(*cmds), free(*str_cmd), exit(MALLOCEXIT));
 	i = 0;
 	while (tokens && tokens[i])
 	{
@@ -493,9 +555,9 @@ t_cmd *parse_commands(char *cmd)
 		else if (cmd[i] == '"' && !is_open_single_quote)
 			is_open_double_quote = !is_open_double_quote;
 		else if (cmd[i] == '|' && cmd[i + 1] == '|' && !is_open_single_quote && !is_open_double_quote)
-			return (NULL); // throw an error here. || is not supported
+			return (free_structs(cmds), free(cmd), NULL); // throw an error here. || is not supported
 		else if (cmd[i] == ';' || cmd[i] == '\\' && !is_open_single_quote && !is_open_double_quote)
-			return (NULL); // throw an error here. ; and \ are not supported
+			return (free_structs(cmds), free(cmd), NULL); // throw an error here. ; and \ are not supported
 		else if (cmd[i] == '|' && !is_open_single_quote && !is_open_double_quote)
 		{
 			extract_cmd(&cmd, last_pipe, i, &cmds);

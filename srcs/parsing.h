@@ -6,7 +6,7 @@
 /*   By: lbapart <lbapart@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/28 17:02:00 by lbapart           #+#    #+#             */
-/*   Updated: 2023/10/28 17:16:59 by lbapart          ###   ########.fr       */
+/*   Updated: 2023/10/28 18:29:33 by lbapart          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -43,6 +43,8 @@ typedef struct s_cmd
 	struct s_cmd *next; // next command in history
 	struct s_cmd *prev; // previous command in history
 } t_cmd;
+
+#define MALLOCEXIT 1
 
 //list_utils.c
 void	lst_cmd_add_back(t_cmd **lst, t_cmd *new);
