@@ -6,7 +6,7 @@
 /*   By: lbapart <lbapart@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/21 14:50:26 by lbapart           #+#    #+#             */
-/*   Updated: 2023/10/28 18:57:33 by lbapart          ###   ########.fr       */
+/*   Updated: 2023/10/28 19:59:26 by lbapart          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,6 +17,7 @@ void	free_smplcmd(t_smplcmd *smplcmd)
 {
 	size_t i;
 	t_redirection *temp;
+	t_redirection *temp2;
 
 	i = 0;
 	while (smplcmd->args && smplcmd->args[i])
@@ -26,7 +27,9 @@ void	free_smplcmd(t_smplcmd *smplcmd)
 	while (temp)
 	{
 		free(temp->file);
+		temp2 = temp;
 		temp = temp->next;
+		free(temp2);
 	}
 	free(smplcmd->redir);
 	free(smplcmd->path);
@@ -45,6 +48,7 @@ void	free_structs(t_cmd *cmds)
 	tmp = cmds;
 	while (tmp)
 	{
+		free(tmp->cmd);
 		smplcmd = tmp->smplcmd;
 		free_smplcmd(smplcmd);
 		cmds = tmp;
@@ -338,7 +342,8 @@ int	check_unclosed_quotes(char	*cmd)
 
 void	check_and_put_path(char **tokens, t_smplcmd *smplcmd)
 {
-	if (tokens && tokens[0] && tokens[0][0] == '/' || tokens[0][0] == '.')
+	printf("before if\n");
+	if (tokens && tokens[0] && (tokens[0][0] == '/' || tokens[0][0] == '.'))
 	{
 		smplcmd->path = ft_strdup(tokens[0]);
 		if (!smplcmd->path)
@@ -348,6 +353,7 @@ void	check_and_put_path(char **tokens, t_smplcmd *smplcmd)
 	{
 		smplcmd->path = NULL;
 	}
+	printf("after if\n");
 }
 
 t_redirection *init_redir(void)
@@ -484,7 +490,7 @@ t_cmd	*init_new_cmd(char *cmd, t_cmd *cmds)
 	new_cmd = (t_cmd *)malloc(sizeof(t_cmd));
 	if (!new_cmd)
 		return (NULL); // throw error here and free everything and exit
-	new_cmd->cmd = ft_strdup(cmd);
+	new_cmd->cmd = cmd;
 	if (!new_cmd->cmd)
 		return (NULL); // throw error here and free everything and exit
 	new_cmd->smplcmd = NULL;
@@ -507,7 +513,7 @@ void	extract_cmd(char **str_cmd, size_t last_pipe, size_t n, t_cmd **cmds)
 	cmd_to_exec = (char *)malloc(sizeof(char) * (n - last_pipe) + 1);
 	if (!cmd_to_exec)
 		return (free_structs(*cmds), free(*str_cmd), exit(MALLOCEXIT)); // throw error here and free everything and exit
-	while ((*str_cmd) && (*str_cmd)[i + last_pipe] && i < n)
+	while ((*str_cmd) && (*str_cmd)[i + last_pipe] && i + last_pipe < n)
 	{
 		cmd_to_exec[i] = (*str_cmd)[i + last_pipe];
 		i++;
@@ -523,6 +529,7 @@ void	extract_cmd(char **str_cmd, size_t last_pipe, size_t n, t_cmd **cmds)
 		remove_unnecessary_quotes(tokens[i++]);
 	}
 	smplcmd = put_tokens_to_struct(tokens, *cmds);
+	free_dbl_ptr(tokens);
 	new_cmd = init_new_cmd(cmd_to_exec, *cmds);
 	if (!new_cmd)
 		return ; // throw error here and free everything and exit
@@ -543,7 +550,7 @@ t_cmd *parse_commands(char *cmd)
 	is_open_double_quote = 0;
 	last_pipe = 0;
 	cmds = NULL;
-	if (!check_unclosed_quotes(cmd))
+	if (!check_unclosed_quotes(cmd) || !cmd || !cmd[0])
 	{
 		free(cmd);
 		return (NULL); // throw error here
@@ -573,10 +580,12 @@ int	main()
 {
 	char *cmd;
 	t_cmd *cmds;
-	cmd = ft_strdup("./bin ec'ho' $HOME | cat -e > file << input");
+	cmd = ft_strdup("ec'ho' $HOME | cat -e > file1 > input");
 	if (!cmd)
 		return (0);
 	cmds = parse_commands(cmd);
 	print_commands(cmds);
+	free_structs(cmds);
+	free(cmd);
 	return (0);
 }
