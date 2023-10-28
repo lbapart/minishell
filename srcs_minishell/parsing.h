@@ -6,7 +6,7 @@
 /*   By: lbapart <lbapart@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/28 17:02:00 by lbapart           #+#    #+#             */
-/*   Updated: 2023/10/28 20:58:31 by lbapart          ###   ########.fr       */
+/*   Updated: 2023/10/28 21:32:59 by lbapart          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -65,7 +65,7 @@ t_redirection	*lst_redir_last(t_redirection *lst);
 // parsing_init.c
 t_smplcmd		*init_simple_command(t_cmd *cmd);
 t_redirection	*init_redir(void);
-t_cmd			*init_new_cmd(char *cmd, t_cmd *cmds);
+t_cmd			*init_new_cmd(t_cmd *cmds);
 // parsing_tokens.c
 int				handle_token(char **start, char **end, char ***tokens, size_t *token_count);
 int				handle_redirection(char **start, char **end, char ***tokens, size_t *token_count);

@@ -6,7 +6,7 @@
 /*   By: lbapart <lbapart@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/28 20:52:41 by lbapart           #+#    #+#             */
-/*   Updated: 2023/10/28 21:01:01 by lbapart          ###   ########.fr       */
+/*   Updated: 2023/10/28 21:32:37 by lbapart          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -40,16 +40,16 @@ t_redirection *init_redir(void)
 	return (redir);
 }
 
-t_cmd	*init_new_cmd(char *cmd, t_cmd *cmds)
+t_cmd	*init_new_cmd(t_cmd *cmds)
 {
 	t_cmd *new_cmd;
 
 	new_cmd = (t_cmd *)malloc(sizeof(t_cmd));
 	if (!new_cmd)
 		return (NULL); // throw error here and free everything and exit
-	new_cmd->cmd = cmd;
-	if (!new_cmd->cmd)
-		return (NULL); // throw error here and free everything and exit
+	new_cmd->cmd = NULL;
+	// if (!new_cmd->cmd)
+	// 	return (NULL); // throw error here and free everything and exit
 	new_cmd->smplcmd = NULL;
 	new_cmd->next = NULL;
 	new_cmd->prev = NULL;

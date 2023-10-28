@@ -6,7 +6,7 @@
 /*   By: lbapart <lbapart@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/21 14:50:26 by lbapart           #+#    #+#             */
-/*   Updated: 2023/10/28 20:57:54 by lbapart          ###   ########.fr       */
+/*   Updated: 2023/10/28 23:48:42 by lbapart          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -62,7 +62,7 @@ void	extract_cmd(char **str_cmd, size_t last_pipe, size_t n, t_cmd **cmds)
 	i = 0;
 	cmd_to_exec = (char *)malloc(sizeof(char) * (n - last_pipe) + 1);
 	if (!cmd_to_exec)
-		return (free_structs(*cmds), free(*str_cmd), exit(MALLOCEXIT)); // throw error here and free everything and exit
+		return (free_structs(*cmds), free(*str_cmd), exit(MALLOCEXIT));
 	while ((*str_cmd) && (*str_cmd)[i + last_pipe] && i + last_pipe < n)
 	{
 		cmd_to_exec[i] = (*str_cmd)[i + last_pipe];
@@ -74,15 +74,14 @@ void	extract_cmd(char **str_cmd, size_t last_pipe, size_t n, t_cmd **cmds)
 		return (free_structs(*cmds), free(*str_cmd), exit(MALLOCEXIT));
 	i = 0;
 	while (tokens && tokens[i])
-	{
-		replace_vars_with_values(tokens, str_cmd, *cmds);
-		remove_unnecessary_quotes(tokens[i++]);
-	}
+		(replace_vars_with_values(tokens, str_cmd, *cmds), remove_unnecessary_quotes(tokens[i++]));
 	smplcmd = put_tokens_to_struct(tokens, *cmds);
+	if (!smplcmd)
+		return (free(*str_cmd), exit(MALLOCEXIT));
 	free_dbl_ptr(tokens);
-	new_cmd = init_new_cmd(cmd_to_exec, *cmds);
+	new_cmd = init_new_cmd(*cmds);
 	if (!new_cmd)
-		return ; // throw error here and free everything and exit
+		return (free_structs(*cmds), free(*str_cmd), exit(MALLOCEXIT));
 	new_cmd->smplcmd = smplcmd;
 	lst_cmd_add_back(cmds, new_cmd);
 }
@@ -101,10 +100,7 @@ t_cmd *parse_commands(char *cmd)
 	last_pipe = 0;
 	cmds = NULL;
 	if (!check_unclosed_quotes(cmd) || !cmd || !cmd[0])
-	{
-		free(cmd);
-		return (NULL); // throw error here
-	}
+		return (free(cmd), NULL); // throw error here
 	while (cmd && cmd[i])
 	{
 		if (cmd[i] == '\'' && !is_open_double_quote)
@@ -112,9 +108,9 @@ t_cmd *parse_commands(char *cmd)
 		else if (cmd[i] == '"' && !is_open_single_quote)
 			is_open_double_quote = !is_open_double_quote;
 		else if (cmd[i] == '|' && cmd[i + 1] == '|' && !is_open_single_quote && !is_open_double_quote)
-			return (free_structs(cmds), free(cmd), NULL); // throw an error here. || is not supported
+			return (free(cmd), free_structs(cmds), NULL); // throw an error here. || is not supported
 		else if (cmd[i] == ';' || cmd[i] == '\\' && !is_open_single_quote && !is_open_double_quote)
-			return (free_structs(cmds), free(cmd), NULL); // throw an error here. ; and \ are not supported
+			return (free(cmd), free_structs(cmds), NULL); // throw an error here. ; and \ are not supported
 		else if (cmd[i] == '|' && !is_open_single_quote && !is_open_double_quote)
 		{
 			extract_cmd(&cmd, last_pipe, i, &cmds);
@@ -130,7 +126,7 @@ int	main()
 {
 	char *cmd;
 	t_cmd *cmds;
-	cmd = ft_strdup("|");
+	cmd = ft_strdup("echo abc | echo def | ./bin echo ghi | echo jkl | echo mno");
 	if (!cmd)
 		return (0);
 	cmds = parse_commands(cmd);

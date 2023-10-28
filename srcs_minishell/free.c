@@ -6,7 +6,7 @@
 /*   By: lbapart <lbapart@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/28 20:32:40 by lbapart           #+#    #+#             */
-/*   Updated: 2023/10/28 21:00:36 by lbapart          ###   ########.fr       */
+/*   Updated: 2023/10/28 21:27:44 by lbapart          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -46,7 +46,7 @@ void	free_structs(t_cmd *cmds)
 	tmp = cmds;
 	while (tmp)
 	{
-		free(tmp->cmd);
+		// free_and_null(&tmp->cmd);
 		smplcmd = tmp->smplcmd;
 		free_smplcmd(smplcmd);
 		cmds = tmp;

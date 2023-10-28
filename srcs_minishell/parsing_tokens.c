@@ -6,7 +6,7 @@
 /*   By: lbapart <lbapart@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/28 20:56:31 by lbapart           #+#    #+#             */
-/*   Updated: 2023/10/28 20:57:58 by lbapart          ###   ########.fr       */
+/*   Updated: 2023/10/28 22:09:04 by lbapart          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -75,17 +75,17 @@ char	**split_command_to_tokens(char *cmd)
 		else 
 			end++;
 		if (!handling_result)
-			return (free_dbl_ptr(tokens), NULL);
+			return (free(cmd), free_dbl_ptr(tokens), NULL);
 	}
 	// last token
 	if (!handle_token(&start, &end, &tokens, &token_count))
-		return (free_dbl_ptr(tokens), NULL);
+		return (free(cmd), free_dbl_ptr(tokens), NULL);
 	temp = (char **)ft_realloc(tokens, (token_count + 1) * sizeof(char*));
 	if (!temp)
-		return (free_dbl_ptr(tokens), NULL); // throw error here and free everything and exit
+		return (free(cmd), free_dbl_ptr(tokens), NULL); // throw error here and free everything and exit
 	tokens = temp;
 	tokens[token_count] = NULL;
-	return (tokens);
+	return (free(cmd), tokens);
 }
 
 t_smplcmd	*put_tokens_to_struct(char **tokens, t_cmd *cmd)
@@ -117,7 +117,7 @@ t_smplcmd	*put_tokens_to_struct(char **tokens, t_cmd *cmd)
 				redir->type = 3;
 			redir->file = ft_strdup(tokens[i + 1]);
 			if (!redir->file)
-				return (free_dbl_ptr(tokens), free_structs(cmd), NULL); // throw error here and free everything and exit
+				return (free_dbl_ptr(tokens), free_smplcmd(smplcmd), free_structs(cmd), NULL); // throw error here and free everything and exit
 			i += 2;
 			lst_redir_add_back(&smplcmd->redir, redir);
 			if (!tokens[i + 1])
@@ -127,11 +127,11 @@ t_smplcmd	*put_tokens_to_struct(char **tokens, t_cmd *cmd)
 		{
 			temp = (char **)ft_realloc(smplcmd->args, (j + 2) * sizeof(char *));
 			if (!temp)
-				return (free_smplcmd(smplcmd), NULL); // throw error here and free everything and exit
+				return (free_dbl_ptr(tokens), free_smplcmd(smplcmd), free_structs(cmd), NULL); // throw error here and free everything and exit
 			smplcmd->args = temp;
 			smplcmd->args[j] = ft_strdup(tokens[i]);
 			if (!smplcmd->args[j])
-				return (free_smplcmd(smplcmd), NULL); // throw error here and free everything and exit
+				return (free_dbl_ptr(tokens), free_smplcmd(smplcmd), free_structs(cmd), NULL); // throw error here and free everything and exit
 			smplcmd->args[j + 1] = NULL;
 			i++;
 			j++;
