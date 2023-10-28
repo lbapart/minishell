@@ -73,4 +73,9 @@ void	ft_lstdelone(t_list *lst, void (*del)(void *));
 void	ft_lstclear(t_list **lst, void (*del)(void *));
 void	ft_lstiter(t_list *lst, void (*f)(void *));
 t_list	*ft_lstmap(t_list *lst, void *(*f)(void *), void (*del)(void *));
+
+// Additional functions
+void	*ft_realloc(void *ptr, size_t size);
+void	ft_strcat(char *dest, const char *src);
+void	ft_strncpy(char *dest, const char *src, size_t n);
 #endif
