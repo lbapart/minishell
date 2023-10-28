@@ -6,13 +6,13 @@
 /*   By: lbapart <lbapart@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/28 20:52:41 by lbapart           #+#    #+#             */
-/*   Updated: 2023/10/28 21:32:37 by lbapart          ###   ########.fr       */
+/*   Updated: 2023/10/28 23:57:38 by lbapart          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "parsing.h"
 
-t_smplcmd	*init_simple_command(t_cmd *cmd)
+t_smplcmd	*init_simple_command(void)
 {
 	t_smplcmd *smplcmd;
 
@@ -40,7 +40,7 @@ t_redirection *init_redir(void)
 	return (redir);
 }
 
-t_cmd	*init_new_cmd(t_cmd *cmds)
+t_cmd	*init_new_cmd(void)
 {
 	t_cmd *new_cmd;
 

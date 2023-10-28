@@ -6,7 +6,7 @@
 /*   By: lbapart <lbapart@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/28 20:43:18 by lbapart           #+#    #+#             */
-/*   Updated: 2023/10/28 20:44:25 by lbapart          ###   ########.fr       */
+/*   Updated: 2023/10/29 00:03:25 by lbapart          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,7 +19,6 @@ void	print_commands(t_cmd *cmds)
 	t_smplcmd *smplcmd;
 	t_redirection *temp;
 	size_t i;
-	size_t count = 1;
 
 	tmp = cmds;
 	while (tmp)

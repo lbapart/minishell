@@ -6,7 +6,7 @@
 /*   By: lbapart <lbapart@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/21 14:50:26 by lbapart           #+#    #+#             */
-/*   Updated: 2023/10/28 23:48:42 by lbapart          ###   ########.fr       */
+/*   Updated: 2023/10/29 00:02:14 by lbapart          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -79,7 +79,7 @@ void	extract_cmd(char **str_cmd, size_t last_pipe, size_t n, t_cmd **cmds)
 	if (!smplcmd)
 		return (free(*str_cmd), exit(MALLOCEXIT));
 	free_dbl_ptr(tokens);
-	new_cmd = init_new_cmd(*cmds);
+	new_cmd = init_new_cmd();
 	if (!new_cmd)
 		return (free_structs(*cmds), free(*str_cmd), exit(MALLOCEXIT));
 	new_cmd->smplcmd = smplcmd;
@@ -109,7 +109,7 @@ t_cmd *parse_commands(char *cmd)
 			is_open_double_quote = !is_open_double_quote;
 		else if (cmd[i] == '|' && cmd[i + 1] == '|' && !is_open_single_quote && !is_open_double_quote)
 			return (free(cmd), free_structs(cmds), NULL); // throw an error here. || is not supported
-		else if (cmd[i] == ';' || cmd[i] == '\\' && !is_open_single_quote && !is_open_double_quote)
+		else if ((cmd[i] == ';' || cmd[i] == '\\') && !is_open_single_quote && !is_open_double_quote)
 			return (free(cmd), free_structs(cmds), NULL); // throw an error here. ; and \ are not supported
 		else if (cmd[i] == '|' && !is_open_single_quote && !is_open_double_quote)
 		{

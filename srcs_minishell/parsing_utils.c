@@ -6,7 +6,7 @@
 /*   By: lbapart <lbapart@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/28 20:45:58 by lbapart           #+#    #+#             */
-/*   Updated: 2023/10/28 20:51:44 by lbapart          ###   ########.fr       */
+/*   Updated: 2023/10/29 00:02:32 by lbapart          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -95,7 +95,7 @@ char	*get_var_name(char *var, char **tokens, t_cmd *t_cmd, char **cmd)
 		return (NULL);
 	res = (char *)malloc(i + 1);
 	if (!res)
-		return (NULL); // throw error here and free everything and exit
+		return (free_dbl_ptr(tokens), free_structs(t_cmd), free_and_null(cmd), exit(MALLOCEXIT), NULL); // throw error here and free everything and exit
 	ft_strncpy(res, var, i);
 	return (res);
 }
