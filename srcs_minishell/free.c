@@ -6,7 +6,7 @@
 /*   By: lbapart <lbapart@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/28 20:32:40 by lbapart           #+#    #+#             */
-/*   Updated: 2023/10/28 23:51:23 by lbapart          ###   ########.fr       */
+/*   Updated: 2023/10/29 00:35:47 by lbapart          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -30,7 +30,6 @@ void	free_smplcmd(t_smplcmd *smplcmd)
 		temp = temp->next;
 		free(temp2);
 	}
-	free(smplcmd->redir);
 	free(smplcmd->path);
 	free(smplcmd->cmd);
 	free(smplcmd);
@@ -44,7 +43,6 @@ void	free_structs(t_cmd *cmds)
 	tmp = cmds;
 	while (tmp)
 	{
-		// free_and_null(&tmp->cmd);
 		smplcmd = tmp->smplcmd;
 		free_smplcmd(smplcmd);
 		cmds = tmp;

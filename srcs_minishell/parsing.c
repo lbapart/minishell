@@ -6,7 +6,7 @@
 /*   By: lbapart <lbapart@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/21 14:50:26 by lbapart           #+#    #+#             */
-/*   Updated: 2023/10/29 00:02:14 by lbapart          ###   ########.fr       */
+/*   Updated: 2023/10/29 00:44:52 by lbapart          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -126,11 +126,12 @@ int	main()
 {
 	char *cmd;
 	t_cmd *cmds;
-	cmd = ft_strdup("echo abc | echo def | ./bin echo ghi | echo jkl | echo mno");
+	cmd = ft_strdup("echo abcin > | echo def | ./bin echo ghi | echo jkl | echo mno");
 	if (!cmd)
 		return (0);
 	cmds = parse_commands(cmd);
 	print_commands(cmds);
+	printf("%s\n", getenv("?"));
 	free_structs(cmds);
 	free(cmd);
 	return (0);

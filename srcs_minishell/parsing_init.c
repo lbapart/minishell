@@ -6,7 +6,7 @@
 /*   By: lbapart <lbapart@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/28 20:52:41 by lbapart           #+#    #+#             */
-/*   Updated: 2023/10/28 23:57:38 by lbapart          ###   ########.fr       */
+/*   Updated: 2023/10/29 00:54:18 by lbapart          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -53,6 +53,5 @@ t_cmd	*init_new_cmd(void)
 	new_cmd->smplcmd = NULL;
 	new_cmd->next = NULL;
 	new_cmd->prev = NULL;
-	new_cmd->signal_received = 0;
 	return (new_cmd);
 }
