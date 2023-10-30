@@ -6,7 +6,7 @@
 /*   By: lbapart <lbapart@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/28 20:56:31 by lbapart           #+#    #+#             */
-/*   Updated: 2023/10/29 00:34:02 by lbapart          ###   ########.fr       */
+/*   Updated: 2023/10/30 20:48:21 by lbapart          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,16 +20,16 @@ int	handle_token(char **start, char **end, char ***tokens, size_t *token_count)
 
 	if (*start != *end)
 	{
-		// found a token
 		token_length = *end - *start;
 		token = (char *)malloc(token_length + 1);
 		if (!token)
-			return (free_dbl_ptr(*tokens), 0); // throw error here and free everything and exit
+			return (free_dbl_ptr(*tokens), 0);
 		ft_strncpy(token, *start, token_length);
 		token[token_length] = '\0';
-		temp = (char **)ft_realloc(*tokens, (*token_count + 1) * sizeof(char *));
+		temp = (char **)ft_realloc(*tokens,
+				(*token_count + 1) * sizeof(char *));
 		if (!temp)
-			return (free_dbl_ptr(*tokens), 0); // throw error here and free everything and exit
+			return (free_dbl_ptr(*tokens), 0);
 		*tokens = temp;
 		(*tokens)[*token_count] = token;
 		(*token_count)++;
@@ -40,7 +40,8 @@ int	handle_token(char **start, char **end, char ***tokens, size_t *token_count)
 	return (1);
 }
 
-int	handle_redirection(char **start, char **end, char ***tokens, size_t *token_count)
+int	handle_redirection(char **start, char **end,
+					char ***tokens, size_t *token_count)
 {
 	if (!handle_token(start, end, tokens, token_count))
 		return (0);
@@ -53,91 +54,61 @@ int	handle_redirection(char **start, char **end, char ***tokens, size_t *token_c
 	return (1);
 }
 
-char	**split_command_to_tokens(char *cmd) 
+char	**split_command_to_tokens(char *cmd)
 {
-	char	**tokens = NULL;
-	size_t	token_count = 0;
-	int		in_quotes = 0;  // 0 for no quotes, 1 for single quotes, 2 for double quotes
-	char	*start = cmd;
-	char	*end = cmd;
 	char	**temp;
-	int		handling_result;
+	t_vars	v;
 
-	handling_result = 1;
-	while (*end) 
+	init_vars(&v, cmd);
+	while (*v.end)
 	{
-		if (set_in_quotes_flag(*end, &in_quotes, &end))
+		if (set_in_quotes_flag(*v.end, &v.in_quotes, &v.end))
 			;
-		else if (is_whitespace(*end) && !in_quotes) 
-			handling_result = handle_token(&start, &end, &tokens, &token_count);
-		else if (is_redirection(*end) && !in_quotes)
-			handling_result = handle_redirection(&start, &end, &tokens, &token_count);
-		else 
-			end++;
-		if (!handling_result)
-			return (free(cmd), free_dbl_ptr(tokens), NULL);
+		else if (is_whitespace(*v.end) && !v.in_quotes)
+			v.hr = handle_token(&v.start, &v.end, &v.tokens, &v.tc);
+		else if (is_redirection(*v.end) && !v.in_quotes)
+			v.hr = handle_redirection(&v.start, &v.end, &v.tokens, &v.tc);
+		else
+			v.end++;
+		if (!v.hr)
+			return (free(cmd), free_dbl_ptr(v.tokens), NULL);
 	}
-	// last token
-	if (!handle_token(&start, &end, &tokens, &token_count))
-		return (free(cmd), free_dbl_ptr(tokens), NULL);
-	temp = (char **)ft_realloc(tokens, (token_count + 1) * sizeof(char*));
+	if (!handle_token(&v.start, &v.end, &v.tokens, &v.tc))
+		return (free(cmd), free_dbl_ptr(v.tokens), NULL);
+	temp = (char **)ft_realloc(v.tokens, (v.tc + 1) * sizeof(char *));
 	if (!temp)
-		return (free(cmd), free_dbl_ptr(tokens), NULL); // throw error here and free everything and exit
-	tokens = temp;
-	tokens[token_count] = NULL;
-	return (free(cmd), tokens);
+		return (free(cmd), free_dbl_ptr(v.tokens), NULL);
+	v.tokens = temp;
+	v.tokens[v.tc] = NULL;
+	return (free(cmd), v.tokens);
 }
 
 t_smplcmd	*put_tokens_to_struct(char **tokens, t_cmd *cmd)
 {
-	size_t i;
-	size_t j;
-	t_smplcmd *smplcmd;
-	t_redirection *redir;
-	char **temp;
+	t_vars	v;
 
-	smplcmd = init_simple_command();
-    if (!smplcmd)
-        return (free_dbl_ptr(tokens), free_structs(cmd), NULL);
-	i = 0;
-	j = 0;
-	check_and_put_path(tokens, smplcmd);
-	if (smplcmd->path)
-		i++;
-	while (tokens && tokens[i])
+	init_vars(&v, NULL);
+	v.smplcmd = init_simple_command();
+	if (!v.smplcmd)
+		return (free_dbl_ptr(tokens), free_structs(cmd), NULL);
+	if (!check_and_put_path(tokens, v.smplcmd))
+		return (free_everything(tokens, cmd, v.smplcmd), NULL);
+	if (v.smplcmd->path)
+		v.i++;
+	while (tokens && tokens[v.i])
 	{
-		if (is_redirection(tokens[i][0]))
+		if (is_redirection(tokens[v.i][0]))
 		{
-			redir = init_redir();
-			if (tokens[i][0] == '<' && tokens[i][1] == '<')
-				redir->type = 2;
-			else if (tokens[i][0] == '>' && tokens[i][1] == '>')
-				redir->type = 4;
-			else if (tokens[i][0] == '<')
-				redir->type = 1;
-			else if (tokens[i][0] == '>')
-				redir->type = 3;
-			redir->file = ft_strdup(tokens[i + 1]);
-			if (!redir->file)
-				return (free_dbl_ptr(tokens), free_smplcmd(smplcmd), free_structs(cmd), NULL); // throw error here and free everything and exit
-			i += 2;
-			lst_redir_add_back(&smplcmd->redir, redir);
-			if (!tokens[i + 1])
+			if (!add_redir_to_list(&v, tokens))
+				return (free_everything(tokens, cmd, v.smplcmd), NULL);
+			if (!tokens[v.i + 1])
 				break ;
 		}
 		else
 		{
-			temp = (char **)ft_realloc(smplcmd->args, (j + 2) * sizeof(char *));
-			if (!temp)
-				return (free_dbl_ptr(tokens), free_smplcmd(smplcmd), free_structs(cmd), NULL); // throw error here and free everything and exit
-			smplcmd->args = temp;
-			smplcmd->args[j] = ft_strdup(tokens[i]);
-			if (!smplcmd->args[j])
-				return (free_dbl_ptr(tokens), free_smplcmd(smplcmd), free_structs(cmd), NULL); // throw error here and free everything and exit
-			smplcmd->args[j + 1] = NULL;
-			i++;
-			j++;
+			if (!put_token(&v, tokens))
+				return (free_everything(tokens, cmd, v.smplcmd), NULL);
 		}
 	}
-	return (smplcmd);
+	return (v.smplcmd);
 }

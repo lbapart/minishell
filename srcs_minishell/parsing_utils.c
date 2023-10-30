@@ -6,7 +6,7 @@
 /*   By: lbapart <lbapart@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/28 20:45:58 by lbapart           #+#    #+#             */
-/*   Updated: 2023/10/29 00:28:12 by lbapart          ###   ########.fr       */
+/*   Updated: 2023/10/30 20:48:48 by lbapart          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,17 +19,19 @@ void	remove_unnecessary_quotes(char *str)
 	int		in_single_quotes;
 	int		in_double_quotes;
 
+	if (!str)
+		return ;
 	str_in = str;
 	str_out = str;
 	in_single_quotes = 0;
 	in_double_quotes = 0;
-	while (*str_in) 
+	while (*str_in)
 	{
-		if (*str_in == '\'' && !in_double_quotes) 
+		if (*str_in == '\'' && !in_double_quotes)
 		{
 			in_single_quotes = !in_single_quotes;
 			str_in++;
-		} 
+		}
 		else if (*str_in == '"' && !in_single_quotes)
 		{
 			in_double_quotes = !in_double_quotes;
@@ -69,24 +71,25 @@ int	check_unclosed_quotes(char *cmd)
 	return (1);
 }
 
-void	check_and_put_path(char **tokens, t_smplcmd *smplcmd)
+int	check_and_put_path(char **tokens, t_smplcmd *smplcmd)
 {
 	if (tokens && tokens[0] && (tokens[0][0] == '/' || tokens[0][0] == '.'))
 	{
 		smplcmd->path = ft_strdup(tokens[0]);
 		if (!smplcmd->path)
-			return ; // throw error here and free everything and exit
+			return (0);
 	}
 	else
 	{
 		smplcmd->path = NULL;
 	}
+	return (1);
 }
 
 char	*get_var_name(char *var, char **tokens, t_cmd *t_cmd, char **cmd)
 {
-	size_t i;
-	char *res;
+	size_t	i;
+	char	*res;
 
 	i = 0;
 	while (var[i] && is_var_char(var[i]))
@@ -95,7 +98,8 @@ char	*get_var_name(char *var, char **tokens, t_cmd *t_cmd, char **cmd)
 		return (NULL);
 	res = (char *)malloc(i + 1);
 	if (!res)
-		return (free_dbl_ptr(tokens), free_structs(t_cmd), free_and_null(cmd), exit(MALLOCEXIT), NULL); // throw error here and free everything and exit
+		return (free_dbl_ptr(tokens), free_structs(t_cmd),
+			free_and_null(cmd), exit(MALLOCEXIT), NULL);
 	ft_strncpy(res, var, i);
 	return (res);
 }

@@ -6,27 +6,26 @@
 /*   By: lbapart <lbapart@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/28 20:35:33 by lbapart           #+#    #+#             */
-/*   Updated: 2023/10/28 20:49:29 by lbapart          ###   ########.fr       */
+/*   Updated: 2023/10/30 19:18:07 by lbapart          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "parsing.h"
 
-int is_whitespace(char c)
+int	is_whitespace(char c)
 {
 	if (c == ' ' || c == '\t' || c == '\n')
 		return (1);
 	return (0);
 }
 
-int is_redirection(char c)
+int	is_redirection(char c)
 {
 	if (c == '<' || c == '>')
 		return (1);
 	return (0);
 }
 
-// all these fucking functions need to be tested. to think about free and exit also
 int	set_in_quotes_flag(char c, int *in_quotes, char **ptr)
 {
 	if (c == '\'' && *in_quotes != 2)
@@ -54,5 +53,21 @@ int	is_var_char(char c)
 {
 	if (ft_isalnum(c) || c == '_')
 		return (1);
+	return (0);
+}
+
+int	is_unsupported_char(char c)
+{
+	char	*special_chars;
+	size_t	i;
+
+	special_chars = "~!@#%^&*(){}[];\\";
+	i = 0;
+	while (special_chars[i])
+	{
+		if (special_chars[i] == c)
+			return (1);
+		i++;
+	}
 	return (0);
 }

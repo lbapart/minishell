@@ -6,7 +6,7 @@
 /*   By: lbapart <lbapart@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/28 20:32:40 by lbapart           #+#    #+#             */
-/*   Updated: 2023/10/29 00:35:47 by lbapart          ###   ########.fr       */
+/*   Updated: 2023/10/30 19:15:22 by lbapart          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -66,4 +66,11 @@ void	free_and_null(char **str)
 	if (*str)
 		free(*str);
 	*str = NULL;
+}
+
+void	free_everything(char **tokens, t_cmd *cmd, t_smplcmd *smplcmd)
+{
+	free_dbl_ptr(tokens);
+	free_smplcmd(smplcmd);
+	free_structs(cmd);
 }
