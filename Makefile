@@ -15,7 +15,8 @@ SRC_DIR =	./srcs/
 INC_DIR =	./includes/
 LIBFT_DIR =	./libft/
 
-SRC_FILES =		main.c command_utils.c execute_command.c path_utils.c error.c execute_childs.c
+SRC_FILES =		main.c \
+				./builtins/builtin_cd.c ./builtins/builtin_env.c ./builtins/builtin_pwd.c ./builtins/builtin_echo.c
 SRCS =			$(addprefix $(SRC_DIR), $(SRC_FILES))
 SRC_OBJS =		$(SRCS:.c=.o)
 
@@ -26,7 +27,7 @@ INC_FLAGS =		-I $(INC_DIR)
 LIBFT =			-L $(LIBFT_DIR) -lft
 
 # Target
-NAME =			pipex
+NAME =			minishell
 
 all:			$(NAME)	
 
