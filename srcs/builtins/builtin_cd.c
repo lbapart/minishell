@@ -22,18 +22,53 @@ int	get_array_size(char **arr)
 	return (size);
 }
 
-/*
-	TODO: Change cd to use the t_shell env and set PWD and OLDPWD by hand
+int	get_env_size(char **env, t_shell *shell, int *is_pwd_set, int *is_old_pwd_set)
+{
+	int	size;
 
-	- What happend when ENV is not set? --> use chdir or just print out error ?
+	size = 0;
+	*is_pwd_set = 0;
+	*is_old_pwd_set = 0;
+	while (env[size])
+	{
+		if (ft_strncmp("PWD=", shell->env[size], 4) == 0)
+			*is_pwd_set = 1;
+		else if (ft_strncmp("OLDPWD=", shell->env[size], 7) == 0)
+			*is_old_pwd_set = 1;
+		size++;
+	}
+	return (size);
+}
 
-	Pseudo Code:
-	- Check command.args
-	- Check if permission on target-directory and if it exists (access(target, X_OK) == 0)
-	- Change or create OLDPWD with current pwd
-	- Change PWD with target (if relative lookup path)
+void	free_env(char **env)
+{
+	int	i;
 
-*/
+	if (!env)
+		return;
+	i = 0;
+	while (env[i])
+	{
+		free(env[i]);
+		i++;
+	}
+	free(env);
+}
+
+int	join_path_env(char *path, char *join_value, char **env, int i)
+{
+	int	error_code;
+
+	env[i] = ft_strjoin("PWD=", path);
+	if (!env[i])
+	{
+		error_code = errno;
+		free_env(env);
+		perror("Allocation failed");
+		return (error_code);
+	}
+	return (EXIT_SUCCESS);
+}
 
 int	edit_shell_env(t_shell *shell, char *pwd, char *old_pwd)
 {
@@ -41,103 +76,113 @@ int	edit_shell_env(t_shell *shell, char *pwd, char *old_pwd)
 	int	is_pwd_set;
 	int	is_old_pwd_set;
 	char **new_env; 	//TODO: malloc new env (check if PWD and OLDPWD is contained, otherwise add them)
+	int	error_code;
 
-
-	is_pwd_set = 0;
-	is_old_pwd_set = 0;
-	while(shell.env[i])
+	new_env = ft_calloc(get_env_size(shell->env, shell, &is_pwd_set, &is_old_pwd_set) + 1 + is_pwd_set + is_old_pwd_set, sizeof(char *));
+	if (!new_env)
+	{
+		error_code = errno;
+		return (perror("Allocation failed!"), (error_code));
+	}
+	i = 0;
+	while(shell->env[i])
 	{
 		if (ft_strncmp("PWD=", shell->env[i], 4) == 0)
 		{
-			is_pwd_set = 1;
-			new_env[i] = ft_strjoin("PWD=", pwd);
-			if (!new_env[i])
-				return (perror("Allocation failed"), EXIT_FAILURE); //TODO: free_new_env() &&  Just print out error ?
+			error_code = join_path_env(pwd, "PWD=", new_env, i);
+			if (error_code != EXIT_SUCCESS)
+				return (error_code);
 		}
 		else if (ft_strncmp("OLDPWD=", shell->env[i], 7) == 0)
 		{
-			is_old_pwd_set = 1;
-			new_env[i] = ft_strjoin("OLDPWD=", old_pwd);
+			error_code = join_path_env(old_pwd, "OLDPWD=", new_env, i);
+			if (error_code != EXIT_SUCCESS)
+				return (error_code);
+		}
+		else
+		{
+			new_env[i] = ft_strdup(shell->env[i]);
 			if (!new_env[i])
-				return (perror("Allocation failed"), EXIT_FAILURE); //TODO: free_new_env() Just print out error ?
+			{
+				error_code = errno;
+				return (free_env(new_env), perror("Allocation failed"), error_code);
+			}
 		}
 		i++;
 	}
 	if (!is_pwd_set)
 	{
-		new_env[i] = ft_strjoin("PWD=", pwd);
-		if (!new_env[i])
-			return (perror("Allocation failed"), EXIT_FAILURE); //TODO: free_new_env() Just print out error ?
+		error_code = join_path_env(pwd, "PWD=", new_env, i);
+		if (error_code != EXIT_SUCCESS)
+			return (error_code);
 		i++;
 	}
 	if (!is_old_pwd_set)
 	{
-		new_env[i] = ft_strjoin("OLDPWD=", old_pwd);
-			if (!new_env[i])
-				return (perror("Allocation failed"), EXIT_FAILURE); //TODO: free_new_env() Just print out error ?
+		error_code = join_path_env(old_pwd, "OLDPWD=", new_env, i);
+		if (error_code != EXIT_SUCCESS)
+			return (error_code);
+		i++;
 	}
+	new_env[i] = NULL;
+	free_env(shell->env);
 	shell->env = new_env;
 	return (EXIT_SUCCESS);
 }
 
+
+int	get_pwd_string(char **pwd)
+{
+	char	path[4096];
+	int		error_code;
+
+	if (getcwd(path, sizeof(path)))
+	{
+		*pwd = ft_strdup(path);
+		if (!(*pwd))
+		{
+			error_code = errno;
+			return (perror("Allocation Error"), (error_code));
+		}
+		return (EXIT_SUCCESS);
+	}
+	else
+	{
+		error_code = errno;
+		return (perror("Error while executing getcwd"), (error_code));
+	}
+}
+
 int	execute_cd(t_smplcmd command, t_shell *shell)
 {
-	int	error_code;
+	int	error_code = 0;
+	char	*path;
+	char	*old_pwd_path;
+	char	*pwd_path;
 
 	if (get_array_size(command.args) != 2)
 		return (ft_putendl_fd("Invalid amount of args for cd!", 2), (EXIT_FAILURE)); //TODO: Valid args check in here?
+	path = command.args[1];
 	if (access(path, X_OK) != 0)
 	{
 		error_code = errno;
 		return (perror("Error while accessing directory!"), (error_code)); 
 	}
+	error_code = get_pwd_string(&old_pwd_path);
+	if (error_code != EXIT_SUCCESS)
+		return (error_code);
+	printf("OLD-PWD:%s\n", old_pwd_path);
+	if (chdir(path) != 0)
+	{
+		error_code = errno;
+		return (perror("Error while changing directory!"), (error_code));
+	}
+	error_code = get_pwd_string(&pwd_path);
+	if (error_code != EXIT_SUCCESS)
+		return (error_code); //TODO: Do we have to undo cd, when we want to continue in loop prompt ? Or is this a fatal Error?
+	printf("NEW-PWD: %s\nOLD-PWD:%s\n", pwd_path, old_pwd_path);
+	edit_shell_env(shell, pwd_path, old_pwd_path);
+	free(old_pwd_path);
+	free(pwd_path);
+	return (error_code);
 }
-
-
-// int	execute_cd(t_smplcmd command)
-// {
-// 	char	*path;
-// 	int		error_code;	
-
-// 	if (get_array_size(command.args) != 2)
-// 		return (ft_putendl_fd("Invalid amount of args for cd!", 2), (EXIT_FAILURE)); //TODO: Valid args check in here?
-// 	path = command.args[1];
-// 	if (access(path, X_OK) != 0)
-// 	{
-// 		error_code = errno;
-// 		return (perror("Error while accessing directory!"), (error_code)); 
-// 	}
-// 	if (chdir(path) != 0)
-// 	{
-// 		error_code = errno;
-// 		return (perror("Error while changing directory!"), (error_code));
-// 	}
-// 	return (EXIT_SUCCESS);
-// }
-
-// #include <string.h>
-
-// void	ft_putendl_fd(char *s, int fd){
-// 	puts(s);
-// }
-
-// int main(int argc, char **argv)
-// {
-// 	t_smplcmd cmd;
-// 	int			result;
-// 	char **args = malloc(sizeof(char *) * 3);
-// 	if (!args)
-// 		return (EXIT_FAILURE);
-// 	args[0] = strdup("cd");
-// 	args[1] = argv[1];
-// 	args[2] = argv[2];
-// 	cmd.args = args;
-// 	printf("PWD (in env) before cd: %s\nOLDPWD (in env) before cd: %s\n", getenv("PWD"), getenv("OLDPWD"));
-// 	printf("Before cd: Calling pwd builtin: ");
-// 	execute_pwd();
-// 	result = execute_cd(cmd);
-// 	printf("\nPWD (in env) after cd: %s\nOLDPWD (in env) after cd: %s\n", getenv("PWD"), getenv("OLDPWD"));
-// 	printf("Before cd: Calling pwd builtin: ");
-// 	execute_pwd();
-// 	printf("cd return: %d\n", result);
-// }

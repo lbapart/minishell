@@ -43,13 +43,23 @@ typedef struct s_cmd
 	struct s_cmd *prev; // previous command in history
 } t_cmd;
 
+typedef struct s_vars
+{
+	char	*key;
+	char	*value;
+	t_vars	*next;
+} t_vars;
+
+
 typedef struct s_shell
 {
-	char **env;
+	char 	**env;
+	t_list	*vars;
 } t_shell;
 
 
-int	execute_cd(t_smplcmd command);
+
+int	execute_cd(t_smplcmd command, t_shell *shell);
 int	execute_pwd(t_smplcmd command, t_shell shell);
 int	execute_env(t_smplcmd command, t_shell shell);
 int	execute_echo(t_smplcmd command);
