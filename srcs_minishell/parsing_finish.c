@@ -6,7 +6,7 @@
 /*   By: lbapart <lbapart@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/30 22:22:49 by lbapart           #+#    #+#             */
-/*   Updated: 2023/10/31 01:40:33 by lbapart          ###   ########.fr       */
+/*   Updated: 2023/10/31 02:51:50 by lbapart          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,11 +14,11 @@
 
 void	set_builtin(t_cmd *cmd)
 {
-	t_cmd	*temp;
+	t_cmd		*temp;
 	t_smplcmd	*smplcmd;
 
 	temp = cmd;
-	while (temp)
+	while (temp && temp->smplcmd->args)
 	{
 		smplcmd = temp->smplcmd;
 		if (ft_strcmp(smplcmd->args[0], "echo") == 0)
@@ -43,19 +43,20 @@ t_cmd	*finish_pars(t_cmd *cmd)
 {
 	t_cmd	*temp;
 	size_t	count;
-	
+
 	temp = cmd;
 	count = 0;
 	while (temp)
 	{
-		if (!temp->smplcmd->args)
+		if (!temp->smplcmd->args && !temp->smplcmd->redir)
 		{
 			if (temp->next || count > 0)
 				return (free_structs(cmd), unexpected_near_pipe_err(), NULL);
 			else
-				return (NULL);
+				return (free_structs(cmd), NULL);
 		}
 		count++;
+		temp = temp->next;
 	}
 	set_builtin(cmd);
 	return (cmd);

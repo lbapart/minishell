@@ -6,7 +6,7 @@
 /*   By: lbapart <lbapart@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/28 20:56:31 by lbapart           #+#    #+#             */
-/*   Updated: 2023/10/31 00:47:31 by lbapart          ###   ########.fr       */
+/*   Updated: 2023/10/31 02:25:38 by lbapart          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -26,7 +26,6 @@ int	handle_token(char **start, char **end, char ***tokens, size_t *token_count)
 			return (free_dbl_ptr(*tokens), 0);
 		ft_strncpy(token, *start, token_length);
 		token[token_length] = '\0';
-		printf("token: %s\n", token);
 		temp = (char **)ft_realloc(*tokens,
 				(*token_count + 1) * sizeof(char *));
 		if (!temp)

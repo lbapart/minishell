@@ -6,7 +6,7 @@
 /*   By: lbapart <lbapart@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/21 14:50:26 by lbapart           #+#    #+#             */
-/*   Updated: 2023/10/31 01:40:26 by lbapart          ###   ########.fr       */
+/*   Updated: 2023/10/31 12:50:17 by lbapart          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -80,10 +80,9 @@ void	extract_cmd(char **str_cmd, size_t last_pipe, size_t n, t_cmd **cmds)
 		return (free_structs(*cmds), free(*str_cmd), malloc_err());
 	if (!check_redir_tokens(v.tokens))
 		return (free_structs(*cmds), free_dbl_ptr(v.tokens), redir_token_err());
-	size_t i = 0;
 	while (v.tokens && v.tokens[v.i])
 		(replace_vars_with_values(v.tokens, str_cmd, *cmds),
-		remove_unnecessary_quotes(v.tokens[v.i++]));
+			remove_unnecessary_quotes(v.tokens[v.i++]));
 	v.smplcmd = put_tokens_to_struct(v.tokens, *cmds);
 	if (!v.smplcmd)
 		return (free(*str_cmd), malloc_err());
@@ -100,10 +99,10 @@ t_cmd	*parse_commands(char *cmd)
 	t_vars	v;
 
 	init_vars(&v, NULL);
-	if (!check_unclosed_quotes(cmd))
-		return (unclosed_quotes_err(), NULL);
 	if (!cmd || !cmd[0])
 		return (NULL);
+	if (!check_unclosed_quotes(cmd))
+		return (unclosed_quotes_err(), NULL);
 	while (cmd && cmd[v.i])
 	{
 		if (cmd[v.i] == '\'' && !v.is_open_double_quote)
@@ -128,7 +127,7 @@ int	main(void)
 {
 	char *cmd;
 	t_cmd *cmds;
-	cmd = ft_strdup("''| cat | cat | cat | cat | cat | cat | cat");
+	cmd = ft_strdup("echo -n");
 	if (!cmd)
 		return (0);
 	cmds = parse_commands(cmd);

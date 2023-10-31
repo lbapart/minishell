@@ -6,7 +6,7 @@
 /*   By: lbapart <lbapart@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/30 23:14:19 by lbapart           #+#    #+#             */
-/*   Updated: 2023/10/31 01:12:05 by lbapart          ###   ########.fr       */
+/*   Updated: 2023/10/31 02:03:55 by lbapart          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,7 +25,7 @@ int	ft_strcmp(char *s1, char *s2)
 	return ((int)(s1[i] - s2[i]));
 }
 
-int is_redir_token(char *token)
+int	is_redir_token(char *token)
 {
 	if (ft_strcmp(token, "<") == 0)
 		return (1);
@@ -56,15 +56,15 @@ int	check_redir_tokens(char **tokens)
 
 	result = 0;
 	i = 0;
-	while (tokens && tokens[i]) 
+	while (tokens && tokens[i])
 	{
-		if (is_redir_token(tokens[i])) 
+		if (is_redir_token(tokens[i]))
 		{
 			if (result) 
 				return (0);
 			result = 1;
-		} 
-		else if (result && !is_valid_token_for_redir(tokens[i])) 
+		}
+		else if (result && !is_valid_token_for_redir(tokens[i]))
 			return (0);
 		else
 			result = 0;
