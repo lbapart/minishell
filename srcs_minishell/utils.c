@@ -6,7 +6,7 @@
 /*   By: lbapart <lbapart@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/28 20:35:33 by lbapart           #+#    #+#             */
-/*   Updated: 2023/10/30 19:18:07 by lbapart          ###   ########.fr       */
+/*   Updated: 2023/10/31 00:50:03 by lbapart          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -26,6 +26,7 @@ int	is_redirection(char c)
 	return (0);
 }
 
+// *v.end v.in_quotes, 
 int	set_in_quotes_flag(char c, int *in_quotes, char **ptr)
 {
 	if (c == '\'' && *in_quotes != 2)

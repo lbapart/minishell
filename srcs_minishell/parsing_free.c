@@ -6,7 +6,7 @@
 /*   By: lbapart <lbapart@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/28 20:32:40 by lbapart           #+#    #+#             */
-/*   Updated: 2023/10/30 19:15:22 by lbapart          ###   ########.fr       */
+/*   Updated: 2023/10/30 21:48:53 by lbapart          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -31,7 +31,6 @@ void	free_smplcmd(t_smplcmd *smplcmd)
 		free(temp2);
 	}
 	free(smplcmd->path);
-	free(smplcmd->cmd);
 	free(smplcmd);
 }
 

@@ -6,7 +6,7 @@
 /*   By: lbapart <lbapart@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/28 20:43:18 by lbapart           #+#    #+#             */
-/*   Updated: 2023/10/30 20:17:04 by lbapart          ###   ########.fr       */
+/*   Updated: 2023/10/30 21:49:25 by lbapart          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -24,7 +24,6 @@ void	print_commands(t_cmd *cmds)
 	while (tmp)
 	{
 		printf("--------------------\n");
-		printf("cmd: %s\n", tmp->cmd);
 		smplcmd = tmp->smplcmd;
 		printf("path: %s\n", smplcmd->path);
 		i = 0;

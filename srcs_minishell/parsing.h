@@ -6,7 +6,7 @@
 /*   By: lbapart <lbapart@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/28 17:02:00 by lbapart           #+#    #+#             */
-/*   Updated: 2023/10/30 19:24:33 by lbapart          ###   ########.fr       */
+/*   Updated: 2023/10/31 01:30:37 by lbapart          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,32 +22,40 @@
 # include <sys/wait.h>
 
 # define MALLOCEXIT 1
-# define NOQUOTES 0;
-# define SINGLEQUOTES 1;
-# define DOUBLEQUOTES 2;
+# define NOQUOTES 0
+# define SINGLEQUOTES 1
+# define DOUBLEQUOTES 2
+# define NOBUILTIN 0
+# define ECHO 1
+# define CD 2
+# define PWD 3
+# define EXPORT 4
+# define UNSET 5
+# define ENV 6
+# define EXIT 7
+# define VALASSIGN 8
+# define ASSIGN_SYNTAX_ERR 9
 
 typedef struct s_redirection
 {
-	char	*file;
-	int		type; // 0 for no redirection, 1 for <, 2 for <<, 3 for >, 4 for >>
-	struct s_redirection *next;
+	char					*file;
+	int						type; // 0 for no redirection, 1 for <, 2 for <<, 3 for >, 4 for >>
+	struct s_redirection	*next;
 } t_redirection;
 
 typedef struct s_smplcmd
 {
-	char	*cmd; // do we need this? no i guess
-	char	*path; // path to executable
-	char	**args; // args for execve
-	char	*bultin; // if it's a builtin command
+	char			*path; // path to executable
+	char			**args; // args for execve
+	int				builtin; // if it's a builtin command
 	t_redirection	*redir; // input file
 } t_smplcmd;
 
 typedef struct s_cmd
 {
-	char *cmd; // cmd to execute for history
-	t_smplcmd	*smplcmd; // every simple command separated by pipe. Do you need counter for simple commands?
-	struct s_cmd *next; // next command in history
-	struct s_cmd *prev; // previous command in history
+	t_smplcmd		*smplcmd; // every simple command separated by pipe. Do you need counter for simple commands?
+	struct s_cmd	*next; // next command in history
+	struct s_cmd	*prev; // previous command in history
 } t_cmd;
 
 typedef struct s_vars
@@ -72,18 +80,20 @@ typedef struct s_vars
 	int				hr; // handle result
 } t_vars;
 
-// error.c
+// parsing_error.c
 void			malloc_err(void);
 void			unsupported_char_err(char c);
 void			unclosed_quotes_err(void);
 void			double_pipe_err(void);
-// free.c
+void			redir_token_err(void);
+void			unexpected_near_pipe_err(void);
+// parsing_free.c
 void			free_smplcmd(t_smplcmd *smplcmd);
 void			free_structs(t_cmd *cmds);
 void			free_dbl_ptr(char **ptr);
 void			free_and_null(char **str);
 void			free_everything(char **tokens, t_cmd *cmd, t_smplcmd *smplcmd);
-//list_utils.c
+// parsing_list_utils.c
 void			lst_cmd_add_back(t_cmd **lst, t_cmd *new);
 t_cmd			*lst_cmd_last(t_cmd *lst);
 void			lst_redir_add_back(t_redirection **lst, t_redirection *new);
@@ -99,6 +109,11 @@ t_smplcmd		*init_simple_command(void);
 t_redirection	*init_redir(void);
 t_cmd			*init_new_cmd(void);
 void			init_vars(t_vars *vars, char *cmd);
+// parsing_redirections.c
+int				is_redir_token(char *token);
+int				is_valid_token_for_redir(char *token);
+int				check_redir_tokens(char **tokens);
+int				ft_strcmp(char *s1, char *s2);
 // parsing_tokens_2.c
 int				add_redir_to_list(t_vars *v, char **tokens);
 int				put_token(t_vars *v, char **tokens);

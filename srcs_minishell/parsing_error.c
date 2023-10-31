@@ -1,12 +1,12 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   error.c                                            :+:      :+:    :+:   */
+/*   parsing_error.c                                    :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: lbapart <lbapart@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/30 17:01:32 by lbapart           #+#    #+#             */
-/*   Updated: 2023/10/30 19:07:03 by lbapart          ###   ########.fr       */
+/*   Updated: 2023/10/31 01:31:14 by lbapart          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -33,4 +33,14 @@ void	unclosed_quotes_err(void)
 void	double_pipe_err(void)
 {
 	ft_putstr_fd("🤡🤡🤡Double pipe error🤡🤡🤡\n", 2);
+}
+
+void	redir_token_err(void)
+{
+	ft_putstr_fd("🤡🤡🤡Redirection error🤡🤡🤡\n", 2);
+}
+
+void	unexpected_near_pipe_err(void)
+{
+	ft_putstr_fd("🤡🤡🤡syntax error near unexpected token '|'🤡🤡🤡\n", 2);
 }

@@ -6,7 +6,7 @@
 /*   By: lbapart <lbapart@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/28 20:52:41 by lbapart           #+#    #+#             */
-/*   Updated: 2023/10/30 20:48:08 by lbapart          ###   ########.fr       */
+/*   Updated: 2023/10/30 22:21:55 by lbapart          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,10 +19,9 @@ t_smplcmd	*init_simple_command(void)
 	smplcmd = (t_smplcmd *)malloc(sizeof(t_smplcmd));
 	if (!smplcmd)
 		return (NULL);
-	smplcmd->cmd = NULL;
 	smplcmd->path = NULL;
 	smplcmd->args = NULL;
-	smplcmd->bultin = NULL;
+	smplcmd->builtin = 0;
 	smplcmd->redir = NULL;
 	return (smplcmd);
 }
@@ -47,7 +46,6 @@ t_cmd	*init_new_cmd(void)
 	new_cmd = (t_cmd *)malloc(sizeof(t_cmd));
 	if (!new_cmd)
 		return (NULL);
-	new_cmd->cmd = NULL;
 	new_cmd->smplcmd = NULL;
 	new_cmd->next = NULL;
 	new_cmd->prev = NULL;

@@ -6,7 +6,7 @@
 /*   By: lbapart <lbapart@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/21 14:50:26 by lbapart           #+#    #+#             */
-/*   Updated: 2023/10/30 21:01:04 by lbapart          ###   ########.fr       */
+/*   Updated: 2023/10/31 01:40:26 by lbapart          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -78,12 +78,12 @@ void	extract_cmd(char **str_cmd, size_t last_pipe, size_t n, t_cmd **cmds)
 	v.tokens = split_command_to_tokens(v.cmd_to_exec);
 	if (!v.tokens)
 		return (free_structs(*cmds), free(*str_cmd), malloc_err());
-	v.i = 0;
+	if (!check_redir_tokens(v.tokens))
+		return (free_structs(*cmds), free_dbl_ptr(v.tokens), redir_token_err());
+	size_t i = 0;
 	while (v.tokens && v.tokens[v.i])
-	{
-		replace_vars_with_values(v.tokens, str_cmd, *cmds);
-		remove_unnecessary_quotes(v.tokens[v.i++]);
-	}
+		(replace_vars_with_values(v.tokens, str_cmd, *cmds),
+		remove_unnecessary_quotes(v.tokens[v.i++]));
 	v.smplcmd = put_tokens_to_struct(v.tokens, *cmds);
 	if (!v.smplcmd)
 		return (free(*str_cmd), malloc_err());
@@ -121,20 +121,20 @@ t_cmd	*parse_commands(char *cmd)
 		}
 		v.i++;
 	}
-	return (extract_cmd(&cmd, v.last_pipe, v.i, &v.cmds), v.cmds);
+	return (extract_cmd(&cmd, v.last_pipe, v.i, &v.cmds), finish_pars(v.cmds));
 }
 
 int	main(void)
 {
 	char *cmd;
 	t_cmd *cmds;
-	cmd = ft_strdup("echo doesntexist | ./bin echo ghi > file1 > file2abc | echo jkl");
+	cmd = ft_strdup("''| cat | cat | cat | cat | cat | cat | cat");
 	if (!cmd)
 		return (0);
 	cmds = parse_commands(cmd);
 	//printf("saassasaas\n");
 	print_commands(cmds);
-	//execve("/bin/ls", (char *[]){NULL}, NULL);
+	// execve("/bin/cat", (char *[]){"-e", NULL}, NULL);
 	//printf("%s\n", getenv("?"));
 	free_structs(cmds);
 	free(cmd);
