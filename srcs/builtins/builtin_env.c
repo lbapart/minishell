@@ -14,21 +14,21 @@
 
 int	execute_env(t_smplcmd command, t_shell shell)
 {
-	int	i;
+	t_vars	*env;
 
 	if (get_array_size(command.args) != 1)
 	{
 		ft_putstr_fd("Invalid args!", 2);
 		return (EXIT_FAILURE);
 	}
-	i = 0;
 	// TODO: Check if env is not set env command EXIT_STATUS is still SUCCESS
-	if (!shell.env)
+	env = shell.env;
+	if (!env)
 		return (EXIT_SUCCESS);
-	while (shell.env[i])
+	while (env)
 	{
-		ft_putendl_fd(shell.env[i], 1);
-		i++;
+		printf("%s=%s\n", env->key, env->value);
+		env = env->next;
 	}
 	return (EXIT_SUCCESS);
 }

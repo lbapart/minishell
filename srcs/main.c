@@ -66,6 +66,17 @@
 // 	return (1);
 // }
 
+int	get_array_size(char **arr)
+{
+	int	size;
+
+	size = 0;
+	while (arr[size])
+		size++;
+	return (size);
+}
+
+
 int	main(int argc, char **argv, char **envp)
 {
 	// t_pipex	*pipex;
@@ -82,28 +93,20 @@ int	main(int argc, char **argv, char **envp)
 	(void) envp;
 
 	t_shell shell;
-	shell.env = ft_calloc(get_array_size(envp) + 1, sizeof(char *));
-	if (!shell.env)
-		return (perror("Alloc failed"), (1));
-	int i = 0;
-	while (i < get_array_size(envp))
-	{
-		shell.env[i] = ft_strdup(envp[i]);
-		i++; 
-	}
-	shell.env[i] = NULL;
-	
-	// t_smplcmd pwd_command;
-	// char *pwd_args[] = {"pwd", NULL};
-	// pwd_command.args = pwd_args;
-	// execute_pwd(pwd_command, shell);
+	if (init_env(envp, &shell) != EXIT_SUCCESS)
+		return (EXIT_FAILURE);
+	shell.exported_vars = new_env("notexportedyed", "");
 
+	// t_smplcmd env_command;
+	// char *env_args[] = {"env", NULL};
+	// env_command.args = env_args;
+	// execute_env(env_command, shell);
 
-	t_smplcmd env_command;
-	char *env_args[] = {"env", NULL};
-	env_command.args = env_args;
-	execute_env(env_command, shell);
-	
+	t_smplcmd pwd_command;
+	char *pwd_args[] = {"pwd", NULL};
+	pwd_command.args = pwd_args;
+	execute_pwd(pwd_command);
+
 	// t_smplcmd echo_command;
 	// // char *echo_args[] = {"echo", argv[1], argv[2], argv[3], NULL};
 	// char *echo_args[] = {"echo", "-n", "Hallo", "Tschau", NULL};
@@ -112,34 +115,46 @@ int	main(int argc, char **argv, char **envp)
 
 	puts("\nExecute CD");
 	t_smplcmd cd_command;
-	char *cd_args[] = {"cd", "./srcs", NULL};
+	char *cd_args[] = {"cd", "./srcs/../srcs/builtins", NULL};
 	cd_command.args = cd_args;
 	execute_cd(cd_command, &shell);
+	execute_pwd(pwd_command);
 
-	puts("\nEnv after CD\n");
+	t_smplcmd env_command;
+	char *env_args[] = {"env", NULL};
+	env_command.args = env_args;
 	execute_env(env_command, shell);
 
-	puts("\nExecute CD");
-	char *cd_args_2[] = {"cd", "./builtins", NULL};
-	cd_command.args = cd_args_2;
-	execute_cd(cd_command, &shell);
+	puts("\nExport without parameter\n");
+	t_smplcmd export_command;
+	char *export_args[] = {"export", NULL};
+	export_command.args = export_args;
+	execute_export(&shell, export_command);
 
-	puts("\nEnv after CD\n");
-	execute_env(env_command, shell);
+	// puts("\nEnv after CD\n");
+	// execute_env(env_command, shell);
 
-	puts("\nExecute CD");
-	char *cd_args_3[] = {"cd", "..", NULL};
-	cd_command.args = cd_args_3;
-	execute_cd(cd_command, &shell);
+	// puts("\nExecute CD");
+	// char *cd_args_2[] = {"cd", "./builtins", NULL};
+	// cd_command.args = cd_args_2;
+	// execute_cd(cd_command, &shell);
 
-	puts("\nEnv after CD\n");
-	execute_env(env_command, shell);
+	// puts("\nEnv after CD\n");
+	// execute_env(env_command, shell);
 
-	puts("\nExecute CD");
-	char *cd_args_4[] = {"cd", "/nfs/homes/ppfiel/core/03-circle", NULL};
-	cd_command.args = cd_args_4;
-	execute_cd(cd_command, &shell);
+	// puts("\nExecute CD");
+	// char *cd_args_3[] = {"cd", "..", NULL};
+	// cd_command.args = cd_args_3;
+	// execute_cd(cd_command, &shell);
 
-	puts("\nEnv after CD\n");
-	execute_env(env_command, shell);
+	// puts("\nEnv after CD\n");
+	// execute_env(env_command, shell);
+
+	// puts("\nExecute CD");
+	// char *cd_args_4[] = {"cd", "/nfs/homes/ppfiel/core/03-circle", NULL};
+	// cd_command.args = cd_args_4;
+	// execute_cd(cd_command, &shell);
+
+	// puts("\nEnv after CD\n");
+	// execute_env(env_command, shell);
 }

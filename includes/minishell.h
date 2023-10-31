@@ -22,6 +22,9 @@
 # include <sys/wait.h>
 # include <errno.h> // TODO: Are we allowed to use it?
 
+# define ERROR_FATAL 4200
+# define ERROR_INVALID_ARGS 4201
+
 typedef struct s_smplcmd
 {
 	char	*cmd; // do we need this? no i guess
@@ -47,26 +50,33 @@ typedef struct s_vars
 {
 	char	*key;
 	char	*value;
-	t_vars	*next;
+	struct s_vars	*next;
 } t_vars;
 
 
 typedef struct s_shell
 {
-	char 	**env;
-	t_list	*vars;
+	t_vars 	*env;
+	t_vars	*exported_vars;
 } t_shell;
 
 
 
 int	execute_cd(t_smplcmd command, t_shell *shell);
-int	execute_pwd(t_smplcmd command, t_shell shell);
+int	execute_pwd(t_smplcmd command);
 int	execute_env(t_smplcmd command, t_shell shell);
 int	execute_echo(t_smplcmd command);
+int	execute_export(t_shell *shell, t_smplcmd command);
 
 
 int	get_array_size(char **arr);
+int	init_env(char **envp, t_shell *shell);
+t_vars	*find_key(char *key, t_vars *env);
+void	add_env(t_vars **env, t_vars *new);
+t_vars	*new_env(char *key, char *value);
+int	get_pwd_string(char **pwd);
 
-
+void	free_env(t_vars **env);
+void	print_env(t_vars *env);
 
 #endif

@@ -16,7 +16,7 @@ INC_DIR =	./includes/
 LIBFT_DIR =	./libft/
 
 SRC_FILES =		main.c \
-				./builtins/builtin_cd.c ./builtins/builtin_env.c ./builtins/builtin_pwd.c ./builtins/builtin_echo.c
+				./builtins/builtin_cd.c ./builtins/builtin_env.c ./builtins/builtin_pwd.c ./builtins/builtin_echo.c ./builtins/builtin_export.c env_utils.c
 SRCS =			$(addprefix $(SRC_DIR), $(SRC_FILES))
 SRC_OBJS =		$(SRCS:.c=.o)
 
@@ -33,7 +33,7 @@ all:			$(NAME)
 
 $(NAME):		$(SRC_OBJS)
 					make bonus -C $(LIBFT_DIR)
-					$(CC) $(CFLAGS) $(SRC_OBJS) -o $(NAME) $(LIBFT)
+					$(CC) $(CFLAGS) $(SRC_OBJS) -o $(NAME) $(LIBFT) -g
 .c.o:
 				$(CC) $(CFLAGS) -c $(INC_FLAGS) $< -o ${<:.c=.o}
 

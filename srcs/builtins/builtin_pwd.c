@@ -12,43 +12,49 @@
 
 #include "minishell.h"
 
-int	handle_pwd_not_found(void)
+/*
+if (!shell.env)
+		return (handle_pwd_not_found());
+	pwd = find_key("PWD", shell.env);
+	if (!pwd)
+		return (handle_pwd_not_found(), EXIT_FAILURE);
+	ft_putendl_fd(pwd->value, 1);
+	return (EXIT_SUCCESS);
+*/
+
+int	get_pwd_string(char **pwd)
 {
-	// TODO: Try getcwd(...)? Or just throw error message?
-	return (EXIT_FAILURE);
+	char	path[4096];
+	int		error_code;
+
+	if (getcwd(path, sizeof(path)))
+	{
+		*pwd = ft_strdup(path);
+		if (!(*pwd))
+			return (perror("Allocation Error"), (ERROR_FATAL));
+		return (EXIT_SUCCESS);
+	}
+	else
+	{
+		error_code = errno;
+		return (perror("Error while executing getcwd"), (error_code));
+	}
 }
 
-	// char	path[4096];
-	// int		error_code;
-
-	// if (getcwd(path, sizeof(path)))
-	// 	printf("%s\n", path);
-	// else
-	// {
-	// 	error_code = errno;
-	// 	return (perror("Error while executing getcwd"), (error_code)); //TODO: Handle error in here?
-	// }
-	// return (EXIT_SUCCESS);
-int	execute_pwd(t_smplcmd command, t_shell shell)
+int	execute_pwd(t_smplcmd command)
 {
-	int	i;
+	char	*pwd_str;
+	int		error_code;
 
 	if (get_array_size(command.args) != 1)
 	{
 		ft_putstr_fd("Invalid args!\n", 2);
-		return (EXIT_FAILURE);
+		return (ERROR_INVALID_ARGS);
 	}
-	i = 0;
-	if (!shell.env)
-		return (handle_pwd_not_found());
-	while (shell.env[i])
-	{
-		if (ft_strncmp("PWD=", shell.env[i], 4) == 0)
-		{
-			ft_putendl_fd(shell.env[i] + 4, 1);
-			return (EXIT_SUCCESS);
-		}
-		i++;
-	}
-	return (handle_pwd_not_found());
+	error_code = get_pwd_string(&pwd_str);
+	if (error_code != EXIT_SUCCESS)
+		return (error_code);
+	printf("%s\n", pwd_str);
+	free(pwd_str);
+	return (EXIT_SUCCESS);
 }
