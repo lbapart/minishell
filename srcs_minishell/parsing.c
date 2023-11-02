@@ -6,7 +6,7 @@
 /*   By: lbapart <lbapart@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/21 14:50:26 by lbapart           #+#    #+#             */
-/*   Updated: 2023/11/02 16:39:21 by lbapart          ###   ########.fr       */
+/*   Updated: 2023/11/02 22:48:30 by lbapart          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -66,6 +66,11 @@ void	replace_vars_with_values(char **tokens, char **cmd, t_cmd *t_cmd)
 	}
 }
 
+void	set_cmds_to_null(t_cmd **cmds)
+{
+	*cmds = NULL;
+}
+
 void	extract_cmd(char **str_cmd, size_t last_pipe, size_t n, t_cmd **cmds)
 {
 	t_vars	v;
@@ -79,7 +84,7 @@ void	extract_cmd(char **str_cmd, size_t last_pipe, size_t n, t_cmd **cmds)
 	if (!v.tokens)
 		return (free_structs(*cmds), free(*str_cmd), malloc_err());
 	if (!check_redir_tokens(v.tokens))
-		return (free_structs(*cmds), free_dbl_ptr(v.tokens), redir_token_err());
+		return (free_structs(*cmds), set_to_null(cmds), free_dbl_ptr(v.tokens), redir_token_err());
 	while (v.tokens && v.tokens[v.i])
 		(replace_vars_with_values(v.tokens, str_cmd, *cmds),
 			remove_unnecessary_quotes(v.tokens[v.i++]));

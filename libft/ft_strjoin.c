@@ -6,7 +6,7 @@
 /*   By: lbapart <lbapart@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/04 14:35:26 by ppfiel            #+#    #+#             */
-/*   Updated: 2023/11/01 22:00:44 by lbapart          ###   ########.fr       */
+/*   Updated: 2023/11/02 22:30:42 by lbapart          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,7 +22,7 @@ char	*ft_strjoin(char const *s1, char const *s2)
 	size = ft_strlen(s1) + ft_strlen(s2) + 1;
 	str = malloc(size);
 	if (!str)
-		return (free(s1), NULL);
+		return (free((void *)s1), NULL);
 	i = 0;
 	while (s1 && s1[i])
 	{
