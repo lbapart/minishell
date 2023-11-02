@@ -6,7 +6,7 @@
 /*   By: lbapart <lbapart@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/21 14:50:26 by lbapart           #+#    #+#             */
-/*   Updated: 2023/10/31 12:50:17 by lbapart          ###   ########.fr       */
+/*   Updated: 2023/11/02 16:39:21 by lbapart          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -123,19 +123,39 @@ t_cmd	*parse_commands(char *cmd)
 	return (extract_cmd(&cmd, v.last_pipe, v.i, &v.cmds), finish_pars(v.cmds));
 }
 
-int	main(void)
+// int	main(void)
+// {
+// 	char *cmd;
+// 	t_cmd *cmds;
+// 	cmd = ft_strdup("echp << '' > file1");
+// 	if (!cmd)
+// 		return (0);
+// 	cmds = parse_commands(cmd);
+// 	//printf("saassasaas\n");
+// 	print_commands(cmds);
+// 	free_structs(cmds);
+// 	free(cmd);
+// 	return (0);
+// }
+
+int main(void)
 {
-	char *cmd;
-	t_cmd *cmds;
-	cmd = ft_strdup("echo -n");
-	if (!cmd)
-		return (0);
-	cmds = parse_commands(cmd);
-	//printf("saassasaas\n");
-	print_commands(cmds);
-	// execve("/bin/cat", (char *[]){"-e", NULL}, NULL);
-	//printf("%s\n", getenv("?"));
-	free_structs(cmds);
-	free(cmd);
+	char *line;
+
+	while (1)
+	{
+		line = readline("🤡clownshell🤡$ ");
+		if (line == NULL)
+		{
+			break;
+		}
+		if (line[0] != '\0')
+			add_history(line);
+		exec_commands(line);
+		free(line);
+		//rl_redisplay();
+		//rl_on_new_line();
+	}
+	clear_history();
 	return (0);
 }

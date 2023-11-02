@@ -6,7 +6,7 @@
 /*   By: lbapart <lbapart@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/28 17:02:00 by lbapart           #+#    #+#             */
-/*   Updated: 2023/10/31 02:16:43 by lbapart          ###   ########.fr       */
+/*   Updated: 2023/11/02 16:41:11 by lbapart          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,6 +20,8 @@
 # include <unistd.h>
 # include <sys/types.h>
 # include <sys/wait.h>
+# include <readline/readline.h>
+# include <readline/history.h>
 
 # define MALLOCEXIT 1
 # define NOQUOTES 0
@@ -80,6 +82,11 @@ typedef struct s_vars
 	int				hr; // handle result
 } t_vars;
 
+
+// exec.c
+void	exec_commands(char *cmd);
+int		redirect_input_output(t_redirection *redir);
+int		exec_simple_command(t_smplcmd *smplcmd);
 // parsing_error.c
 void			malloc_err(void);
 void			unsupported_char_err(char c);

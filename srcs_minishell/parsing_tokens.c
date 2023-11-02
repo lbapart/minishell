@@ -6,7 +6,7 @@
 /*   By: lbapart <lbapart@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/28 20:56:31 by lbapart           #+#    #+#             */
-/*   Updated: 2023/10/31 02:25:38 by lbapart          ###   ########.fr       */
+/*   Updated: 2023/11/01 21:58:32 by lbapart          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -93,8 +93,8 @@ t_smplcmd	*put_tokens_to_struct(char **tokens, t_cmd *cmd)
 		return (free_dbl_ptr(tokens), free_structs(cmd), NULL);
 	if (!check_and_put_path(tokens, v.smplcmd))
 		return (free_everything(tokens, cmd, v.smplcmd), NULL);
-	if (v.smplcmd->path)
-		v.i++;
+	// if (v.smplcmd->path)
+	// 	v.i++;
 	while (tokens && tokens[v.i])
 	{
 		if (is_redirection(tokens[v.i][0]))
