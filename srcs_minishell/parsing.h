@@ -6,7 +6,7 @@
 /*   By: lbapart <lbapart@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/28 17:02:00 by lbapart           #+#    #+#             */
-/*   Updated: 2023/11/02 22:58:20 by lbapart          ###   ########.fr       */
+/*   Updated: 2023/11/05 20:10:58 by lbapart          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -109,9 +109,9 @@ t_cmd			*lst_cmd_last(t_cmd *lst);
 void			lst_redir_add_back(t_redirection **lst, t_redirection *new);
 t_redirection	*lst_redir_last(t_redirection *lst);
 // parsing.c
-void			create_result_token(t_vars *v, char **tokens, t_cmd *t_cmd, char **cmd);
+void			create_result_command(t_vars *v, t_vars *in_v);
 void			copy_until_pipe(char **str_cmd, char *cmd_to_exec, size_t last_pipe, size_t n);
-void			replace_vars_with_values(char **tokens, char **str_cmd, t_cmd *cmds);
+void			replace_vars_with_values(char **str_cmd, t_vars *v, t_cmd **cmds);
 void			extract_cmd(char **str_cmd, size_t last_pipe, size_t n, t_cmd **cmds);
 t_cmd			*parse_commands(char *cmd);
 // parsing_init.c
@@ -136,7 +136,7 @@ t_smplcmd		*put_tokens_to_struct(char **tokens, t_cmd *cmd);
 void			remove_unnecessary_quotes(char *str);
 int				check_unclosed_quotes(char *cmd);
 int				check_and_put_path(char **tokens, t_smplcmd *smplcmd);
-char			*get_var_name(char *var, char **tokens, t_cmd *t_cmd, char **cmd);
+char			*get_var_name(char *var, t_cmd **t_cmd, char **cmd, char *cmd_to_exec);
 //utils.c
 int 			is_whitespace(char c);
 int 			is_redirection(char c);

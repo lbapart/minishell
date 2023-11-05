@@ -6,29 +6,13 @@
 /*   By: lbapart <lbapart@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/21 14:50:26 by lbapart           #+#    #+#             */
-/*   Updated: 2023/11/05 19:53:29 by lbapart          ###   ########.fr       */
+/*   Updated: 2023/11/05 20:11:40 by lbapart          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "parsing.h"
 
 // getenv should be replaced with custom function
-void	create_result_token(t_vars *v, char **tokens, t_cmd *t_cmd, char **cmd)
-{
-	v->temp = get_var_name(tokens[v->i] + v->j + 1, tokens, t_cmd, cmd);
-	v->res = (char *)malloc(ft_strlen(tokens[v->i]) - (ft_strlen(v->temp) + 1)
-			+ ft_strlen(getenv(v->temp)) + 1);
-	if (!v->res)
-		return (free(v->temp), free_dbl_ptr(tokens), free_and_null(cmd),
-			free_structs(t_cmd), malloc_err());
-	ft_strncpy(v->res, tokens[v->i], v->j);
-	ft_strcat(v->res, getenv(v->temp));
-	ft_strcat(v->res, tokens[v->i] + v->j + ft_strlen(v->temp) + 1);
-	v->j = v->j + ft_strlen(getenv(v->temp));
-	(free(tokens[v->i]), free(v->temp));
-	tokens[v->i] = v->res;
-}
-
 void	copy_until_pipe(char **str_cmd, char *cmd_to_exec,
 					size_t last_pipe, size_t n)
 {
@@ -43,52 +27,22 @@ void	copy_until_pipe(char **str_cmd, char *cmd_to_exec,
 	cmd_to_exec[i] = '\0';
 }
 
-void	replace_vars_with_values(char **tokens, char **cmd, t_cmd *t_cmd)
-{
-	t_vars	v;
-
-	init_vars(&v, NULL);
-	while (tokens && tokens[v.i])
-	{
-		v.j = 0;
-		v.is_open_single_quote = 0;
-		while (tokens[v.i][v.j])
-		{
-			if (tokens[v.i][v.j] == '\'' && !v.is_open_single_quote)
-				v.is_open_single_quote = !v.is_open_single_quote;
-			else if (tokens[v.i][v.j] == '\'' && v.is_open_single_quote)
-				v.is_open_single_quote = !v.is_open_single_quote;
-			if (tokens[v.i][v.j] == '$' && !v.is_open_single_quote)
-				create_result_token(&v, tokens, t_cmd, cmd);
-			v.j++;
-		}
-		v.i++;
-	}
-}
-
 void	set_cmds_to_null(t_cmd **cmds)
 {
 	*cmds = NULL;
 }
 
-char	*get_var_name_new(char *var, t_cmd **t_cmd, char **cmd, char *cmd_to_exec)
+void 	create_result_command(t_vars *v, t_vars *in_v)
 {
-	size_t	i;
-	char	*res;
-
-	i = 0;
-	while (var[i] && is_var_char(var[i]))
-		i++;
-	if (i == 0)
-		return (NULL);
-	res = (char *)malloc(i + 1);
-	if (!res)
-		return (free_structs(*t_cmd), free_and_null(cmd), free(cmd_to_exec), malloc_err(), NULL);
-	ft_strncpy(res, var, i);
-	return (res);
+	ft_strncpy(in_v->res, v->cmd_to_exec, in_v->i);
+	ft_strcat(in_v->res, getenv(in_v->temp));
+	ft_strcat(in_v->res, v->cmd_to_exec + in_v->i + ft_strlen(in_v->temp) + 1);
+	in_v->i = in_v->i + ft_strlen(getenv(in_v->temp));
+	(free(v->cmd_to_exec), free(in_v->temp));
+	v->cmd_to_exec = in_v->res;
 }
 
-void	replace_vars_with_values_new(char **str_cmd, t_vars *v, t_cmd **cmds)
+void	replace_vars_with_values(char **str_cmd, t_vars *v, t_cmd **cmds)
 {
 	t_vars in_v;
 	
@@ -101,7 +55,7 @@ void	replace_vars_with_values_new(char **str_cmd, t_vars *v, t_cmd **cmds)
 			in_v.is_open_single_quote = !in_v.is_open_single_quote;
 		if (v->cmd_to_exec[in_v.i] == '$' && !in_v.is_open_single_quote)
 		{
-			in_v.temp = get_var_name_new(v->cmd_to_exec + in_v.i + 1, cmds, str_cmd, v->cmd_to_exec);
+			in_v.temp = get_var_name(v->cmd_to_exec + in_v.i + 1, cmds, str_cmd, v->cmd_to_exec);
 			if (!in_v.temp && ++in_v.i)
 				continue ;
 			in_v.res = (char *)malloc(ft_strlen(v->cmd_to_exec) - (ft_strlen(in_v.temp) + 1)
@@ -109,12 +63,7 @@ void	replace_vars_with_values_new(char **str_cmd, t_vars *v, t_cmd **cmds)
 			if (!in_v.res)
 				return (free(in_v.temp), free_dbl_ptr(v->tokens), free_and_null(str_cmd),
 					free_structs(*cmds), malloc_err());
-			ft_strncpy(in_v.res, v->cmd_to_exec, in_v.i);
-			ft_strcat(in_v.res, getenv(in_v.temp));
-			ft_strcat(in_v.res, v->cmd_to_exec + in_v.i + ft_strlen(in_v.temp) + 1);
-			in_v.i = in_v.i + ft_strlen(getenv(in_v.temp));
-			(free(v->cmd_to_exec), free(in_v.temp));
-			v->cmd_to_exec = in_v.res;
+			create_result_command(v, &in_v);
 		}
 		in_v.i++;
 	}
@@ -129,7 +78,7 @@ void	extract_cmd(char **str_cmd, size_t last_pipe, size_t n, t_cmd **cmds)
 	if (!v.cmd_to_exec)
 		return (free_structs(*cmds), free(*str_cmd), malloc_err());
 	copy_until_pipe(str_cmd, v.cmd_to_exec, last_pipe, n);
-	replace_vars_with_values_new(str_cmd, &v, cmds);
+	replace_vars_with_values(str_cmd, &v, cmds);
 	v.tokens = split_command_to_tokens(v.cmd_to_exec);
 	if (!v.tokens)
 		return (free_structs(*cmds), free(*str_cmd), malloc_err());

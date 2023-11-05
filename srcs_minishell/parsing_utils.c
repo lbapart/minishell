@@ -6,7 +6,7 @@
 /*   By: lbapart <lbapart@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/28 20:45:58 by lbapart           #+#    #+#             */
-/*   Updated: 2023/11/05 19:08:10 by lbapart          ###   ########.fr       */
+/*   Updated: 2023/11/05 20:10:38 by lbapart          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -86,7 +86,7 @@ int	check_and_put_path(char **tokens, t_smplcmd *smplcmd)
 	return (1);
 }
 
-char	*get_var_name(char *var, char **tokens, t_cmd *t_cmd, char **cmd)
+char	*get_var_name(char *var, t_cmd **t_cmd, char **cmd, char *cmd_to_exec)
 {
 	size_t	i;
 	char	*res;
@@ -98,8 +98,7 @@ char	*get_var_name(char *var, char **tokens, t_cmd *t_cmd, char **cmd)
 		return (NULL);
 	res = (char *)malloc(i + 1);
 	if (!res)
-		return (free_dbl_ptr(tokens), free_structs(t_cmd),
-			free_and_null(cmd), exit(MALLOCEXIT), NULL);
+		return (free_structs(*t_cmd), free_and_null(cmd), free(cmd_to_exec), malloc_err(), NULL);
 	ft_strncpy(res, var, i);
 	return (res);
 }
