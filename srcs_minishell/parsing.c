@@ -6,7 +6,7 @@
 /*   By: lbapart <lbapart@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/21 14:50:26 by lbapart           #+#    #+#             */
-/*   Updated: 2023/11/02 22:48:30 by lbapart          ###   ########.fr       */
+/*   Updated: 2023/11/05 19:53:29 by lbapart          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -71,6 +71,55 @@ void	set_cmds_to_null(t_cmd **cmds)
 	*cmds = NULL;
 }
 
+char	*get_var_name_new(char *var, t_cmd **t_cmd, char **cmd, char *cmd_to_exec)
+{
+	size_t	i;
+	char	*res;
+
+	i = 0;
+	while (var[i] && is_var_char(var[i]))
+		i++;
+	if (i == 0)
+		return (NULL);
+	res = (char *)malloc(i + 1);
+	if (!res)
+		return (free_structs(*t_cmd), free_and_null(cmd), free(cmd_to_exec), malloc_err(), NULL);
+	ft_strncpy(res, var, i);
+	return (res);
+}
+
+void	replace_vars_with_values_new(char **str_cmd, t_vars *v, t_cmd **cmds)
+{
+	t_vars in_v;
+	
+	init_vars(&in_v, NULL);
+	while (v->cmd_to_exec[in_v.i])
+	{
+		if (v->cmd_to_exec[in_v.i] == '\'' && !in_v.is_open_single_quote)
+			in_v.is_open_single_quote = !in_v.is_open_single_quote;
+		else if (v->cmd_to_exec[in_v.i] == '\'' && in_v.is_open_single_quote)
+			in_v.is_open_single_quote = !in_v.is_open_single_quote;
+		if (v->cmd_to_exec[in_v.i] == '$' && !in_v.is_open_single_quote)
+		{
+			in_v.temp = get_var_name_new(v->cmd_to_exec + in_v.i + 1, cmds, str_cmd, v->cmd_to_exec);
+			if (!in_v.temp && ++in_v.i)
+				continue ;
+			in_v.res = (char *)malloc(ft_strlen(v->cmd_to_exec) - (ft_strlen(in_v.temp) + 1)
+					+ ft_strlen(getenv(in_v.temp)) + 1);
+			if (!in_v.res)
+				return (free(in_v.temp), free_dbl_ptr(v->tokens), free_and_null(str_cmd),
+					free_structs(*cmds), malloc_err());
+			ft_strncpy(in_v.res, v->cmd_to_exec, in_v.i);
+			ft_strcat(in_v.res, getenv(in_v.temp));
+			ft_strcat(in_v.res, v->cmd_to_exec + in_v.i + ft_strlen(in_v.temp) + 1);
+			in_v.i = in_v.i + ft_strlen(getenv(in_v.temp));
+			(free(v->cmd_to_exec), free(in_v.temp));
+			v->cmd_to_exec = in_v.res;
+		}
+		in_v.i++;
+	}
+}
+
 void	extract_cmd(char **str_cmd, size_t last_pipe, size_t n, t_cmd **cmds)
 {
 	t_vars	v;
@@ -80,14 +129,14 @@ void	extract_cmd(char **str_cmd, size_t last_pipe, size_t n, t_cmd **cmds)
 	if (!v.cmd_to_exec)
 		return (free_structs(*cmds), free(*str_cmd), malloc_err());
 	copy_until_pipe(str_cmd, v.cmd_to_exec, last_pipe, n);
+	replace_vars_with_values_new(str_cmd, &v, cmds);
 	v.tokens = split_command_to_tokens(v.cmd_to_exec);
 	if (!v.tokens)
 		return (free_structs(*cmds), free(*str_cmd), malloc_err());
 	if (!check_redir_tokens(v.tokens))
-		return (free_structs(*cmds), set_to_null(cmds), free_dbl_ptr(v.tokens), redir_token_err());
+		return (free_structs(*cmds), set_cmds_to_null(cmds), free_dbl_ptr(v.tokens), redir_token_err());
 	while (v.tokens && v.tokens[v.i])
-		(replace_vars_with_values(v.tokens, str_cmd, *cmds),
-			remove_unnecessary_quotes(v.tokens[v.i++]));
+		remove_unnecessary_quotes(v.tokens[v.i++]);
 	v.smplcmd = put_tokens_to_struct(v.tokens, *cmds);
 	if (!v.smplcmd)
 		return (free(*str_cmd), malloc_err());
@@ -132,7 +181,7 @@ t_cmd	*parse_commands(char *cmd)
 // {
 // 	char *cmd;
 // 	t_cmd *cmds;
-// 	cmd = ft_strdup("echp << '' > file1");
+// 	cmd = ft_strdup("$var");
 // 	if (!cmd)
 // 		return (0);
 // 	cmds = parse_commands(cmd);
