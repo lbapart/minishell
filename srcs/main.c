@@ -66,13 +66,15 @@ int	main(int argc, char **argv, char **envp)
 	shell.exported_vars = NULL;
 	shell.last_exit_code = 0;
 
-	cmd = ft_strdup("echo $?");
+	cmd = ft_strdup("echo abc > | wc -l <");
 	if (!cmd)
-		return (0);
+		return (free_all_envs(&shell.env), free_all_envs(&shell.exported_vars), 0);
 	cmds = parse_commands(cmd, &shell);
 	//printf("saassasaas\n");
 	print_commands(cmds);
 	free_structs(&cmds);
+	free_all_envs(&shell.env);
+	free_all_envs(&shell.exported_vars);
 	free(cmd);
 	return (0);
 }

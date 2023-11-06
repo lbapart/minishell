@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   parsing_utils.c                                    :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: lbapart <lbapart@student.42.fr>            +#+  +:+       +#+        */
+/*   By: aapenko <aapenko@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/28 20:45:58 by lbapart           #+#    #+#             */
-/*   Updated: 2023/11/06 18:36:53 by lbapart          ###   ########.fr       */
+/*   Updated: 2023/11/06 20:48:36 by aapenko          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -103,7 +103,7 @@ int	check_unclosed_quotes(char *cmd)
 	return (1);
 }
 
-char	*get_var_name(char *var, t_cmd **t_cmd, char **cmd, char *cmd_to_exec)
+char	*get_var_name(char *var, t_cmd **t_cmd, char **cmd, t_pars_vars *v)
 {
 	size_t	i;
 	char	*res;
@@ -113,7 +113,7 @@ char	*get_var_name(char *var, t_cmd **t_cmd, char **cmd, char *cmd_to_exec)
 	{
 		res = ft_strdup("?");
 		if (!res)
-			return (free_structs(t_cmd), free_and_null(cmd), free(cmd_to_exec), malloc_err(), NULL);
+			return (free_structs(t_cmd), free_and_null(cmd), free(v->cmd_to_exec), free_all_envs(&v->shell->env), free_all_envs(&v->shell->exported_vars), malloc_err(), NULL);
 		return (res);
 	}
 	while (var[i] && is_var_char(var[i]))
@@ -122,7 +122,7 @@ char	*get_var_name(char *var, t_cmd **t_cmd, char **cmd, char *cmd_to_exec)
 		return (NULL);
 	res = (char *)malloc(i + 1);
 	if (!res)
-		return (free_structs(t_cmd), free_and_null(cmd), free(cmd_to_exec), malloc_err(), NULL);
+		return (free_structs(t_cmd), free_and_null(cmd), free(v->cmd_to_exec), free_all_envs(&v->shell->env), free_all_envs(&v->shell->exported_vars), malloc_err(), NULL);
 	ft_strncpy(res, var, i);
 	return (res);
 }

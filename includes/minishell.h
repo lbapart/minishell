@@ -92,6 +92,7 @@ typedef struct s_pars_vars
 	char			*start;
 	char			*end;
 	int				hr; // handle result
+	struct s_shell	*shell;
 } t_pars_vars;
 
 typedef struct s_shell
@@ -171,13 +172,13 @@ t_redirection	*lst_redir_last(t_redirection *lst);
 void			create_result_command(t_pars_vars *v, t_pars_vars *in_v, char *var_value);
 void			copy_until_pipe(char **str_cmd, char *cmd_to_exec, size_t last_pipe, size_t n);
 void			replace_vars_with_values(char **str_cmd, t_pars_vars *v, t_cmd **cmds, t_shell *shell);
-void			extract_cmd(char **str_cmd, t_pars_vars *out_v, t_shell *shell);
+int				extract_cmd(char **str_cmd, t_pars_vars *out_v, t_shell *shell);
 t_cmd			*parse_commands(char *cmd, t_shell *shell);
 // parsing_init.c
 t_smplcmd		*init_simple_command(void);
 t_redirection	*init_redir(void);
 t_cmd			*init_new_cmd(t_shell *shell);
-void			init_vars(t_pars_vars *vars, char *cmd);
+void			init_vars(t_pars_vars *vars, char *cmd, t_shell *shell);
 // parsing_redirections.c
 int				is_redir_token(char *token);
 int				is_valid_token_for_redir(char *token);
@@ -194,7 +195,7 @@ t_smplcmd		*put_tokens_to_struct(char **tokens, t_cmd *cmd);
 // parsing_utils.c
 void			remove_unnecessary_quotes(char *str);
 int				check_unclosed_quotes(char *cmd);
-char			*get_var_name(char *var, t_cmd **t_cmd, char **cmd, char *cmd_to_exec);
+char			*get_var_name(char *var, t_cmd **t_cmd, char **cmd, t_pars_vars *vars);
 //utils.c
 int 			is_whitespace(char c);
 int 			is_redirection(char c);

@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   parsing.c                                          :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: lbapart <lbapart@student.42.fr>            +#+  +:+       +#+        */
+/*   By: aapenko <aapenko@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/21 14:50:26 by lbapart           #+#    #+#             */
-/*   Updated: 2023/11/06 18:51:09 by lbapart          ###   ########.fr       */
+/*   Updated: 2023/11/06 21:26:24 by aapenko          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -58,25 +58,25 @@ void 	create_result_command(t_pars_vars *v, t_pars_vars *in_v, char *var_value)
 	v->cmd_to_exec = in_v->res;
 }
 
-char	*get_var_value(char *key, t_shell *shell, t_cmd **cmds, char **str_cmd)
+char	*get_var_value(char *key, t_pars_vars *v, t_cmd **cmds, char **str_cmd)
 {
 	t_vars *temp;
 	char	*res;
 
 	if (ft_strcmp(key, "?") == 0)
 	{
-		res = ft_itoa(shell->last_exit_code);
+		res = ft_itoa(v->shell->last_exit_code);
 		if (!res)
 			return (free(key), free_structs(cmds), free_and_null(str_cmd),
-				free_all_envs(&shell->env), free_all_envs(&shell->exported_vars),
-				malloc_err(), NULL);
+				free_all_envs(&v->shell->env), free_all_envs(&v->shell->exported_vars),
+				free(v->cmd_to_exec), malloc_err(), NULL);
 		return (res);
 	}
-	temp = shell->env;
+	temp = v->shell->env;
 	temp = find_key(key, temp);
 	if (temp)
 		return (temp->value);
-	temp = shell->exported_vars;
+	temp = v->shell->exported_vars;
 	temp = find_key(key, temp);
 	if (temp)
 		return (temp->value);
@@ -96,7 +96,7 @@ void	replace_vars_with_values(char **str_cmd, t_pars_vars *v, t_cmd **cmds, t_sh
 	t_pars_vars in_v;
 	char		*var_value;
 	
-	init_vars(&in_v, NULL);
+	init_vars(&in_v, NULL, shell);
 	while (v->cmd_to_exec[in_v.i])
 	{
 		if (v->cmd_to_exec[in_v.i] == '\'' && !in_v.is_open_single_quote)
@@ -105,54 +105,55 @@ void	replace_vars_with_values(char **str_cmd, t_pars_vars *v, t_cmd **cmds, t_sh
 			in_v.is_open_single_quote = !in_v.is_open_single_quote;
 		if (v->cmd_to_exec[in_v.i] == '$' && !in_v.is_open_single_quote)
 		{
-			in_v.temp = get_var_name(v->cmd_to_exec + in_v.i + 1, cmds, str_cmd, v->cmd_to_exec);
+			in_v.temp = get_var_name(v->cmd_to_exec + in_v.i + 1, cmds, str_cmd, v);
 			if (!in_v.temp && ++in_v.i)
 				continue ;
-			var_value = get_var_value(in_v.temp, shell, cmds, str_cmd);
+			var_value = get_var_value(in_v.temp, v, cmds, str_cmd);
 			in_v.res = (char *)malloc(ft_strlen(v->cmd_to_exec) - (ft_strlen(in_v.temp) + 1)
-					+ ft_strlen(var_value) + 1);
+					+ ft_strlen(var_value) + 2);
 			if (!in_v.res)
 				return (free_if_question(in_v.temp, var_value), free_dbl_ptr(v->tokens), free_and_null(str_cmd),
-					free_structs(cmds), free_all_envs(&shell->env), free_all_envs(&shell->exported_vars), malloc_err());
+					free_structs(cmds), free_all_envs(&shell->env), free_all_envs(&shell->exported_vars), free(v->cmd_to_exec), malloc_err());
 			create_result_command(v, &in_v, var_value);
 		}
 		in_v.i++;
 	}
 }
 
-void	extract_cmd(char **str_cmd, t_pars_vars *out_v, t_shell *shell) // size_t last_pipe, size_t n, t_cmd **cmds)
+int	extract_cmd(char **str_cmd, t_pars_vars *out_v, t_shell *shell) // size_t last_pipe, size_t n, t_cmd **cmds)
 {
 	t_pars_vars	v;
 
-	init_vars(&v, NULL);
+	init_vars(&v, NULL, shell);
 	v.cmd_to_exec = (char *)malloc(sizeof(char) * (out_v->i - out_v->last_pipe) + 1);
 	if (!v.cmd_to_exec)
-		return (free_structs(&out_v->cmds), free(*str_cmd), malloc_err());
+		return (free_structs(&out_v->cmds), free(*str_cmd), free_all_envs(&shell->env), free_all_envs(&shell->exported_vars), malloc_err(), 0);
 	copy_until_pipe(str_cmd, v.cmd_to_exec, out_v->last_pipe, out_v->i);
 	replace_vars_with_values(str_cmd, &v, &out_v->cmds, shell);
 	v.tokens = split_command_to_tokens(v.cmd_to_exec);
 	if (!v.tokens)
-		return (free_structs(&out_v->cmds), free(*str_cmd), malloc_err());
+		return (free_structs(&out_v->cmds), free(*str_cmd), free_all_envs(&shell->env), free_all_envs(&shell->exported_vars), malloc_err(), 0);
 	if (!check_redir_tokens(v.tokens))
-		return (free_structs(&out_v->cmds), free_dbl_ptr(v.tokens), redir_token_err());
+		return (free_structs(&out_v->cmds), free_dbl_ptr(v.tokens), redir_token_err(), 0);
 	while (v.tokens && v.tokens[v.i])
 		remove_unnecessary_quotes(v.tokens[v.i++]);
 	v.smplcmd = put_tokens_to_struct(v.tokens, out_v->cmds);
 	if (!v.smplcmd)
-		return (free(*str_cmd), malloc_err());
+		return (free(*str_cmd), free_all_envs(&shell->env), free_all_envs(&shell->exported_vars), malloc_err(), 0);
 	free_dbl_ptr(v.tokens);
 	v.new_cmd = init_new_cmd(shell);
 	if (!v.new_cmd)
-		return (free_structs(&out_v->cmds), free(*str_cmd), malloc_err());
+		return (free_structs(&out_v->cmds), free_smplcmd(v.smplcmd), free(*str_cmd), free_all_envs(&shell->env), free_all_envs(&shell->exported_vars), malloc_err(), 0);
 	v.new_cmd->smplcmd = v.smplcmd;
 	lst_cmd_add_back(&out_v->cmds, v.new_cmd);
+	return (1);
 }
 
 t_cmd	*parse_commands(char *cmd, t_shell *shell)
 {
 	t_pars_vars	v;
 
-	init_vars(&v, NULL);
+	init_vars(&v, NULL, shell);
 	if (!cmd || !cmd[0])
 		return (NULL);
 	if (!check_unclosed_quotes(cmd))
@@ -169,10 +170,13 @@ t_cmd	*parse_commands(char *cmd, t_shell *shell)
 			return (free_structs(&v.cmds), unsupported_char_err(cmd[v.i]), NULL);
 		else if (cmd[v.i] == '|' && !v.is_open_single_quote && !v.is_open_double_quote)
 		{
-			extract_cmd(&cmd, &v, shell);
+			if (!extract_cmd(&cmd, &v, shell))
+				return (NULL);
 			v.last_pipe = v.i + 1;
 		}
 		v.i++;
 	}
-	return (extract_cmd(&cmd, &v, shell), finish_pars(v.cmds));
+	if (!extract_cmd(&cmd, &v, shell))
+		return (NULL);
+	return (finish_pars(v.cmds));
 }

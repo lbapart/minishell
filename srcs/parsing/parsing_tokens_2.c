@@ -6,7 +6,7 @@
 /*   By: aapenko <aapenko@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/30 18:56:22 by lbapart           #+#    #+#             */
-/*   Updated: 2023/11/06 12:15:10 by aapenko          ###   ########.fr       */
+/*   Updated: 2023/11/06 21:17:51 by aapenko          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -37,13 +37,13 @@ int	put_token(t_pars_vars *v, char **tokens)
 {
 	char	**temp;
 
-	temp = (char **)ft_realloc(v->smplcmd->args, (v->j + 2) * sizeof(char *));
+	temp = (char **)ft_realloc(v->smplcmd->args, (v->j + 2) * sizeof(char *), v->j * sizeof(char *));
 	if (!temp)
-		return (free_dbl_ptr(v->smplcmd->args), 0);
+		return (0);
 	v->smplcmd->args = temp;
 	v->smplcmd->args[v->j] = ft_strdup(tokens[v->i]);
 	if (!v->smplcmd->args[v->j])
-		return (free_dbl_ptr(v->smplcmd->args), 0);
+		return (0);
 	v->smplcmd->args[v->j + 1] = NULL;
 	v->i++;
 	v->j++;
