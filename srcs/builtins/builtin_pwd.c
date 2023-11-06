@@ -46,6 +46,7 @@ int	execute_pwd(t_smplcmd command)
 	char	*pwd_str;
 	int		error_code;
 
+	//TODO: Check for any additional args allowed?
 	if (get_array_size(command.args) != 1)
 	{
 		ft_putstr_fd("Invalid args!\n", 2);

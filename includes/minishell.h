@@ -6,7 +6,7 @@
 /*   By: ppfiel <ppfiel@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/27 15:25:05 by ppfiel            #+#    #+#             */
-/*   Updated: 2023/10/27 15:25:05 by ppfiel           ###   ########.fr       */
+/*   Updated: 2023/11/04 11:47:41 by ppfiel           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -61,22 +61,41 @@ typedef struct s_shell
 } t_shell;
 
 
+// builtins:
+int		execute_cd(t_smplcmd command, t_shell *shell);
+int		execute_pwd(t_smplcmd command);
+int		execute_env(t_smplcmd command, t_shell shell);
+int		execute_echo(t_smplcmd command);
+int		execute_export(t_shell *shell, t_smplcmd command);
+int		execute_unset(t_smplcmd command, t_shell *shell);
+int		execute_exit(t_smplcmd command);
 
-int	execute_cd(t_smplcmd command, t_shell *shell);
-int	execute_pwd(t_smplcmd command);
-int	execute_env(t_smplcmd command, t_shell shell);
-int	execute_echo(t_smplcmd command);
-int	execute_export(t_shell *shell, t_smplcmd command);
-
-
-int	get_array_size(char **arr);
-int	init_env(char **envp, t_shell *shell);
+int		get_array_size(char **arr);
+int		init_env(char **envp, t_shell *shell);
 t_vars	*find_key(char *key, t_vars *env);
 void	add_env(t_vars **env, t_vars *new);
 t_vars	*new_env(char *key, char *value);
-int	get_pwd_string(char **pwd);
+int		get_pwd_string(char **pwd);
 
-void	free_env(t_vars **env);
+void	free_all_envs(t_vars **env);
 void	print_env(t_vars *env);
+void	remove_env_by_key(t_vars **env, char *key);
+
+void    add_last_env(t_vars **env, t_vars *new);
+
+// builtin_export_utils.c
+void	print_export(t_vars *vars);
+t_vars	*sort_vars(t_vars *vars);
+int		copy_vars(t_vars **dest, t_vars *src);
+void	swap_vars(t_vars *first, t_vars *second);
+int		handle_add_to_env(char *key, char *value, t_shell *t_shell);
+
+// env_create.c
+void	add_env(t_vars **env, t_vars *new);
+void	add_last_env(t_vars **env, t_vars *new);
+int		init_env(char **envp, t_shell *shell);
+t_vars	*parse_str_to_env(char *str);
+t_vars	*new_env(char *key, char *value);
+
 
 #endif

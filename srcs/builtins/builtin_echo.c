@@ -36,7 +36,7 @@ int	execute_echo(t_smplcmd command)
 	arg_count = get_array_size(command.args);
 	if (arg_count == 1)
 	{
-		ft_putstr_fd("\n", 1); // TODO: Check if putstr/putendl can fail or if errno can be set (=write function)?
+		ft_putstr_fd("\n", 1);
 		return (EXIT_SUCCESS);
 	}
 	if (ft_strncmp(command.args[1], "-n", 3) == 0)

@@ -6,65 +6,11 @@
 /*   By: ppfiel <ppfiel@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/10 13:43:11 by ppfiel            #+#    #+#             */
-/*   Updated: 2023/10/13 09:42:40 by ppfiel           ###   ########.fr       */
+/*   Updated: 2023/11/04 11:48:03 by ppfiel           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "minishell.h"
-
-// int	get_failure_and_perror(char *message)
-// {
-// 	perror(message);
-// 	return (EXIT_FAILURE);
-// }
-
-// int	clean_up(t_pipex *pipex)
-// {
-// 	int	status;
-// 	int	exit_status;
-
-// 	exit_status = EXIT_SUCCESS;
-// 	if (close(pipex->pipefd[0]) == -1)
-// 		exit_status = get_failure_and_perror("Error while closing read-pipe");
-// 	if (close(pipex->pipefd[1]) == -1)
-// 		exit_status = get_failure_and_perror("Error while closing write-pipe");
-// 	if (waitpid(pipex->pid_child_1, &status, 0) == -1)
-// 		exit_status = get_failure_and_perror("Error while waitPID");
-// 	if (waitpid(pipex->pid_child_2, &status, 0) == -1)
-// 		exit_status = get_failure_and_perror("Error while waitPID");
-// 	if (close(pipex->outfile_fd) == -1)
-// 		exit_status = get_failure_and_perror("Error while closing output file");
-// 	if (exit_status != EXIT_FAILURE)
-// 		exit_status = WEXITSTATUS(status);
-// 	free_pipex(pipex);
-// 	return (exit_status);
-// }
-
-// int	init_pipex(t_pipex **pipex, char **argv, char **envp)
-// {
-// 	int		out_fd;
-
-// 	if (access(argv[1], R_OK) == -1)
-// 		perror(argv[1]);
-// 	out_fd = open(argv[4], O_TRUNC | O_CREAT | O_RDWR, 0000644);
-// 	if (out_fd == -1)
-// 		return (perror(argv[4]), (0));
-// 	(*pipex) = ft_calloc(1, sizeof(t_pipex));
-// 	if (!(*pipex))
-// 		return (perror("Memory Allocation failed"), (0));
-// 	(*pipex)->argv = argv;
-// 	(*pipex)->outfile_fd = out_fd;
-// 	(*pipex)->paths = get_paths(envp);
-// 	if (!(*pipex)->paths)
-// 	{
-// 		perror("PATH Error");
-// 		close(out_fd);
-// 		return (free((*pipex)), (0));
-// 	}
-// 	if (pipe((*pipex)->pipefd) == -1)
-// 		return (perror("Pipe Error"), close(out_fd), free_pipex((*pipex)), (0));
-// 	return (1);
-// }
 
 int	get_array_size(char **arr)
 {
@@ -79,33 +25,33 @@ int	get_array_size(char **arr)
 
 int	main(int argc, char **argv, char **envp)
 {
-	// t_pipex	*pipex;
-
-	// if (argc != 5)
-	// 	return (ft_putendl_fd("Invalid Args!", 2), (EXIT_FAILURE));
-	// if (!init_pipex(&pipex, argv, envp))
-	// 	return (EXIT_FAILURE);
-	// execute_first_child(pipex);
-	// execute_second_child(pipex);
-	// return (clean_up(pipex));
 	(void) argc;
 	(void) argv;
 	(void) envp;
 
+	// int i = 0;
+	// while (envp[i])
+	// 	printf("%s\n", envp[i++]);
 	t_shell shell;
 	if (init_env(envp, &shell) != EXIT_SUCCESS)
 		return (EXIT_FAILURE);
-	shell.exported_vars = new_env("notexportedyed", "");
+	shell.exported_vars = new_env(ft_strdup("notexportedyed"), ft_strdup(""));
+//	t_vars *temp = shell.exported_vars;
+//	while (temp)
+//	{
+//		printf("%s='%s' (next=%p)\n", temp->key, temp->value, temp->next);
+//		temp = temp->next;
+//	}
 
 	// t_smplcmd env_command;
 	// char *env_args[] = {"env", NULL};
 	// env_command.args = env_args;
 	// execute_env(env_command, shell);
 
-	t_smplcmd pwd_command;
-	char *pwd_args[] = {"pwd", NULL};
-	pwd_command.args = pwd_args;
-	execute_pwd(pwd_command);
+	// t_smplcmd pwd_command;
+	// char *pwd_args[] = {"pwd", NULL};
+	// pwd_command.args = pwd_args;
+	// execute_pwd(pwd_command);
 
 	// t_smplcmd echo_command;
 	// // char *echo_args[] = {"echo", argv[1], argv[2], argv[3], NULL};
@@ -113,23 +59,129 @@ int	main(int argc, char **argv, char **envp)
 	// echo_command.args = echo_args;
 	// execute_echo(echo_command);
 
-	puts("\nExecute CD");
-	t_smplcmd cd_command;
-	char *cd_args[] = {"cd", "./srcs/../srcs/builtins", NULL};
-	cd_command.args = cd_args;
-	execute_cd(cd_command, &shell);
-	execute_pwd(pwd_command);
+	// puts("\nExecute CD");
+	// t_smplcmd cd_command;
+	// char *cd_args[] = {"cd", "../03-minishell/srcs/./builtins", NULL};
+	// cd_command.args = cd_args;
+	// printf("Error Code cd: %d\n", execute_cd(cd_command, &shell));
+	// execute_pwd(pwd_command);
+
+	puts("\nEXECUTE ENV:\n");
 
 	t_smplcmd env_command;
 	char *env_args[] = {"env", NULL};
 	env_command.args = env_args;
 	execute_env(env_command, shell);
+//	temp = shell.exported_vars;
+//	while (temp)
+//	{
+//		printf("%s='%s' (next=%p)\n", temp->key, temp->value, temp->next);
+//		temp = temp->next;
+//	}
 
-	puts("\nExport without parameter\n");
-	t_smplcmd export_command;
+	puts("\nEXPORT without parameter\n");
+	t_smplcmd export_no_args;
 	char *export_args[] = {"export", NULL};
-	export_command.args = export_args;
-	execute_export(&shell, export_command);
+	export_no_args.args = export_args;
+	execute_export(&shell, export_no_args);
+//	temp = shell.exported_vars;
+//	while (temp)
+//	{
+//		printf("%s='%s' (next=%p)\n", temp->key, temp->value, temp->next);
+//		temp = temp->next;
+//	}
+
+	puts("\nEXPORT with 1 Parameter without value\n");
+	t_smplcmd export_one_param_no_value;
+	char *export_one_param_no_valueargs[] = {"export", "hasNoValue", NULL};
+	export_one_param_no_value.args = export_one_param_no_valueargs;
+	printf("Exit-Code: %d\n", execute_export(&shell, export_one_param_no_value));
+	printf("Exit-Code: %d\n", execute_export(&shell, export_one_param_no_value));
+//	temp = shell.exported_vars;
+//	while (temp)
+//	{
+//		printf("%s='%s' (next=%p)\n", temp->key, temp->value, temp->next);
+//		temp = temp->next;
+//	}
+
+
+	puts("\nEXPORT without parameter\n");
+	execute_export(&shell, export_no_args);
+
+	puts("\nEXECUTE ENV:\n");
+	execute_env(env_command, shell);
+
+	puts("\nEXECUTE unset without parameter");
+	t_smplcmd unset_no_param;
+	char *unset_no_valueargs[] = {"unset", NULL};
+	unset_no_param.args = unset_no_valueargs;
+	printf("Exit-Code: %d\n", execute_unset(unset_no_param, &shell));
+
+	puts("\nEXPORT without parameter\n");
+	execute_export(&shell, export_no_args);
+
+	puts("\nEXECUTE unset hasNoValue parameter");
+	t_smplcmd unset_hasnotexported;
+	char *unset_hasnotexported_args[] = {"unset", "hasNoValue", NULL};
+	unset_hasnotexported.args = unset_hasnotexported_args;
+	printf("Exit-Code: %d\n", execute_unset(unset_hasnotexported, &shell));
+
+	puts("\nEXPORT without parameter\n");
+	execute_export(&shell, export_no_args);
+
+	puts("\nEXECUTE unset HOME parameter");
+	t_smplcmd unset_home;
+	char *unset_home_args[] = {"unset", "HOME", NULL};
+	unset_home.args = unset_home_args;
+	printf("Exit-Code: %d\n", execute_unset(unset_home, &shell));
+
+	puts("\nEXPORT without parameter\n");
+	execute_export(&shell, export_no_args);
+
+	puts("\nEXECUTE unset USER notexportedyed SHLVL parameter");
+	t_smplcmd unset_multiple;
+	char *unset_multiple_args[] = {"unset", "USER", "notexportedyed", "SHLVL", NULL};
+	unset_multiple.args = unset_multiple_args;
+	printf("Exit-Code: %d\n", execute_unset(unset_multiple, &shell));
+
+	puts("\nEXPORT without parameter\n");
+	execute_export(&shell, export_no_args);
+
+	puts("\nEXECUTE exit no parameter");
+	t_smplcmd exit_no_args;
+	char *exit_no_args_args[] = {"exit", NULL};
+	exit_no_args.args = exit_no_args_args;
+	printf("Exit-Code: %d\n", execute_exit(exit_no_args));
+
+	puts("\nEXECUTE exit 1 parameter: exit 5");
+	t_smplcmd exit_one_arg;
+	char *exit_one_arg_args[] = {"exit", "5", NULL};
+	exit_one_arg.args = exit_one_arg_args;
+	printf("Exit-Code: %d\n", execute_exit(exit_one_arg));
+
+	puts("\nEXECUTE exit multiple parameter: Invalid --> 1");
+	t_smplcmd exit_multiple_args;
+	char *exit_multiple_args_args[] = {"exit", "5", "3", NULL};
+	exit_multiple_args.args = exit_multiple_args_args;
+	printf("Exit-Code: %d\n", execute_exit(exit_multiple_args));
+
+	puts("\nEXECUTE exit non-numeric parameter: Invalid: numeric argument required --> 2");
+	t_smplcmd exit_non_numeric;
+	char *exit_non_numeric_args[] = {"exit", "5a5", NULL};
+	exit_non_numeric.args = exit_non_numeric_args;
+	printf("Exit-Code: %d\n", execute_exit(exit_non_numeric));
+
+	puts("\nEXECUTE exit 1 parameter with unsigned char overflow: exit -1000 --> 24 ");
+	t_smplcmd exit_overflow;
+	char *exit_overflow_args[] = {"exit", "-1000", NULL};
+	exit_overflow.args = exit_overflow_args;
+	printf("Exit-Code: %d\n", execute_exit(exit_overflow));
+
+	// puts("\nExport without parameter\n");
+	// t_smplcmd export_command;
+	// char *export_args[] = {"export", NULL};
+	// export_command.args = export_args;
+	// execute_export(&shell, export_command);
 
 	// puts("\nEnv after CD\n");
 	// execute_env(env_command, shell);
