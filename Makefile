@@ -16,7 +16,7 @@ INC_DIR =	./includes/
 LIBFT_DIR =	./libft/
 
 SRC_FILES =		main.c \
-				./builtins/builtin_cd.c ./builtins/builtin_env.c ./builtins/builtin_pwd.c ./builtins/builtin_echo.c ./builtins/builtin_export.c ./builtins/builtin_export_utils.c ./builtins/builtin_unset.c ./builtins/builtin_exit.c env_utils.c env_create.c
+				./builtins/builtin_cd.c ./builtins/buildin_cd_utils.c ./builtins/builtin_env.c ./builtins/builtin_pwd.c ./builtins/builtin_echo.c ./builtins/builtin_export.c ./builtins/builtin_export_utils.c ./builtins/builtin_unset.c ./builtins/builtin_exit.c env_utils.c env_create.c
 SRCS =			$(addprefix $(SRC_DIR), $(SRC_FILES))
 SRC_OBJS =		$(SRCS:.c=.o)
 

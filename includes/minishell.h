@@ -53,7 +53,6 @@ typedef struct s_vars
 	struct s_vars	*next;
 } t_vars;
 
-
 typedef struct s_shell
 {
 	t_vars 	*env;
@@ -63,7 +62,7 @@ typedef struct s_shell
 
 // builtins:
 int		execute_cd(t_smplcmd command, t_shell *shell);
-int		execute_pwd(t_smplcmd command);
+int		execute_pwd(void);
 int		execute_env(t_smplcmd command, t_shell shell);
 int		execute_echo(t_smplcmd command);
 int		execute_export(t_shell *shell, t_smplcmd command);
@@ -82,6 +81,9 @@ void	print_env(t_vars *env);
 void	remove_env_by_key(t_vars **env, char *key);
 
 void    add_last_env(t_vars **env, t_vars *new);
+
+// builtin_cd_utils.c
+int	edit_shell_env(t_shell *shell, char *pwd, char *old_pwd);
 
 // builtin_export_utils.c
 void	print_export(t_vars *vars);

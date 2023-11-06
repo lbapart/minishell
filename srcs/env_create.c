@@ -65,6 +65,7 @@ t_vars	*parse_str_to_env(char *str)
 	char	*key;
 	char	*value;
 	int		i;
+	t_vars	*env;
 
 	i = 0;
 	while (str[i] && str[i] != '=')
@@ -77,8 +78,11 @@ t_vars	*parse_str_to_env(char *str)
 	i++;
 	value = ft_substr(str, i, ft_strlen(str));
 	if (!value)
-		return (perror("Allocation failed!"), NULL);
-	return (new_env(key, value));
+		return (perror("Allocation failed!"), free(key), NULL);
+	env = new_env(key, value);
+	if (!env)
+		return (free(key), free(value), NULL);
+	return (env);
 }
 
 t_vars	*new_env(char *key, char *value)

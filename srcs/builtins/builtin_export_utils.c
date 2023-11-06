@@ -66,7 +66,7 @@ int	copy_vars(t_vars **dest, t_vars *src)
 			value = NULL;
 		temp = new_env(key, value);
 		if (!temp)
-			return (free_all_envs(dest), ERROR_FATAL);
+			return (free_all_envs(dest), free(key), free(value), ERROR_FATAL);
 		add_env(dest, temp);
 		src = src->next;
 	}

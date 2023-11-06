@@ -12,45 +12,6 @@
 
 #include "minishell.h"
 
-static int	add_pwd_to_env(char *keystr, char *value, t_shell *shell)
-{
-	char	*key;
-	t_vars	*pwd_env;
-
-	key = ft_strdup(keystr);
-	if (!key)
-		return (perror("cd"), ERROR_FATAL);
-	pwd_env = new_env(key, value);
-	if (!pwd_env)
-		return (free(key), ERROR_FATAL);
-	add_env(&(shell->env), pwd_env);
-	return (EXIT_SUCCESS);
-}
-
-static int	edit_shell_env(t_shell *shell, char *pwd, char *old_pwd)
-{
-	t_vars	*pwd_env;
-	t_vars	*old_pwd_env;
-
-	pwd_env = find_key("PWD", shell->env);
-	if (pwd_env)
-		pwd_env->value = pwd;
-	else
-	{
-		if (add_pwd_to_env("PWD", pwd, shell) != EXIT_SUCCESS)
-			return (ERROR_FATAL);
-	}
-	old_pwd_env = find_key("OLDPWD", shell->env);
-	if (old_pwd_env)
-		old_pwd_env->value = old_pwd;
-	else
-	{
-		if (add_pwd_to_env("OLDPWD", old_pwd, shell) != EXIT_SUCCESS)
-			return (ERROR_FATAL);
-	}
-	return (EXIT_SUCCESS);
-}
-
 static char	*get_home_path(t_shell *shell)
 {
 	t_vars	*home_env;
@@ -96,7 +57,5 @@ int	execute_cd(t_smplcmd command, t_shell *shell)
 	if (error_code != EXIT_SUCCESS)
 		return (free(old_pwd_path), error_code);
 	error_code = edit_shell_env(shell, pwd_path, old_pwd_path);
-	free(pwd_path);
-	free(old_pwd_path);
 	return (error_code);
 }
