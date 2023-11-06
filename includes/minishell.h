@@ -21,29 +21,46 @@
 # include <sys/types.h>
 # include <sys/wait.h>
 # include <errno.h> // TODO: Are we allowed to use it?
+# include <readline/readline.h>
+# include <readline/history.h>
 
 # define ERROR_FATAL 4200
 # define ERROR_INVALID_ARGS 4201
+# define MALLOCEXIT 1
+# define NOQUOTES 0
+# define SINGLEQUOTES 1
+# define DOUBLEQUOTES 2
+# define NOBUILTIN 0
+# define ECHO 1
+# define CD 2
+# define PWD 3
+# define EXPORT 4
+# define UNSET 5
+# define ENV 6
+# define EXIT 7
+# define HIDDEN_QUOTE -20
+
+typedef struct s_redirection
+{
+	char					*file;
+	int						type; // 0 for no redirection, 1 for <, 2 for <<, 3 for >, 4 for >>
+	struct s_redirection	*next;
+} t_redirection;
 
 typedef struct s_smplcmd
 {
-	char	*cmd; // do we need this? no i guess
-	char	**args; // args for execve
-	char	*bultin; // if it's a builtin command
-	char	*input;  // input file
-	int		input_redirection; // 0 for no redirection, 1 for <, 2 for << need to define macros
-	char	*output; // output file
-	int		output_redirection; // 0 for no redirection, 1 for >, 2 for >> need to define macros
+	char			*path; // path to executable
+	char			**args; // args for execve
+	int				builtin; // if it's a builtin command
+	t_redirection	*redir; // input file
 } t_smplcmd;
 
 typedef struct s_cmd
 {
-	char *cmd; // cmd to execute for history
-	int	signal_received; // 0 for no signal, 1 for SIGINT, 2 for SIGQUIT can we put it here and use this struct as global? 
-						// allocate and init it in main. after signal received set it to 1 or 2. then do signal stuff, and set it back to 0 
-	t_smplcmd	*smplcmd; // every simple command separated by pipe. Do you need counter for simple commands?
-	struct s_cmd *next; // next command in history
-	struct s_cmd *prev; // previous command in history
+	t_smplcmd		*smplcmd; // every simple command separated by pipe. Do you need counter for simple commands?
+	struct s_cmd	*next; // next command in history
+	struct s_cmd	*prev; // previous command in history
+	int				last_exit_code;
 } t_cmd;
 
 typedef struct s_vars
@@ -53,11 +70,34 @@ typedef struct s_vars
 	struct s_vars	*next;
 } t_vars;
 
+typedef struct s_pars_vars
+{
+	size_t			i;
+	size_t			j;
+	size_t			last_pipe;
+	char			*temp;
+	char			*res;
+	char			*cmd_to_exec;
+	t_cmd			*cmds;
+	t_cmd			*new_cmd;
+	int				is_open_single_quote;
+	int				is_open_double_quote;
+	t_smplcmd		*smplcmd;
+	t_redirection	*redir;
+	char			**tokens;
+	size_t			tc; // token count
+	int				in_quotes; // 0 for no quotes, 1 for single quotes, 2 for double quotes
+	char			*start;
+	char			*end;
+	int				hr; // handle result
+	int 			last_exit_code;
+} t_pars_vars;
 
 typedef struct s_shell
 {
 	t_vars 	*env;
 	t_vars	*exported_vars;
+	int		last_exit_code;
 } t_shell;
 
 
@@ -97,5 +137,70 @@ int		init_env(char **envp, t_shell *shell);
 t_vars	*parse_str_to_env(char *str);
 t_vars	*new_env(char *key, char *value);
 
+// exec.c
+void			exec_commands(char *cmd, t_shell *shell);
+int				redirect_input_output(t_redirection *redir);
+int				exec_simple_command(t_smplcmd *smplcmd, t_shell *shell);
+int				exec_builtin(t_smplcmd *smplcmd, t_shell *shell);
+// parsing_error.c
+void			malloc_err(void);
+void			unsupported_char_err(char c);
+void			unclosed_quotes_err(void);
+void			double_pipe_err(void);
+void			redir_token_err(void);
+void			unexpected_near_pipe_err(void);
+// parsing_free.c
+void			free_smplcmd(t_smplcmd *smplcmd);
+void			free_structs(t_cmd *cmds);
+void			free_dbl_ptr(char **ptr);
+void			free_and_null(char **str);
+void			free_everything(char **tokens, t_cmd *cmd, t_smplcmd *smplcmd);
+// parsing_finish.c
+t_cmd			*finish_pars(t_cmd *cmd);
+void			set_builtin(t_cmd *cmd);
+// parsing_list_utils.c
+void			lst_cmd_add_back(t_cmd **lst, t_cmd *new);
+t_cmd			*lst_cmd_last(t_cmd *lst);
+void			lst_redir_add_back(t_redirection **lst, t_redirection *new);
+t_redirection	*lst_redir_last(t_redirection *lst);
+// parsing.c
+void			create_result_command(t_pars_vars *v, t_pars_vars *in_v);
+void			copy_until_pipe(char **str_cmd, char *cmd_to_exec, size_t last_pipe, size_t n);
+void			replace_vars_with_values(char **str_cmd, t_pars_vars *v, t_cmd **cmds);
+void			extract_cmd(char **str_cmd, size_t last_pipe, size_t n, t_cmd **cmds);
+t_cmd			*parse_commands(char *cmd, int last_exit_code);
+// parsing_init.c
+t_smplcmd		*init_simple_command(void);
+t_redirection	*init_redir(void);
+t_cmd			*init_new_cmd(void);
+void			init_vars(t_pars_vars *vars, char *cmd, int);
+// parsing_redirections.c
+int				is_redir_token(char *token);
+int				is_valid_token_for_redir(char *token);
+int				check_redir_tokens(char **tokens);
+int				ft_strcmp(char *s1, char *s2);
+// parsing_tokens_2.c
+int				add_redir_to_list(t_pars_vars *v, char **tokens);
+int				put_token(t_pars_vars *v, char **tokens);
+// parsing_tokens.c
+int				handle_token(char **start, char **end, char ***tokens, size_t *token_count);
+int				handle_redirection(char **start, char **end, char ***tokens, size_t *token_count);
+char			**split_command_to_tokens(char *cmd);
+t_smplcmd		*put_tokens_to_struct(char **tokens, t_cmd *cmd);
+// parsing_utils.c
+void			remove_unnecessary_quotes(char *str);
+int				check_unclosed_quotes(char *cmd);
+char			*get_var_name(char *var, t_cmd **t_cmd, char **cmd, char *cmd_to_exec);
+//utils.c
+int 			is_whitespace(char c);
+int 			is_redirection(char c);
+int				set_in_quotes_flag(char c, int *in_quotes, char **ptr);
+int				is_var_char(char c);
+int				is_unsupported_char(char c);
+
+
+
+//temp.c
+void			print_commands(t_cmd *cmds);
 
 #endif
