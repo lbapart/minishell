@@ -6,7 +6,7 @@
 /*   By: lbapart <lbapart@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/21 14:50:26 by lbapart           #+#    #+#             */
-/*   Updated: 2023/11/06 18:43:58 by lbapart          ###   ########.fr       */
+/*   Updated: 2023/11/06 18:51:09 by lbapart          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -52,10 +52,10 @@ void 	create_result_command(t_pars_vars *v, t_pars_vars *in_v, char *var_value)
 	set_hidden_quotes(in_v->res + in_v->i, ft_strlen(in_v->res + in_v->i));
 	ft_strcat(in_v->res, v->cmd_to_exec + in_v->i + ft_strlen(in_v->temp) + 1);
 	in_v->i = in_v->i + ft_strlen(var_value);
+	if (ft_strcmp(in_v->temp, "?") == 0)
+		free(var_value);
 	(free(v->cmd_to_exec), free(in_v->temp));
 	v->cmd_to_exec = in_v->res;
-	if (ft_strcmp(var_value, "?") == 0)
-		free(var_value);
 }
 
 char	*get_var_value(char *key, t_shell *shell, t_cmd **cmds, char **str_cmd)
@@ -83,6 +83,13 @@ char	*get_var_value(char *key, t_shell *shell, t_cmd **cmds, char **str_cmd)
 	return (NULL);
 }
 
+void	free_if_question(char *key, char *var_value)
+{
+	if (ft_strcmp(key, "?") == 0)
+		free(var_value);
+	free(key);
+}
+
 // possible leak in case var_value is ? if malloc in line 105 fails
 void	replace_vars_with_values(char **str_cmd, t_pars_vars *v, t_cmd **cmds, t_shell *shell)
 {
@@ -105,7 +112,7 @@ void	replace_vars_with_values(char **str_cmd, t_pars_vars *v, t_cmd **cmds, t_sh
 			in_v.res = (char *)malloc(ft_strlen(v->cmd_to_exec) - (ft_strlen(in_v.temp) + 1)
 					+ ft_strlen(var_value) + 1);
 			if (!in_v.res)
-				return (free(in_v.temp), free_dbl_ptr(v->tokens), free_and_null(str_cmd),
+				return (free_if_question(in_v.temp, var_value), free_dbl_ptr(v->tokens), free_and_null(str_cmd),
 					free_structs(cmds), free_all_envs(&shell->env), free_all_envs(&shell->exported_vars), malloc_err());
 			create_result_command(v, &in_v, var_value);
 		}
