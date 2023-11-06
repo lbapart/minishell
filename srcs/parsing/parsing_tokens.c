@@ -3,16 +3,16 @@
 /*                                                        :::      ::::::::   */
 /*   parsing_tokens.c                                   :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: aapenko <aapenko@student.42.fr>            +#+  +:+       +#+        */
+/*   By: lbapart <lbapart@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/28 20:56:31 by lbapart           #+#    #+#             */
-/*   Updated: 2023/11/06 21:17:33 by aapenko          ###   ########.fr       */
+/*   Updated: 2023/11/06 23:14:09 by lbapart          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "minishell.h"
 
-int	handle_token(char **start, char **end, char ***tokens, size_t *token_count)
+int	handle_token(char **start, char **end, char ***tokens, size_t *tc)
 {
 	size_t	token_length;
 	char	*token;
@@ -27,13 +27,13 @@ int	handle_token(char **start, char **end, char ***tokens, size_t *token_count)
 		ft_strncpy(token, *start, token_length);
 		token[token_length] = '\0';
 		temp = (char **)ft_realloc(*tokens,
-				(*token_count + 2) * sizeof(char *), *token_count * sizeof(char *));
+				(*tc + 2) * sizeof(char *), *tc * sizeof(char *));
 		if (!temp)
 			return (free(token), 0);
 		*tokens = temp;
-		(*tokens)[*token_count] = token;
-		(*tokens)[*token_count + 1] = NULL;
-		(*token_count)++;
+		(*tokens)[*tc] = token;
+		(*tokens)[*tc + 1] = NULL;
+		(*tc)++;
 	}
 	while (is_whitespace(**end))
 		(*end)++;
@@ -57,7 +57,7 @@ int	handle_redirection(char **start, char **end,
 
 char	**split_command_to_tokens(char *cmd)
 {
-	char	**temp;
+	char		**temp;
 	t_pars_vars	v;
 
 	init_vars(&v, cmd, NULL);
@@ -76,12 +76,11 @@ char	**split_command_to_tokens(char *cmd)
 	}
 	if (!handle_token(&v.start, &v.end, &v.tokens, &v.tc))
 		return (free(cmd), free_dbl_ptr(v.tokens), NULL);
-	temp = (char **)ft_realloc(v.tokens, (v.tc + 1) * sizeof(char *), v.tc * sizeof(char *));
+	temp = (char **)ft_realloc(v.tokens,
+			(v.tc + 1) * sizeof(char *), v.tc * sizeof(char *));
 	if (!temp)
 		return (free(cmd), free_dbl_ptr(v.tokens), NULL);
-	v.tokens = temp;
-	v.tokens[v.tc] = NULL;
-	return (free(cmd), v.tokens);
+	return (finish_split_tokens(cmd, &v, temp));
 }
 
 int	put_path(t_smplcmd *smplcmd)
@@ -92,7 +91,7 @@ int	put_path(t_smplcmd *smplcmd)
 	{
 		smplcmd->path = ft_strdup(smplcmd->args[0]);
 		if (!smplcmd->path)
-			return (0);		
+			return (0);
 	}
 	return (1);
 }

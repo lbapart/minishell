@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   parsing_init.c                                     :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: aapenko <aapenko@student.42.fr>            +#+  +:+       +#+        */
+/*   By: lbapart <lbapart@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/28 20:52:41 by lbapart           #+#    #+#             */
-/*   Updated: 2023/11/06 20:44:07 by aapenko          ###   ########.fr       */
+/*   Updated: 2023/11/06 22:56:03 by lbapart          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -74,4 +74,6 @@ void	init_vars(t_pars_vars *vars, char *cmd, t_shell *shell)
 	vars->hr = 1;
 	vars->redir = NULL;
 	vars->shell = shell;
+	vars->iosq = 0;
+	vars->iodq = 0;
 }

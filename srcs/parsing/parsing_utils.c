@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   parsing_utils.c                                    :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: aapenko <aapenko@student.42.fr>            +#+  +:+       +#+        */
+/*   By: lbapart <lbapart@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/28 20:45:58 by lbapart           #+#    #+#             */
-/*   Updated: 2023/11/06 20:48:36 by aapenko          ###   ########.fr       */
+/*   Updated: 2023/11/06 22:24:39 by lbapart          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -28,17 +28,12 @@ void	remove_unnecessary_quotes(char *str)
 	while (*str_in)
 	{
 		if (*str_in == '\'' && !in_double_quotes)
-		{
 			in_single_quotes = !in_single_quotes;
-			str_in++;
-		}
 		else if (*str_in == '"' && !in_single_quotes)
-		{
 			in_double_quotes = !in_double_quotes;
-			str_in++;
-		}
 		else
-			*(str_out++) = *(str_in++);
+			*(str_out++) = *(str_in);
+		str_in++;
 	}
 	*str_out = '\0';
 }
@@ -77,8 +72,8 @@ int	check_redir_before(char *cmd, size_t n)
 
 int	check_unclosed_quotes(char *cmd)
 {
-	int	in_quotes;
-	size_t i;
+	int		in_quotes;
+	size_t	i;
 
 	in_quotes = 0;
 	i = 0;
@@ -103,7 +98,7 @@ int	check_unclosed_quotes(char *cmd)
 	return (1);
 }
 
-char	*get_var_name(char *var, t_cmd **t_cmd, char **cmd, t_pars_vars *v)
+char	*get_var_name(char *var, t_cmd **struct_cmd, char **cmd, t_pars_vars *v)
 {
 	size_t	i;
 	char	*res;
@@ -113,7 +108,7 @@ char	*get_var_name(char *var, t_cmd **t_cmd, char **cmd, t_pars_vars *v)
 	{
 		res = ft_strdup("?");
 		if (!res)
-			return (free_structs(t_cmd), free_and_null(cmd), free(v->cmd_to_exec), free_all_envs(&v->shell->env), free_all_envs(&v->shell->exported_vars), malloc_err(), NULL);
+			return (free_get_var_name_and_err(struct_cmd, cmd, v), NULL);
 		return (res);
 	}
 	while (var[i] && is_var_char(var[i]))
@@ -122,7 +117,7 @@ char	*get_var_name(char *var, t_cmd **t_cmd, char **cmd, t_pars_vars *v)
 		return (NULL);
 	res = (char *)malloc(i + 1);
 	if (!res)
-		return (free_structs(t_cmd), free_and_null(cmd), free(v->cmd_to_exec), free_all_envs(&v->shell->env), free_all_envs(&v->shell->exported_vars), malloc_err(), NULL);
+		return (free_get_var_name_and_err(struct_cmd, cmd, v), NULL);
 	ft_strncpy(res, var, i);
 	return (res);
 }

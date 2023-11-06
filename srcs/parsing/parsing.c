@@ -3,49 +3,17 @@
 /*                                                        :::      ::::::::   */
 /*   parsing.c                                          :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: aapenko <aapenko@student.42.fr>            +#+  +:+       +#+        */
+/*   By: lbapart <lbapart@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/21 14:50:26 by lbapart           #+#    #+#             */
-/*   Updated: 2023/11/06 21:26:24 by aapenko          ###   ########.fr       */
+/*   Updated: 2023/11/06 23:14:42 by lbapart          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "minishell.h"
 
-// getenv should be replaced with custom function
-void	copy_until_pipe(char **str_cmd, char *cmd_to_exec,
-					size_t last_pipe, size_t n)
-{
-	size_t	i;
-
-	i = 0;
-	while ((*str_cmd) && (*str_cmd)[i + last_pipe] && i + last_pipe < n)
-	{
-		cmd_to_exec[i] = (*str_cmd)[i + last_pipe];
-		i++;
-	}
-	cmd_to_exec[i] = '\0';
-}
-
-void	set_cmds_to_null(t_cmd **cmds)
-{
-	*cmds = NULL;
-}
-
-void	set_hidden_quotes(char *cmd, size_t len)
-{
-	size_t i;
-
-	i = 0;
-	while (i < len)
-	{
-		if (cmd[i] == '\'')
-			cmd[i] = HIDDEN_QUOTE;
-		i++;
-	}
-}
-
-void 	create_result_command(t_pars_vars *v, t_pars_vars *in_v, char *var_value)
+void	create_result_command(t_pars_vars *v, t_pars_vars *in_v,
+				char *var_value)
 {
 	ft_strncpy(in_v->res, v->cmd_to_exec, in_v->i);
 	ft_strcat(in_v->res, var_value);
@@ -58,94 +26,42 @@ void 	create_result_command(t_pars_vars *v, t_pars_vars *in_v, char *var_value)
 	v->cmd_to_exec = in_v->res;
 }
 
-char	*get_var_value(char *key, t_pars_vars *v, t_cmd **cmds, char **str_cmd)
-{
-	t_vars *temp;
-	char	*res;
-
-	if (ft_strcmp(key, "?") == 0)
-	{
-		res = ft_itoa(v->shell->last_exit_code);
-		if (!res)
-			return (free(key), free_structs(cmds), free_and_null(str_cmd),
-				free_all_envs(&v->shell->env), free_all_envs(&v->shell->exported_vars),
-				free(v->cmd_to_exec), malloc_err(), NULL);
-		return (res);
-	}
-	temp = v->shell->env;
-	temp = find_key(key, temp);
-	if (temp)
-		return (temp->value);
-	temp = v->shell->exported_vars;
-	temp = find_key(key, temp);
-	if (temp)
-		return (temp->value);
-	return (NULL);
-}
-
-void	free_if_question(char *key, char *var_value)
-{
-	if (ft_strcmp(key, "?") == 0)
-		free(var_value);
-	free(key);
-}
-
-// possible leak in case var_value is ? if malloc in line 105 fails
-void	replace_vars_with_values(char **str_cmd, t_pars_vars *v, t_cmd **cmds, t_shell *shell)
-{
-	t_pars_vars in_v;
-	char		*var_value;
-	
-	init_vars(&in_v, NULL, shell);
-	while (v->cmd_to_exec[in_v.i])
-	{
-		if (v->cmd_to_exec[in_v.i] == '\'' && !in_v.is_open_single_quote)
-			in_v.is_open_single_quote = !in_v.is_open_single_quote;
-		else if (v->cmd_to_exec[in_v.i] == '\'' && in_v.is_open_single_quote)
-			in_v.is_open_single_quote = !in_v.is_open_single_quote;
-		if (v->cmd_to_exec[in_v.i] == '$' && !in_v.is_open_single_quote)
-		{
-			in_v.temp = get_var_name(v->cmd_to_exec + in_v.i + 1, cmds, str_cmd, v);
-			if (!in_v.temp && ++in_v.i)
-				continue ;
-			var_value = get_var_value(in_v.temp, v, cmds, str_cmd);
-			in_v.res = (char *)malloc(ft_strlen(v->cmd_to_exec) - (ft_strlen(in_v.temp) + 1)
-					+ ft_strlen(var_value) + 2);
-			if (!in_v.res)
-				return (free_if_question(in_v.temp, var_value), free_dbl_ptr(v->tokens), free_and_null(str_cmd),
-					free_structs(cmds), free_all_envs(&shell->env), free_all_envs(&shell->exported_vars), free(v->cmd_to_exec), malloc_err());
-			create_result_command(v, &in_v, var_value);
-		}
-		in_v.i++;
-	}
-}
-
-int	extract_cmd(char **str_cmd, t_pars_vars *out_v, t_shell *shell) // size_t last_pipe, size_t n, t_cmd **cmds)
+int	extract_cmd(char **str_cmd, t_pars_vars *p, t_shell *shell)
 {
 	t_pars_vars	v;
 
 	init_vars(&v, NULL, shell);
-	v.cmd_to_exec = (char *)malloc(sizeof(char) * (out_v->i - out_v->last_pipe) + 1);
+	v.cmd_to_exec = (char *)malloc(sizeof(char) * (p->i - p->last_pipe) + 1);
 	if (!v.cmd_to_exec)
-		return (free_structs(&out_v->cmds), free(*str_cmd), free_all_envs(&shell->env), free_all_envs(&shell->exported_vars), malloc_err(), 0);
-	copy_until_pipe(str_cmd, v.cmd_to_exec, out_v->last_pipe, out_v->i);
-	replace_vars_with_values(str_cmd, &v, &out_v->cmds, shell);
+		return (free_extract_cmd(&p->cmds, str_cmd, shell), malloc_err(), 0);
+	copy_until_pipe(str_cmd, v.cmd_to_exec, p->last_pipe, p->i);
+	replace_vars_with_values(str_cmd, &v, &p->cmds, shell);
 	v.tokens = split_command_to_tokens(v.cmd_to_exec);
 	if (!v.tokens)
-		return (free_structs(&out_v->cmds), free(*str_cmd), free_all_envs(&shell->env), free_all_envs(&shell->exported_vars), malloc_err(), 0);
+		return (free_extract_cmd(&p->cmds, str_cmd, shell), malloc_err(), 0);
 	if (!check_redir_tokens(v.tokens))
-		return (free_structs(&out_v->cmds), free_dbl_ptr(v.tokens), redir_token_err(), 0);
+		return (free_extract_cmd_2(&p->cmds, &v), redir_token_err(), 0);
 	while (v.tokens && v.tokens[v.i])
 		remove_unnecessary_quotes(v.tokens[v.i++]);
-	v.smplcmd = put_tokens_to_struct(v.tokens, out_v->cmds);
+	v.smplcmd = put_tokens_to_struct(v.tokens, p->cmds);
 	if (!v.smplcmd)
-		return (free(*str_cmd), free_all_envs(&shell->env), free_all_envs(&shell->exported_vars), malloc_err(), 0);
+		return (free_extract_cmd_3(str_cmd, shell), malloc_err(), 0);
 	free_dbl_ptr(v.tokens);
 	v.new_cmd = init_new_cmd(shell);
 	if (!v.new_cmd)
-		return (free_structs(&out_v->cmds), free_smplcmd(v.smplcmd), free(*str_cmd), free_all_envs(&shell->env), free_all_envs(&shell->exported_vars), malloc_err(), 0);
+		return (free_ext_cmd4_and_err(&p->cmds, v.smplcmd, str_cmd, shell), 0);
 	v.new_cmd->smplcmd = v.smplcmd;
-	lst_cmd_add_back(&out_v->cmds, v.new_cmd);
+	lst_cmd_add_back(&p->cmds, v.new_cmd);
+	return (1);
+}
+
+int	parse_init_check(char *cmd, t_pars_vars *v, t_shell *shell)
+{
+	if (!cmd || !cmd[0])
+		return (0);
+	if (!check_unclosed_quotes(cmd))
+		return (unclosed_quotes_err(), 0);
+	init_vars(v, NULL, shell);
 	return (1);
 }
 
@@ -153,22 +69,19 @@ t_cmd	*parse_commands(char *cmd, t_shell *shell)
 {
 	t_pars_vars	v;
 
-	init_vars(&v, NULL, shell);
-	if (!cmd || !cmd[0])
+	if (!parse_init_check(cmd, &v, shell))
 		return (NULL);
-	if (!check_unclosed_quotes(cmd))
-		return (unclosed_quotes_err(), NULL);
 	while (cmd && cmd[v.i])
 	{
-		if (cmd[v.i] == '\'' && !v.is_open_double_quote)
-			v.is_open_single_quote = !v.is_open_single_quote;
-		else if (cmd[v.i] == '"' && !v.is_open_single_quote)
-			v.is_open_double_quote = !v.is_open_double_quote;
-		else if (cmd[v.i] == '|' && cmd[v.i + 1] == '|' && !v.is_open_single_quote && !v.is_open_double_quote)
+		if (cmd[v.i] == '\'' && !v.iodq)
+			v.iosq = !v.iosq;
+		else if (cmd[v.i] == '"' && !v.iosq)
+			v.iodq = !v.iodq;
+		else if (cmd[v.i] == '|' && cmd[v.i + 1] == '|' && !v.iosq && !v.iodq)
 			return (free_structs(&v.cmds), double_pipe_err(), NULL);
-		else if (is_unsupported_char(cmd[v.i]) && !v.is_open_single_quote && !v.is_open_double_quote)
-			return (free_structs(&v.cmds), unsupported_char_err(cmd[v.i]), NULL);
-		else if (cmd[v.i] == '|' && !v.is_open_single_quote && !v.is_open_double_quote)
+		else if (is_unsupported_char(cmd[v.i]) && !v.iosq && !v.iodq)
+			return (free_structs(&v.cmds), unsup_char_err(cmd[v.i]), NULL);
+		else if (cmd[v.i] == '|' && !v.iosq && !v.iodq)
 		{
 			if (!extract_cmd(&cmd, &v, shell))
 				return (NULL);

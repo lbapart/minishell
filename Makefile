@@ -20,7 +20,9 @@ SRC_FILES =		main.c \
 				parsing/exec.c parsing/parsing_error.c parsing/parsing_finish.c \
 				parsing/parsing_free.c parsing/parsing_init.c parsing/parsing_list_utils.c \
 				parsing/parsing_redirections.c parsing/parsing_tokens_2.c parsing/parsing_tokens.c \
-				parsing/parsing_utils.c parsing/parsing.c parsing/utils.c parsing/temp.c
+				parsing/parsing_utils.c parsing/parsing.c parsing/utils.c parsing/temp.c \
+				parsing/parsing_utils_2.c parsing/parsing_vars.c parsing/parsing_error_2.c \
+				parsing/parsing_free_2.c parsing/parsing_free_3.c
 
 SRCS =			$(addprefix $(SRC_DIR), $(SRC_FILES))
 SRC_OBJS =		$(SRCS:.c=.o)

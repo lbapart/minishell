@@ -6,7 +6,7 @@
 /*   By: lbapart <lbapart@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/30 22:22:49 by lbapart           #+#    #+#             */
-/*   Updated: 2023/11/06 17:37:23 by lbapart          ###   ########.fr       */
+/*   Updated: 2023/11/06 22:15:59 by lbapart          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -41,7 +41,7 @@ void	set_builtin(t_cmd *cmd)
 
 void	unset_hidden_quotes(char *arg)
 {
-	size_t i;
+	size_t	i;
 
 	i = 0;
 	while (arg && arg[i])
@@ -104,4 +104,11 @@ t_cmd	*finish_pars(t_cmd *cmd)
 	}
 	unset_hidden_dollar(cmd);
 	return (set_builtin(cmd), cmd);
+}
+
+char	**finish_split_tokens(char *cmd, t_pars_vars *v, char **temp)
+{
+	v->tokens = temp;
+	v->tokens[v->tc] = NULL;
+	return (free(cmd), v->tokens);
 }

@@ -93,6 +93,8 @@ typedef struct s_pars_vars
 	char			*end;
 	int				hr; // handle result
 	struct s_shell	*shell;
+	int				iosq;
+	int				iodq;
 } t_pars_vars;
 
 typedef struct s_shell
@@ -147,13 +149,25 @@ void			exec_commands(char *cmd, t_shell *shell);
 int				redirect_input_output(t_redirection *redir);
 int				exec_simple_command(t_smplcmd *smplcmd, t_shell *shell);
 int				exec_builtin(t_smplcmd *smplcmd, t_shell *shell);
+// parsing_error_2.c
+void			unexpected_near_pipe_err(void);
 // parsing_error.c
 void			malloc_err(void);
-void			unsupported_char_err(char c);
+void			unsup_char_err(char c);
 void			unclosed_quotes_err(void);
 void			double_pipe_err(void);
 void			redir_token_err(void);
-void			unexpected_near_pipe_err(void);
+// parsing_free_2.c
+void			free_extract_cmd_2(t_cmd **cmds, t_pars_vars *v);
+void			free_extract_cmd_3(char **str_cmd, t_shell *shell);
+void			free_ext_cmd4_and_err(t_cmd **cmds, t_smplcmd *smplcmd,
+					char **str, t_shell *shell);
+void			free_if_question(char *key, char *var_value);
+void			free_replace_vars(t_cmd **cmds, char **str_cmd, t_pars_vars *v);
+// parsing_free_3.c
+void			free_get_var_name_and_err(t_cmd **struct_cmd, char **cmd,
+					t_pars_vars *v);
+void			free_extract_cmd(t_cmd **cmds, char **str_cmd, t_shell *shell);
 // parsing_free.c
 void			free_smplcmd(t_smplcmd *smplcmd);
 void			free_structs(t_cmd **cmds);
@@ -163,6 +177,7 @@ void			free_everything(char **tokens, t_cmd *cmd, t_smplcmd *smplcmd);
 // parsing_finish.c
 t_cmd			*finish_pars(t_cmd *cmd);
 void			set_builtin(t_cmd *cmd);
+char			**finish_split_tokens(char *cmd, t_pars_vars *v, char **temp);
 // parsing_list_utils.c
 void			lst_cmd_add_back(t_cmd **lst, t_cmd *new);
 t_cmd			*lst_cmd_last(t_cmd *lst);
@@ -172,7 +187,7 @@ t_redirection	*lst_redir_last(t_redirection *lst);
 void			create_result_command(t_pars_vars *v, t_pars_vars *in_v, char *var_value);
 void			copy_until_pipe(char **str_cmd, char *cmd_to_exec, size_t last_pipe, size_t n);
 void			replace_vars_with_values(char **str_cmd, t_pars_vars *v, t_cmd **cmds, t_shell *shell);
-int				extract_cmd(char **str_cmd, t_pars_vars *out_v, t_shell *shell);
+int				extract_cmd(char **str_cmd, t_pars_vars *p, t_shell *shell);
 t_cmd			*parse_commands(char *cmd, t_shell *shell);
 // parsing_init.c
 t_smplcmd		*init_simple_command(void);
@@ -192,10 +207,17 @@ int				handle_token(char **start, char **end, char ***tokens, size_t *token_coun
 int				handle_redirection(char **start, char **end, char ***tokens, size_t *token_count);
 char			**split_command_to_tokens(char *cmd);
 t_smplcmd		*put_tokens_to_struct(char **tokens, t_cmd *cmd);
+int				put_path(t_smplcmd *smplcmd);
 // parsing_utils.c
 void			remove_unnecessary_quotes(char *str);
+void			set_in_quotes_var(char c, int *in_quotes);
+int				check_redir_before(char *cmd, size_t n);
 int				check_unclosed_quotes(char *cmd);
 char			*get_var_name(char *var, t_cmd **t_cmd, char **cmd, t_pars_vars *vars);
+// parsing_utils_2.c
+void			copy_until_pipe(char **str_cmd, char *cmd_to_exec,
+					size_t last_pipe, size_t n);
+void			set_hidden_quotes(char *cmd, size_t len);
 //utils.c
 int 			is_whitespace(char c);
 int 			is_redirection(char c);

@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   parsing_error.c                                    :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: aapenko <aapenko@student.42.fr>            +#+  +:+       +#+        */
+/*   By: lbapart <lbapart@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/30 17:01:32 by lbapart           #+#    #+#             */
-/*   Updated: 2023/11/06 12:15:10 by aapenko          ###   ########.fr       */
+/*   Updated: 2023/11/06 23:01:52 by lbapart          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,7 +18,7 @@ void	malloc_err(void)
 	exit(MALLOCEXIT);
 }
 
-void	unsupported_char_err(char c)
+void	unsup_char_err(char c)
 {
 	ft_putstr_fd("🤡🤡🤡Unsupported character: ", 2);
 	ft_putchar_fd(c, 2);
@@ -38,9 +38,4 @@ void	double_pipe_err(void)
 void	redir_token_err(void)
 {
 	ft_putstr_fd("🤡🤡🤡Redirection error🤡🤡🤡\n", 2);
-}
-
-void	unexpected_near_pipe_err(void)
-{
-	ft_putstr_fd("🤡🤡🤡syntax error near unexpected token '|'🤡🤡🤡\n", 2);
 }

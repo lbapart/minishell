@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   parsing_redirections.c                             :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: aapenko <aapenko@student.42.fr>            +#+  +:+       +#+        */
+/*   By: lbapart <lbapart@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/30 23:14:19 by lbapart           #+#    #+#             */
-/*   Updated: 2023/11/06 12:15:10 by aapenko          ###   ########.fr       */
+/*   Updated: 2023/11/06 22:07:45 by lbapart          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -60,7 +60,7 @@ int	check_redir_tokens(char **tokens)
 	{
 		if (is_redir_token(tokens[i]))
 		{
-			if (result) 
+			if (result)
 				return (0);
 			result = 1;
 		}
