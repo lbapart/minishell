@@ -39,6 +39,7 @@
 # define ENV 6
 # define EXIT 7
 # define HIDDEN_QUOTE -20
+# define HIDDEN_DOLLAR -21
 
 typedef struct s_redirection
 {
@@ -60,7 +61,7 @@ typedef struct s_cmd
 	t_smplcmd		*smplcmd; // every simple command separated by pipe. Do you need counter for simple commands?
 	struct s_cmd	*next; // next command in history
 	struct s_cmd	*prev; // previous command in history
-	int				last_exit_code;
+	struct s_shell	*shell;
 } t_cmd;
 
 typedef struct s_vars
@@ -91,7 +92,6 @@ typedef struct s_pars_vars
 	char			*start;
 	char			*end;
 	int				hr; // handle result
-	int 			last_exit_code;
 } t_pars_vars;
 
 typedef struct s_shell
@@ -155,7 +155,7 @@ void			redir_token_err(void);
 void			unexpected_near_pipe_err(void);
 // parsing_free.c
 void			free_smplcmd(t_smplcmd *smplcmd);
-void			free_structs(t_cmd *cmds);
+void			free_structs(t_cmd **cmds);
 void			free_dbl_ptr(char **ptr);
 void			free_and_null(char **str);
 void			free_everything(char **tokens, t_cmd *cmd, t_smplcmd *smplcmd);
@@ -168,16 +168,16 @@ t_cmd			*lst_cmd_last(t_cmd *lst);
 void			lst_redir_add_back(t_redirection **lst, t_redirection *new);
 t_redirection	*lst_redir_last(t_redirection *lst);
 // parsing.c
-void			create_result_command(t_pars_vars *v, t_pars_vars *in_v);
+void			create_result_command(t_pars_vars *v, t_pars_vars *in_v, char *var_value);
 void			copy_until_pipe(char **str_cmd, char *cmd_to_exec, size_t last_pipe, size_t n);
-void			replace_vars_with_values(char **str_cmd, t_pars_vars *v, t_cmd **cmds);
-void			extract_cmd(char **str_cmd, size_t last_pipe, size_t n, t_cmd **cmds);
-t_cmd			*parse_commands(char *cmd, int last_exit_code);
+void			replace_vars_with_values(char **str_cmd, t_pars_vars *v, t_cmd **cmds, t_shell *shell);
+void			extract_cmd(char **str_cmd, t_pars_vars *out_v, t_shell *shell);
+t_cmd			*parse_commands(char *cmd, t_shell *shell);
 // parsing_init.c
 t_smplcmd		*init_simple_command(void);
 t_redirection	*init_redir(void);
-t_cmd			*init_new_cmd(void);
-void			init_vars(t_pars_vars *vars, char *cmd, int);
+t_cmd			*init_new_cmd(t_shell *shell);
+void			init_vars(t_pars_vars *vars, char *cmd);
 // parsing_redirections.c
 int				is_redir_token(char *token);
 int				is_valid_token_for_redir(char *token);

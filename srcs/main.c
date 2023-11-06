@@ -54,17 +54,25 @@ int	get_array_size(char **arr)
 // 	return (0);
 // }
 
-int	main(void)
+int	main(int argc, char **argv, char **envp)
 {
+	(void)argc;
+	(void)argv;
 	char *cmd;
 	t_cmd *cmds;
-	cmd = ft_strdup("export abc=\"echo abc\"");
+	t_shell shell;
+	if (init_env(envp, &shell) != EXIT_SUCCESS)
+		return (EXIT_FAILURE);
+	shell.exported_vars = NULL;
+	shell.last_exit_code = 0;
+
+	cmd = ft_strdup("echo $?");
 	if (!cmd)
 		return (0);
-	cmds = parse_commands(cmd, 0);
+	cmds = parse_commands(cmd, &shell);
 	//printf("saassasaas\n");
 	print_commands(cmds);
-	free_structs(cmds);
+	free_structs(&cmds);
 	free(cmd);
 	return (0);
 }

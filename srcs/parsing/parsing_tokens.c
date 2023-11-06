@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   parsing_tokens.c                                   :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: aapenko <aapenko@student.42.fr>            +#+  +:+       +#+        */
+/*   By: lbapart <lbapart@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/28 20:56:31 by lbapart           #+#    #+#             */
-/*   Updated: 2023/11/06 12:24:18 by aapenko          ###   ########.fr       */
+/*   Updated: 2023/11/06 18:09:39 by lbapart          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -59,7 +59,7 @@ char	**split_command_to_tokens(char *cmd)
 	char	**temp;
 	t_pars_vars	v;
 
-	init_vars(&v, cmd, 0);
+	init_vars(&v, cmd);
 	while (*v.end)
 	{
 		if (set_in_quotes_flag(*v.end, &v.in_quotes, &v.end))
@@ -100,10 +100,10 @@ t_smplcmd	*put_tokens_to_struct(char **tokens, t_cmd *cmd)
 {
 	t_pars_vars	v;
 
-	init_vars(&v, NULL, 0);
+	init_vars(&v, NULL);
 	v.smplcmd = init_simple_command();
 	if (!v.smplcmd)
-		return (free_dbl_ptr(tokens), free_structs(cmd), NULL);
+		return (free_dbl_ptr(tokens), free_structs(&cmd), NULL);
 	while (tokens && tokens[v.i])
 	{
 		if (is_redirection(tokens[v.i][0]))

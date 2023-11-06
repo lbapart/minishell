@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   parsing_init.c                                     :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: aapenko <aapenko@student.42.fr>            +#+  +:+       +#+        */
+/*   By: lbapart <lbapart@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/28 20:52:41 by lbapart           #+#    #+#             */
-/*   Updated: 2023/11/06 12:22:56 by aapenko          ###   ########.fr       */
+/*   Updated: 2023/11/06 17:51:26 by lbapart          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -39,7 +39,7 @@ t_redirection	*init_redir(void)
 	return (redir);
 }
 
-t_cmd	*init_new_cmd(void)
+t_cmd	*init_new_cmd(t_shell *shell)
 {
 	t_cmd	*new_cmd;
 
@@ -47,12 +47,13 @@ t_cmd	*init_new_cmd(void)
 	if (!new_cmd)
 		return (NULL);
 	new_cmd->smplcmd = NULL;
+	new_cmd->shell = shell;
 	new_cmd->next = NULL;
 	new_cmd->prev = NULL;
 	return (new_cmd);
 }
 
-void	init_vars(t_pars_vars *vars, char *cmd, int last_exit_code)
+void	init_vars(t_pars_vars *vars, char *cmd)
 {
 	vars->i = 0;
 	vars->j = 0;
@@ -72,5 +73,4 @@ void	init_vars(t_pars_vars *vars, char *cmd, int last_exit_code)
 	vars->end = cmd;
 	vars->hr = 1;
 	vars->redir = NULL;
-	vars->last_exit_code = last_exit_code;
 }

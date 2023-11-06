@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   parsing_free.c                                     :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: aapenko <aapenko@student.42.fr>            +#+  +:+       +#+        */
+/*   By: lbapart <lbapart@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/28 20:32:40 by lbapart           #+#    #+#             */
-/*   Updated: 2023/11/06 12:15:10 by aapenko          ###   ########.fr       */
+/*   Updated: 2023/11/06 17:37:42 by lbapart          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -34,19 +34,20 @@ void	free_smplcmd(t_smplcmd *smplcmd)
 	free(smplcmd);
 }
 
-void	free_structs(t_cmd *cmds)
+void	free_structs(t_cmd **cmds)
 {
 	t_cmd			*tmp;
 	t_smplcmd		*smplcmd;
 
-	tmp = cmds;
+	tmp = *cmds;
 	while (tmp)
 	{
 		smplcmd = tmp->smplcmd;
 		free_smplcmd(smplcmd);
-		cmds = tmp;
+		*cmds = tmp;
 		tmp = tmp->next;
-		free(cmds);
+		free(*cmds);
+		*cmds = NULL;
 	}
 }
 
@@ -71,5 +72,5 @@ void	free_everything(char **tokens, t_cmd *cmd, t_smplcmd *smplcmd)
 {
 	free_dbl_ptr(tokens);
 	free_smplcmd(smplcmd);
-	free_structs(cmd);
+	free_structs(&cmd);
 }

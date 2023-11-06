@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   exec.c                                             :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: aapenko <aapenko@student.42.fr>            +#+  +:+       +#+        */
+/*   By: lbapart <lbapart@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/02 15:45:19 by lbapart           #+#    #+#             */
-/*   Updated: 2023/11/06 12:42:01 by aapenko          ###   ########.fr       */
+/*   Updated: 2023/11/06 18:32:24 by lbapart          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,7 +19,7 @@ int	exec_builtin(t_smplcmd *smplcmd, t_shell *shell)
 	if (smplcmd->builtin == CD)
 		return (execute_cd(*smplcmd, shell));
 	if (smplcmd->builtin == PWD)
-		return (execute_pwd(*smplcmd));
+		return (execute_pwd());
 	if (smplcmd->builtin == EXPORT)
 		return (execute_export(shell, *smplcmd));
 	if (smplcmd->builtin == UNSET)
@@ -45,7 +45,7 @@ void	exec_commands(char *cmd, t_shell *shell)
 	int		fd[2];
 	int		prev_fd = STDIN_FILENO;
 
-	cmds = parse_commands(cmd, 0);
+	cmds = parse_commands(cmd, shell);
 	if (!cmds)
 		return ;
 	temp = cmds;
@@ -95,7 +95,7 @@ void	exec_commands(char *cmd, t_shell *shell)
 		}
 		temp = temp->next;
 	}
-	free_structs(cmds);
+	free_structs(&cmds);
 	return ;
 }
 

@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   parsing_finish.c                                   :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: aapenko <aapenko@student.42.fr>            +#+  +:+       +#+        */
+/*   By: lbapart <lbapart@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/30 22:22:49 by lbapart           #+#    #+#             */
-/*   Updated: 2023/11/06 12:15:10 by aapenko          ###   ########.fr       */
+/*   Updated: 2023/11/06 17:37:23 by lbapart          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -52,6 +52,31 @@ void	unset_hidden_quotes(char *arg)
 	}
 }
 
+void	unset_hidden_dollar(t_cmd *cmd)
+{
+	t_cmd			*temp;
+	t_redirection	*redir;
+	size_t			i;
+
+	temp = cmd;
+	while (temp)
+	{
+		redir = temp->smplcmd->redir;
+		while (redir)
+		{
+			i = 0;
+			while (redir->file && redir->file[i])
+			{
+				if (redir->file[i] == HIDDEN_DOLLAR)
+					redir->file[i] = '$';
+				i++;
+			}
+			redir = redir->next;
+		}
+		temp = temp->next;
+	}
+}
+
 t_cmd	*finish_pars(t_cmd *cmd)
 {
 	t_cmd	*temp;
@@ -70,13 +95,13 @@ t_cmd	*finish_pars(t_cmd *cmd)
 		if (!temp->smplcmd->args && !temp->smplcmd->redir)
 		{
 			if (temp->next || count > 0)
-				return (free_structs(cmd), unexpected_near_pipe_err(), NULL);
+				return (free_structs(&cmd), unexpected_near_pipe_err(), NULL);
 			else
-				return (free_structs(cmd), NULL);
+				return (free_structs(&cmd), NULL);
 		}
 		count++;
 		temp = temp->next;
 	}
-	set_builtin(cmd);
-	return (cmd);
+	unset_hidden_dollar(cmd);
+	return (set_builtin(cmd), cmd);
 }
