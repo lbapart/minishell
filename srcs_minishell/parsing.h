@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   parsing.h                                          :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: lbapart <lbapart@student.42.fr>            +#+  +:+       +#+        */
+/*   By: aapenko <aapenko@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/28 17:02:00 by lbapart           #+#    #+#             */
-/*   Updated: 2023/11/05 20:10:58 by lbapart          ###   ########.fr       */
+/*   Updated: 2023/11/06 11:19:50 by aapenko          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -35,8 +35,7 @@
 # define UNSET 5
 # define ENV 6
 # define EXIT 7
-# define VALASSIGN 8
-# define ASSIGN_SYNTAX_ERR 9
+# define HIDDEN_QUOTE -20
 
 typedef struct s_redirection
 {
@@ -135,7 +134,6 @@ t_smplcmd		*put_tokens_to_struct(char **tokens, t_cmd *cmd);
 // parsing_utils.c
 void			remove_unnecessary_quotes(char *str);
 int				check_unclosed_quotes(char *cmd);
-int				check_and_put_path(char **tokens, t_smplcmd *smplcmd);
 char			*get_var_name(char *var, t_cmd **t_cmd, char **cmd, char *cmd_to_exec);
 //utils.c
 int 			is_whitespace(char c);

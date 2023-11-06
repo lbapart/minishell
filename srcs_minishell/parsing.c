@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   parsing.c                                          :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: lbapart <lbapart@student.42.fr>            +#+  +:+       +#+        */
+/*   By: aapenko <aapenko@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/21 14:50:26 by lbapart           #+#    #+#             */
-/*   Updated: 2023/11/05 20:11:40 by lbapart          ###   ########.fr       */
+/*   Updated: 2023/11/06 11:30:39 by aapenko          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -32,10 +32,24 @@ void	set_cmds_to_null(t_cmd **cmds)
 	*cmds = NULL;
 }
 
+void	set_hidden_quotes(char *cmd, size_t len)
+{
+	size_t i;
+
+	i = 0;
+	while (i < len)
+	{
+		if (cmd[i] == '\'')
+			cmd[i] = HIDDEN_QUOTE;
+		i++;
+	}
+}
+
 void 	create_result_command(t_vars *v, t_vars *in_v)
 {
 	ft_strncpy(in_v->res, v->cmd_to_exec, in_v->i);
 	ft_strcat(in_v->res, getenv(in_v->temp));
+	set_hidden_quotes(in_v->res + in_v->i, ft_strlen(in_v->res + in_v->i));
 	ft_strcat(in_v->res, v->cmd_to_exec + in_v->i + ft_strlen(in_v->temp) + 1);
 	in_v->i = in_v->i + ft_strlen(getenv(in_v->temp));
 	(free(v->cmd_to_exec), free(in_v->temp));
@@ -126,39 +140,39 @@ t_cmd	*parse_commands(char *cmd)
 	return (extract_cmd(&cmd, v.last_pipe, v.i, &v.cmds), finish_pars(v.cmds));
 }
 
-// int	main(void)
-// {
-// 	char *cmd;
-// 	t_cmd *cmds;
-// 	cmd = ft_strdup("$var");
-// 	if (!cmd)
-// 		return (0);
-// 	cmds = parse_commands(cmd);
-// 	//printf("saassasaas\n");
-// 	print_commands(cmds);
-// 	free_structs(cmds);
-// 	free(cmd);
-// 	return (0);
-// }
-
-int main(void)
+int	main(void)
 {
-	char *line;
-
-	while (1)
-	{
-		line = readline("🤡clownshell🤡$ ");
-		if (line == NULL)
-		{
-			break;
-		}
-		if (line[0] != '\0')
-			add_history(line);
-		exec_commands(line);
-		free(line);
-		//rl_redisplay();
-		//rl_on_new_line();
-	}
-	clear_history();
+	char *cmd;
+	t_cmd *cmds;
+	cmd = ft_strdup("$var");
+	if (!cmd)
+		return (0);
+	cmds = parse_commands(cmd);
+	//printf("saassasaas\n");
+	print_commands(cmds);
+	free_structs(cmds);
+	free(cmd);
 	return (0);
 }
+
+// int main(void)
+// {
+// 	char *line;
+
+// 	while (1)
+// 	{
+// 		line = readline("🤡clownshell🤡$ ");
+// 		if (line == NULL)
+// 		{
+// 			break;
+// 		}
+// 		if (line[0] != '\0')
+// 			add_history(line);
+// 		exec_commands(line);
+// 		free(line);
+// 		//rl_redisplay();
+// 		//rl_on_new_line();
+// 	}
+// 	clear_history();
+// 	return (0);
+// }

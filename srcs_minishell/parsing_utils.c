@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   parsing_utils.c                                    :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: lbapart <lbapart@student.42.fr>            +#+  +:+       +#+        */
+/*   By: aapenko <aapenko@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/28 20:45:58 by lbapart           #+#    #+#             */
-/*   Updated: 2023/11/05 20:10:38 by lbapart          ###   ########.fr       */
+/*   Updated: 2023/11/06 11:12:22 by aapenko          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -68,21 +68,6 @@ int	check_unclosed_quotes(char *cmd)
 	}
 	if (in_quotes)
 		return (0);
-	return (1);
-}
-
-int	check_and_put_path(char **tokens, t_smplcmd *smplcmd)
-{
-	if (tokens && tokens[0] && (tokens[0][0] == '/' || tokens[0][0] == '.'))
-	{
-		smplcmd->path = ft_strdup(tokens[0]);
-		if (!smplcmd->path)
-			return (0);
-	}
-	else
-	{
-		smplcmd->path = NULL;
-	}
 	return (1);
 }
 

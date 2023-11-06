@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   utils.c                                            :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: lbapart <lbapart@student.42.fr>            +#+  +:+       +#+        */
+/*   By: aapenko <aapenko@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/28 20:35:33 by lbapart           #+#    #+#             */
-/*   Updated: 2023/10/31 00:50:03 by lbapart          ###   ########.fr       */
+/*   Updated: 2023/11/06 11:29:56 by aapenko          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -29,7 +29,7 @@ int	is_redirection(char c)
 // *v.end v.in_quotes, 
 int	set_in_quotes_flag(char c, int *in_quotes, char **ptr)
 {
-	if (c == '\'' && *in_quotes != 2)
+	if ((c == '\'' || c == HIDDEN_QUOTE) && *in_quotes != 2)
 	{
 		if (*in_quotes == 1)
 			*in_quotes = 0;

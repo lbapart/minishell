@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   parsing_finish.c                                   :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: lbapart <lbapart@student.42.fr>            +#+  +:+       +#+        */
+/*   By: aapenko <aapenko@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/30 22:22:49 by lbapart           #+#    #+#             */
-/*   Updated: 2023/10/31 02:51:50 by lbapart          ###   ########.fr       */
+/*   Updated: 2023/11/06 11:36:25 by aapenko          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -39,15 +39,34 @@ void	set_builtin(t_cmd *cmd)
 	}
 }
 
+void	unset_hidden_quotes(char *arg)
+{
+	size_t i;
+
+	i = 0;
+	while (arg && arg[i])
+	{
+		if (arg[i] == HIDDEN_QUOTE)
+			arg[i] = '\'';
+		i++;
+	}
+}
+
 t_cmd	*finish_pars(t_cmd *cmd)
 {
 	t_cmd	*temp;
 	size_t	count;
+	size_t	i;
 
 	temp = cmd;
 	count = 0;
 	while (temp)
 	{
+		i = 0;
+		if (temp->smplcmd->path)
+			unset_hidden_quotes(temp->smplcmd->path);
+		while (temp->smplcmd->args && temp->smplcmd->args[i])
+			unset_hidden_quotes(temp->smplcmd->args[i++]);
 		if (!temp->smplcmd->args && !temp->smplcmd->redir)
 		{
 			if (temp->next || count > 0)

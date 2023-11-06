@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   parsing_tokens.c                                   :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: lbapart <lbapart@student.42.fr>            +#+  +:+       +#+        */
+/*   By: aapenko <aapenko@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/28 20:56:31 by lbapart           #+#    #+#             */
-/*   Updated: 2023/11/01 21:58:32 by lbapart          ###   ########.fr       */
+/*   Updated: 2023/11/06 11:25:18 by aapenko          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -83,6 +83,19 @@ char	**split_command_to_tokens(char *cmd)
 	return (free(cmd), v.tokens);
 }
 
+int	put_path(t_smplcmd *smplcmd)
+{
+	if (!smplcmd->args)
+		return (1);
+	else
+	{
+		smplcmd->path = ft_strdup(smplcmd->args[0]);
+		if (!smplcmd->path)
+			return (0);		
+	}
+	return (1);
+}
+
 t_smplcmd	*put_tokens_to_struct(char **tokens, t_cmd *cmd)
 {
 	t_vars	v;
@@ -91,18 +104,12 @@ t_smplcmd	*put_tokens_to_struct(char **tokens, t_cmd *cmd)
 	v.smplcmd = init_simple_command();
 	if (!v.smplcmd)
 		return (free_dbl_ptr(tokens), free_structs(cmd), NULL);
-	if (!check_and_put_path(tokens, v.smplcmd))
-		return (free_everything(tokens, cmd, v.smplcmd), NULL);
-	// if (v.smplcmd->path)
-	// 	v.i++;
 	while (tokens && tokens[v.i])
 	{
 		if (is_redirection(tokens[v.i][0]))
 		{
 			if (!add_redir_to_list(&v, tokens))
 				return (free_everything(tokens, cmd, v.smplcmd), NULL);
-			if (!tokens[v.i + 1])
-				break ;
 		}
 		else
 		{
@@ -110,5 +117,7 @@ t_smplcmd	*put_tokens_to_struct(char **tokens, t_cmd *cmd)
 				return (free_everything(tokens, cmd, v.smplcmd), NULL);
 		}
 	}
+	if (!put_path(v.smplcmd))
+		return (free_everything(tokens, cmd, v.smplcmd), NULL);
 	return (v.smplcmd);
 }
