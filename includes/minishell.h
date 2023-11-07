@@ -58,6 +58,8 @@ typedef struct s_smplcmd
 
 typedef struct s_cmd
 {
+	pid_t			pid;
+	int				pipe[2];
 	t_smplcmd		*smplcmd; // every simple command separated by pipe. Do you need counter for simple commands?
 	struct s_cmd	*next; // next command in history
 	struct s_cmd	*prev; // previous command in history
@@ -185,7 +187,7 @@ void			lst_redir_add_back(t_redirection **lst, t_redirection *new);
 t_redirection	*lst_redir_last(t_redirection *lst);
 // parsing.c
 void			create_result_command(t_pars_vars *v, t_pars_vars *in_v, char *var_value);
-void			set_prev_cmds(t_cmd *cmds)
+void			set_prev_cmds(t_cmd *cmds);
 void			replace_vars_with_values(char **str_cmd, t_pars_vars *v, t_cmd **cmds, t_shell *shell);
 int				extract_cmd(char **str_cmd, t_pars_vars *p, t_shell *shell);
 t_cmd			*parse_commands(char *cmd, t_shell *shell);

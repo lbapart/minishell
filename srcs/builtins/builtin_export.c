@@ -96,8 +96,9 @@ int	handle_variable_assignment(char *arg, t_shell *shell)
 		}
 		if (handle_add_replace_to_env(arg, shell, equal_pos) != EXIT_SUCCESS)
 			return (ERROR_FATAL);
+		return (EXIT_SUCCESS);
 	}
-	return (EXIT_SUCCESS);
+	return (-1);
 }
 
 int	execute_export(t_shell *shell, t_smplcmd command)
@@ -117,7 +118,7 @@ int	execute_export(t_shell *shell, t_smplcmd command)
 			return (ERROR_FATAL);
 		else if (error_code == EXIT_FAILURE)
 			exit_code = EXIT_FAILURE;
-		else
+		else if (error_code == -1)
 		{
 			if (handle_add_to_exported(command.args[i], shell) != EXIT_SUCCESS)
 				return (ERROR_FATAL);
