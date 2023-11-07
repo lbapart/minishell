@@ -6,7 +6,7 @@
 /*   By: lbapart <lbapart@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/21 14:50:26 by lbapart           #+#    #+#             */
-/*   Updated: 2023/11/06 23:14:42 by lbapart          ###   ########.fr       */
+/*   Updated: 2023/11/07 15:56:25 by lbapart          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -63,6 +63,19 @@ int	parse_init_check(char *cmd, t_pars_vars *v, t_shell *shell)
 		return (unclosed_quotes_err(), 0);
 	init_vars(v, NULL, shell);
 	return (1);
+}
+
+void	set_prev_cmds(t_cmd *cmds)
+{
+	t_cmd	*temp;
+
+	temp = cmds;
+	while (temp)
+	{
+		if (temp->next)
+			temp->next->prev = temp;
+		temp = temp->next;
+	}
 }
 
 t_cmd	*parse_commands(char *cmd, t_shell *shell)

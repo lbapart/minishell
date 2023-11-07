@@ -185,7 +185,7 @@ void			lst_redir_add_back(t_redirection **lst, t_redirection *new);
 t_redirection	*lst_redir_last(t_redirection *lst);
 // parsing.c
 void			create_result_command(t_pars_vars *v, t_pars_vars *in_v, char *var_value);
-void			copy_until_pipe(char **str_cmd, char *cmd_to_exec, size_t last_pipe, size_t n);
+void			set_prev_cmds(t_cmd *cmds)
 void			replace_vars_with_values(char **str_cmd, t_pars_vars *v, t_cmd **cmds, t_shell *shell);
 int				extract_cmd(char **str_cmd, t_pars_vars *p, t_shell *shell);
 t_cmd			*parse_commands(char *cmd, t_shell *shell);
