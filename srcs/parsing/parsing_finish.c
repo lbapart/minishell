@@ -6,7 +6,7 @@
 /*   By: lbapart <lbapart@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/30 22:22:49 by lbapart           #+#    #+#             */
-/*   Updated: 2023/11/07 15:57:33 by lbapart          ###   ########.fr       */
+/*   Updated: 2023/11/08 12:08:53 by lbapart          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -67,7 +67,7 @@ void	unset_hidden_dollar(t_cmd *cmd)
 			i = 0;
 			while (redir->file && redir->file[i])
 			{
-				if (redir->file[i] == HIDDEN_DOLLAR)
+				if (redir->file[i] == HEREDOC_HIDDEN_DOLLAR)
 					redir->file[i] = '$';
 				i++;
 			}

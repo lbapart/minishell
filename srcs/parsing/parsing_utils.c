@@ -6,7 +6,7 @@
 /*   By: lbapart <lbapart@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/28 20:45:58 by lbapart           #+#    #+#             */
-/*   Updated: 2023/11/06 22:24:39 by lbapart          ###   ########.fr       */
+/*   Updated: 2023/11/08 12:11:10 by lbapart          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -56,11 +56,25 @@ void	set_in_quotes_var(char c, int *in_quotes)
 	}
 }
 
-int	check_redir_before(char *cmd, size_t n)
+int	check_heredoc_before(char *cmd, size_t n)
 {
 	while (n > 0)
 	{
 		if (cmd[n] == '<' && cmd[n - 1] == '<')
+			return (1);
+		if (is_whitespace(cmd[n]))
+			n--;
+		else
+			return (0);
+	}
+	return (0);
+}
+
+int	check_redirection_before(char *cmd, size_t n)
+{
+	while (n > 0)
+	{
+		if (is_redirection(cmd[n]))
 			return (1);
 		if (is_whitespace(cmd[n]))
 			n--;
@@ -80,17 +94,30 @@ int	check_unclosed_quotes(char *cmd)
 	while (cmd[i])
 	{
 		set_in_quotes_var(cmd[i], &in_quotes);
-		if (in_quotes == 0 && cmd[i] == '$')
+		if (i > 0 && check_heredoc_before(cmd, i - 1) && in_quotes == 0)
 		{
-			if (i > 0 && check_redir_before(cmd, i - 1))
+			while (is_whitespace(cmd[i]))
+				i++;
+			while (cmd[i] && !(!in_quotes && (is_whitespace(cmd[i]) || is_redirection(cmd[i]) || cmd[i] == '|')))
 			{
-				while (cmd[i] == '$')
-					cmd[i++] = HIDDEN_DOLLAR;
-				if (!cmd[i])
-					break ;
+				if (cmd[i] == '$')
+					cmd[i] = HEREDOC_HIDDEN_DOLLAR;
+				i++;
 				set_in_quotes_var(cmd[i], &in_quotes);
 			}
 		}
+		// else if (i > 0 && check_redirection_before(cmd, i - 1) && in_quotes == 0)
+		// {
+		// 	while (is_whitespace(cmd[i]))
+		// 		i++;
+		// 	while (cmd[i] && !(!in_quotes && (is_whitespace(cmd[i]) || is_redirection(cmd[i]) || cmd[i] == '|')))
+		// 	{
+		// 		if (cmd[i] == '$')
+		// 			cmd[i] = REDIR_HIDDEN_DOLLAR;
+		// 		i++;
+		// 		set_in_quotes_var(cmd[i], &in_quotes);
+		// 	}
+		// }
 		i++;
 	}
 	if (in_quotes)

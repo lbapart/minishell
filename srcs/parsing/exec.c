@@ -6,7 +6,7 @@
 /*   By: lbapart <lbapart@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/02 15:45:19 by lbapart           #+#    #+#             */
-/*   Updated: 2023/11/08 08:50:42 by lbapart          ###   ########.fr       */
+/*   Updated: 2023/11/08 11:18:26 by lbapart          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -349,7 +349,7 @@ int	exec_simple_command(t_smplcmd *smplcmd, t_shell *shell)
 {
 	char	*path;
 	char	**args;
-	char	**env_path;
+	//char	**env_path;
 
 	(void)shell; // temp
 	args = smplcmd->args;

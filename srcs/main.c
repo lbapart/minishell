@@ -23,69 +23,69 @@ int	get_array_size(char **arr)
 }
 
 
-int main(int argc, char **argv, char **envp)
-{
-	(void)argc;
-	(void) argv;
-
-	char *line;
-	t_shell shell;
-
-	int saved_stdout = dup(STDOUT_FILENO);
-	int saved_stdin = dup(STDIN_FILENO);
-
-
-	if (init_env(envp, &shell) != EXIT_SUCCESS)
-		return (EXIT_FAILURE);
-	shell.last_exit_code = 0;
-	shell.exported_vars = NULL;
-
-	while (1)
-	{
-		line = readline("🤡clownshell🤡$ ");
-		if (line == NULL)
-		{
-			break;
-		}
-		if (line[0] != '\0')
-			add_history(line);
-		exec_commands(line, &shell);
-		free(line);
-		if (dup2(saved_stdout, STDOUT_FILENO) == -1)
-			return (perror("dup2"), exit(EXIT_FAILURE), (1)); // free also
-		if (dup2(saved_stdin, STDIN_FILENO) == -1)
-			return (perror("dup2"), exit(EXIT_FAILURE), (1)); // free also
-		//rl_redisplay();
-		//rl_on_new_line();
-	}
-	clear_history();
-	return (0);
-}
-
-// int	main(int argc, char **argv, char **envp)
+// int main(int argc, char **argv, char **envp)
 // {
 // 	(void)argc;
-// 	(void)argv;
-// 	char *cmd;
-// 	t_cmd *cmds;
+// 	(void) argv;
+
+// 	char *line;
 // 	t_shell shell;
+
+// 	int saved_stdout = dup(STDOUT_FILENO);
+// 	int saved_stdin = dup(STDIN_FILENO);
+
+
 // 	if (init_env(envp, &shell) != EXIT_SUCCESS)
 // 		return (EXIT_FAILURE);
-// 	shell.exported_vars = NULL;
 // 	shell.last_exit_code = 0;
+// 	shell.exported_vars = NULL;
 
-// 	cmd = ft_strdup("echo abc > | wc -l <");
-// 	if (!cmd)
-// 		return (free_all_envs(&shell.env), free_all_envs(&shell.exported_vars), 0);
-// 	cmds = parse_commands(cmd, &shell);
-// 	//printf("saassasaas\n");
-// 	print_commands(cmds);
-// 	free_structs(&cmds);
-// 	free_all_envs(&shell.env);
-// 	free_all_envs(&shell.exported_vars);
-// 	free(cmd);
+// 	while (1)
+// 	{
+// 		line = readline("🤡clownshell🤡$ ");
+// 		if (line == NULL)
+// 		{
+// 			break;
+// 		}
+// 		if (line[0] != '\0')
+// 			add_history(line);
+// 		exec_commands(line, &shell);
+// 		free(line);
+// 		if (dup2(saved_stdout, STDOUT_FILENO) == -1)
+// 			return (perror("dup2"), exit(EXIT_FAILURE), (1)); // free also
+// 		if (dup2(saved_stdin, STDIN_FILENO) == -1)
+// 			return (perror("dup2"), exit(EXIT_FAILURE), (1)); // free also
+// 		//rl_redisplay();
+// 		//rl_on_new_line();
+// 	}
+// 	clear_history();
 // 	return (0);
 // }
+
+int	main(int argc, char **argv, char **envp)
+{
+	(void)argc;
+	(void)argv;
+	char *cmd;
+	t_cmd *cmds;
+	t_shell shell;
+	if (init_env(envp, &shell) != EXIT_SUCCESS)
+		return (EXIT_FAILURE);
+	shell.exported_vars = NULL;
+	shell.last_exit_code = 0;
+
+	cmd = ft_strdup("echo abc << $abc$def$fuckthibullshit");
+	if (!cmd)
+		return (free_all_envs(&shell.env), free_all_envs(&shell.exported_vars), 0);
+	cmds = parse_commands(cmd, &shell);
+	//printf("saassasaas\n");
+	print_commands(cmds);
+	free_structs(&cmds);
+	free_all_envs(&shell.env);
+	free_all_envs(&shell.exported_vars);
+	free(cmd);
+	return (0);
+}
 
 // int	main(int argc, char **argv, char **envp)
 // {

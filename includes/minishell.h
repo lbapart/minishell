@@ -39,7 +39,8 @@
 # define ENV 6
 # define EXIT 7
 # define HIDDEN_QUOTE -20
-# define HIDDEN_DOLLAR -21
+# define HEREDOC_HIDDEN_DOLLAR -21
+# define REDIR_HIDDEN_DOLLAR -22
 
 typedef struct s_redirection
 {
@@ -212,7 +213,7 @@ int				put_path(t_smplcmd *smplcmd);
 // parsing_utils.c
 void			remove_unnecessary_quotes(char *str);
 void			set_in_quotes_var(char c, int *in_quotes);
-int				check_redir_before(char *cmd, size_t n);
+int				check_heredoc_before(char *cmd, size_t n);
 int				check_unclosed_quotes(char *cmd);
 char			*get_var_name(char *var, t_cmd **t_cmd, char **cmd, t_pars_vars *vars);
 // parsing_utils_2.c
