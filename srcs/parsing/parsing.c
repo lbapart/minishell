@@ -6,7 +6,7 @@
 /*   By: aapenko <aapenko@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/21 14:50:26 by lbapart           #+#    #+#             */
-/*   Updated: 2023/11/08 15:24:58 by aapenko          ###   ########.fr       */
+/*   Updated: 2023/11/08 17:06:03 by aapenko          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,7 +19,7 @@ void	create_result_command(t_pars_vars *v, t_pars_vars *in_v,
 	ft_strcat(in_v->res, var_value);
 	set_hidden_quotes(in_v->res + in_v->i, ft_strlen(in_v->res + in_v->i));
 	ft_strcat(in_v->res, v->cmd_to_exec + in_v->i + ft_strlen(in_v->temp) + 1);
-	in_v->i = in_v->i + ft_strlen(var_value);
+	in_v->i = in_v->i + ft_strlen(var_value) - 1;
 	if (ft_strcmp(in_v->temp, "?") == 0)
 		free(var_value);
 	(free(v->cmd_to_exec), free(in_v->temp));
