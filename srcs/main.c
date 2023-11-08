@@ -74,7 +74,7 @@ int	main(int argc, char **argv, char **envp)
 	shell.exported_vars = NULL;
 	shell.last_exit_code = 0;
 
-	cmd = ft_strdup("echo abc << $abc$def$fuckthibullshit");
+	cmd = ft_strdup("echo abc > $a$b");
 	if (!cmd)
 		return (free_all_envs(&shell.env), free_all_envs(&shell.exported_vars), 0);
 	cmds = parse_commands(cmd, &shell);

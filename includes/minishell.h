@@ -153,6 +153,7 @@ int				exec_simple_command(t_smplcmd *smplcmd, t_shell *shell);
 int				exec_builtin(t_smplcmd *smplcmd, t_shell *shell);
 // parsing_error_2.c
 void			unexpected_near_pipe_err(void);
+void			amb_redir_err(void);
 // parsing_error.c
 void			malloc_err(void);
 void			unsup_char_err(char c);
@@ -230,7 +231,14 @@ int				is_unsupported_char(char c);
 char			*generate_filename(int pid);
 void			replace_redir_filename(t_redirection *redir, char *filename);
 int				exec_heredoc(t_redirection *redir, int pid);
-
+// parsing_vars_2.c
+char	*get_var_name_str(char *str, t_shell *shell, t_cmd *cmd);
+char	*get_var_value_str(char *var_name, t_shell *shell, t_cmd *cmd);
+char	*replace_var_with_value(char *str, char *var_value, char *var_name, size_t pos);
+char	*replace_vars_in_str(char *str, t_shell *shell, t_cmd *cmd);
+int		check_whitespace(char *str);
+int 	replace_vars_in_redir(t_redirection *redir, t_shell *shell, t_cmd *cmd);
+t_cmd	*replace_all_vars_redir(t_cmd *cmd);
 
 //temp.c
 void			print_commands(t_cmd *cmds);

@@ -6,7 +6,7 @@
 /*   By: lbapart <lbapart@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/30 22:22:49 by lbapart           #+#    #+#             */
-/*   Updated: 2023/11/08 12:08:53 by lbapart          ###   ########.fr       */
+/*   Updated: 2023/11/08 13:46:21 by lbapart          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -103,7 +103,7 @@ t_cmd	*finish_pars(t_cmd *cmd)
 		temp = temp->next;
 	}
 	(unset_hidden_dollar(cmd), set_prev_cmds(cmd));
-	return (set_builtin(cmd), cmd);
+	return (set_builtin(cmd), replace_all_vars_redir(cmd));
 }
 
 char	**finish_split_tokens(char *cmd, t_pars_vars *v, char **temp)

@@ -6,7 +6,7 @@
 /*   By: lbapart <lbapart@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/28 20:45:58 by lbapart           #+#    #+#             */
-/*   Updated: 2023/11/08 12:11:10 by lbapart          ###   ########.fr       */
+/*   Updated: 2023/11/08 12:12:38 by lbapart          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -106,18 +106,18 @@ int	check_unclosed_quotes(char *cmd)
 				set_in_quotes_var(cmd[i], &in_quotes);
 			}
 		}
-		// else if (i > 0 && check_redirection_before(cmd, i - 1) && in_quotes == 0)
-		// {
-		// 	while (is_whitespace(cmd[i]))
-		// 		i++;
-		// 	while (cmd[i] && !(!in_quotes && (is_whitespace(cmd[i]) || is_redirection(cmd[i]) || cmd[i] == '|')))
-		// 	{
-		// 		if (cmd[i] == '$')
-		// 			cmd[i] = REDIR_HIDDEN_DOLLAR;
-		// 		i++;
-		// 		set_in_quotes_var(cmd[i], &in_quotes);
-		// 	}
-		// }
+		else if (i > 0 && check_redirection_before(cmd, i - 1) && in_quotes == 0)
+		{
+			while (is_whitespace(cmd[i]))
+				i++;
+			while (cmd[i] && !(!in_quotes && (is_whitespace(cmd[i]) || is_redirection(cmd[i]) || cmd[i] == '|')))
+			{
+				if (cmd[i] == '$')
+					cmd[i] = REDIR_HIDDEN_DOLLAR;
+				i++;
+				set_in_quotes_var(cmd[i], &in_quotes);
+			}
+		}
 		i++;
 	}
 	if (in_quotes)
