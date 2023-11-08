@@ -148,7 +148,6 @@ t_vars	*new_env(char *key, char *value);
 
 // exec.c
 void			exec_commands(char *cmd, t_shell *shell);
-int				redirect_input_output(t_redirection *redir);
 int				exec_simple_command(t_smplcmd *smplcmd, t_shell *shell);
 int				exec_builtin(t_smplcmd *smplcmd, t_shell *shell);
 // parsing_error_2.c
@@ -220,13 +219,16 @@ char			*get_var_name(char *var, t_cmd **t_cmd, char **cmd, t_pars_vars *vars);
 void			copy_until_pipe(char **str_cmd, char *cmd_to_exec,
 					size_t last_pipe, size_t n);
 void			set_hidden_quotes(char *cmd, size_t len);
-//utils.c
+// utils.c
 int 			is_whitespace(char c);
 int 			is_redirection(char c);
 int				set_in_quotes_flag(char c, int *in_quotes, char **ptr);
 int				is_var_char(char c);
 int				is_unsupported_char(char c);
-
+// heredoc.c
+char			*generate_filename(int pid);
+void			replace_redir_filename(t_redirection *redir, char *filename);
+int				exec_heredoc(t_redirection *redir, int pid);
 
 
 //temp.c
