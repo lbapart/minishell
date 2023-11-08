@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   parsing_vars.c                                     :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: lbapart <lbapart@student.42.fr>            +#+  +:+       +#+        */
+/*   By: aapenko <aapenko@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/06 22:58:21 by lbapart           #+#    #+#             */
-/*   Updated: 2023/11/08 10:49:30 by lbapart          ###   ########.fr       */
+/*   Updated: 2023/11/08 16:30:31 by aapenko          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -66,4 +66,22 @@ void	replace_vars_with_values(char **str_cmd, t_pars_vars *v,
 		}
 		i.i++;
 	}
+}
+
+t_cmd	*replace_all_vars_redir(t_cmd *cmd, t_shell *shell, char *strcmd)
+{
+	t_cmd	*temp;
+
+	temp = cmd;
+	while (temp)
+	{
+		if (temp->smplcmd->redir)
+		{
+			if (!replace_vars_in_redir(temp->smplcmd->redir,
+					shell, cmd, strcmd))
+				return (NULL);
+		}
+		temp = temp->next;
+	}
+	return (cmd);
 }

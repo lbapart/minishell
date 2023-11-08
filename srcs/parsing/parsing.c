@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   parsing.c                                          :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: lbapart <lbapart@student.42.fr>            +#+  +:+       +#+        */
+/*   By: aapenko <aapenko@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/21 14:50:26 by lbapart           #+#    #+#             */
-/*   Updated: 2023/11/08 12:15:57 by lbapart          ###   ########.fr       */
+/*   Updated: 2023/11/08 15:24:58 by aapenko          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -104,5 +104,5 @@ t_cmd	*parse_commands(char *cmd, t_shell *shell)
 	}
 	if (!extract_cmd(&cmd, &v, shell))
 		return (NULL);
-	return (finish_pars(v.cmds));
+	return (finish_pars(v.cmds, shell, cmd));
 }

@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   parsing_utils.c                                    :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: lbapart <lbapart@student.42.fr>            +#+  +:+       +#+        */
+/*   By: aapenko <aapenko@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/28 20:45:58 by lbapart           #+#    #+#             */
-/*   Updated: 2023/11/08 12:12:38 by lbapart          ###   ########.fr       */
+/*   Updated: 2023/11/08 16:17:54 by aapenko          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -82,47 +82,6 @@ int	check_redirection_before(char *cmd, size_t n)
 			return (0);
 	}
 	return (0);
-}
-
-int	check_unclosed_quotes(char *cmd)
-{
-	int		in_quotes;
-	size_t	i;
-
-	in_quotes = 0;
-	i = 0;
-	while (cmd[i])
-	{
-		set_in_quotes_var(cmd[i], &in_quotes);
-		if (i > 0 && check_heredoc_before(cmd, i - 1) && in_quotes == 0)
-		{
-			while (is_whitespace(cmd[i]))
-				i++;
-			while (cmd[i] && !(!in_quotes && (is_whitespace(cmd[i]) || is_redirection(cmd[i]) || cmd[i] == '|')))
-			{
-				if (cmd[i] == '$')
-					cmd[i] = HEREDOC_HIDDEN_DOLLAR;
-				i++;
-				set_in_quotes_var(cmd[i], &in_quotes);
-			}
-		}
-		else if (i > 0 && check_redirection_before(cmd, i - 1) && in_quotes == 0)
-		{
-			while (is_whitespace(cmd[i]))
-				i++;
-			while (cmd[i] && !(!in_quotes && (is_whitespace(cmd[i]) || is_redirection(cmd[i]) || cmd[i] == '|')))
-			{
-				if (cmd[i] == '$')
-					cmd[i] = REDIR_HIDDEN_DOLLAR;
-				i++;
-				set_in_quotes_var(cmd[i], &in_quotes);
-			}
-		}
-		i++;
-	}
-	if (in_quotes)
-		return (0);
-	return (1);
 }
 
 char	*get_var_name(char *var, t_cmd **struct_cmd, char **cmd, t_pars_vars *v)

@@ -178,7 +178,7 @@ void			free_dbl_ptr(char **ptr);
 void			free_and_null(char **str);
 void			free_everything(char **tokens, t_cmd *cmd, t_smplcmd *smplcmd);
 // parsing_finish.c
-t_cmd			*finish_pars(t_cmd *cmd);
+t_cmd			*finish_pars(t_cmd *cmd, t_shell *shell, char *strcmd);
 void			set_builtin(t_cmd *cmd);
 char			**finish_split_tokens(char *cmd, t_pars_vars *v, char **temp);
 // parsing_list_utils.c
@@ -215,6 +215,7 @@ int				put_path(t_smplcmd *smplcmd);
 void			remove_unnecessary_quotes(char *str);
 void			set_in_quotes_var(char c, int *in_quotes);
 int				check_heredoc_before(char *cmd, size_t n);
+int				check_redirection_before(char *cmd, size_t n);
 int				check_unclosed_quotes(char *cmd);
 char			*get_var_name(char *var, t_cmd **t_cmd, char **cmd, t_pars_vars *vars);
 // parsing_utils_2.c
@@ -232,13 +233,13 @@ char			*generate_filename(int pid);
 void			replace_redir_filename(t_redirection *redir, char *filename);
 int				exec_heredoc(t_redirection *redir, int pid);
 // parsing_vars_2.c
-char	*get_var_name_str(char *str, t_shell *shell, t_cmd *cmd);
-char	*get_var_value_str(char *var_name, t_shell *shell, t_cmd *cmd);
-char	*replace_var_with_value(char *str, char *var_value, char *var_name, size_t pos);
-char	*replace_vars_in_str(char *str, t_shell *shell, t_cmd *cmd);
+char	*get_var_name_str(char *str, t_shell *shell, t_cmd *cmd, char *strcmd);
+char	*get_var_value_str(char *var_name, t_shell *shell, t_cmd *cmd, char *strcmd);
+char	*replace_var_with_value(char **str, char *var_value, char *var_name, size_t pos);
+char	*replace_vars_in_str(char **str, t_shell *shell, t_cmd *cmd, char *strcmd);
 int		check_whitespace(char *str);
-int 	replace_vars_in_redir(t_redirection *redir, t_shell *shell, t_cmd *cmd);
-t_cmd	*replace_all_vars_redir(t_cmd *cmd);
+int 	replace_vars_in_redir(t_redirection *redir, t_shell *shell, t_cmd *cmd, char *strcmd);
+t_cmd	*replace_all_vars_redir(t_cmd *cmd, t_shell *shell, char *strcmd);
 
 //temp.c
 void			print_commands(t_cmd *cmds);

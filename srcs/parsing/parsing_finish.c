@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   parsing_finish.c                                   :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: lbapart <lbapart@student.42.fr>            +#+  +:+       +#+        */
+/*   By: aapenko <aapenko@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/30 22:22:49 by lbapart           #+#    #+#             */
-/*   Updated: 2023/11/08 13:46:21 by lbapart          ###   ########.fr       */
+/*   Updated: 2023/11/08 15:26:02 by aapenko          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -77,7 +77,7 @@ void	unset_hidden_dollar(t_cmd *cmd)
 	}
 }
 
-t_cmd	*finish_pars(t_cmd *cmd)
+t_cmd	*finish_pars(t_cmd *cmd, t_shell *shell, char *strcmd)
 {
 	t_cmd	*temp;
 	size_t	count;
@@ -103,7 +103,7 @@ t_cmd	*finish_pars(t_cmd *cmd)
 		temp = temp->next;
 	}
 	(unset_hidden_dollar(cmd), set_prev_cmds(cmd));
-	return (set_builtin(cmd), replace_all_vars_redir(cmd));
+	return (set_builtin(cmd), replace_all_vars_redir(cmd, shell, strcmd));
 }
 
 char	**finish_split_tokens(char *cmd, t_pars_vars *v, char **temp)
