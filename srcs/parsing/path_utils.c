@@ -3,28 +3,40 @@
 /*                                                        :::      ::::::::   */
 /*   path_utils.c                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: lbapart <lbapart@student.42.fr>            +#+  +:+       +#+        */
+/*   By: aapenko <aapenko@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/09 12:27:29 by ppfiel            #+#    #+#             */
-/*   Updated: 2023/11/09 12:30:26 by lbapart          ###   ########.fr       */
+/*   Updated: 2023/11/09 12:45:30 by aapenko          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "minishell.h"
 
-void	print_env_vars(t_vars *vars)
+char	*ft_not_free_strjoin(char const *s1, char const *s2)
 {
-	t_vars	*temp;
+	size_t	size;
+	size_t	i;
+	size_t	j;
+	char	*str;
 
-	temp = vars;
-	while (temp)
+	size = ft_strlen(s1) + ft_strlen(s2) + 1;
+	str = malloc(size);
+	if (!str)
+		return (NULL);
+	i = 0;
+	while (s1 && s1[i])
 	{
-		if (temp->value)
-			printf("declare -x %s=\"%s\"\n", temp->key, temp->value);
-		else
-			printf("declare -x %s\n", temp->key);
-		temp = temp->next;
+		str[i] = s1[i];
+		i++;
 	}
+	j = 0;
+	while (s2 && s2[j])
+	{
+		str[j + i] = s2[j];
+		j++;
+	}
+	str[i + j] = '\0';
+	return (str);
 }
 
 char	**get_paths(t_vars *env, t_cmd *cmd, t_shell *shell, char *strcmd)
@@ -60,7 +72,7 @@ char	*get_command_path(char **paths, char *command_name)
 		return (ft_strdup(command_name));
 	while (paths[i])
 	{
-		path_str = ft_strjoin(paths[i], "/");
+		path_str = ft_not_free_strjoin(paths[i], "/");
 		if (!path_str)
 			return (NULL);
 		full_command = ft_strjoin(path_str, command_name);

@@ -241,6 +241,7 @@ int		check_whitespace(char *str);
 int 	replace_vars_in_redir(t_redirection *redir, t_shell *shell, t_cmd *cmd, char *strcmd);
 t_cmd	*replace_all_vars_redir(t_cmd *cmd, t_shell *shell, char *strcmd);
 // path_utils.c
+char	*ft_not_free_strjoin(char const *s1, char const *s2);
 char	**get_paths(t_vars *env, t_cmd *cmd, t_shell *shell, char *strcmd);
 char	*get_command_path(char **paths, char *command_name);
 t_cmd   *replace_with_absolute_path(t_cmd *cmd, t_shell *shell, char *strcmd);
