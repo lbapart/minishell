@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   parsing_tokens.c                                   :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: lbapart <lbapart@student.42.fr>            +#+  +:+       +#+        */
+/*   By: aapenko <aapenko@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/28 20:56:31 by lbapart           #+#    #+#             */
-/*   Updated: 2023/11/06 23:14:09 by lbapart          ###   ########.fr       */
+/*   Updated: 2023/11/09 13:25:38 by aapenko          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -106,7 +106,7 @@ t_smplcmd	*put_tokens_to_struct(char **tokens, t_cmd *cmd)
 		return (free_dbl_ptr(tokens), free_structs(&cmd), NULL);
 	while (tokens && tokens[v.i])
 	{
-		if (is_redirection(tokens[v.i][0]))
+		if (is_redir_token(tokens[v.i]))
 		{
 			if (!add_redir_to_list(&v, tokens))
 				return (free_everything(tokens, cmd, v.smplcmd), NULL);
