@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   parsing_vars.c                                     :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: lbapart <lbapart@student.42.fr>            +#+  +:+       +#+        */
+/*   By: aapenko <aapenko@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/06 22:58:21 by lbapart           #+#    #+#             */
-/*   Updated: 2023/11/09 11:57:31 by lbapart          ###   ########.fr       */
+/*   Updated: 2023/11/09 16:24:57 by aapenko          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -47,10 +47,10 @@ void	replace_vars_with_values(char **str_cmd, t_pars_vars *v,
 	init_vars(&i, NULL, shell);
 	while (v->cmd_to_exec[i.i])
 	{
-		if (v->cmd_to_exec[i.i] == '\'' && !i.is_open_single_quote)
+		if (v->cmd_to_exec[i.i] == '\'' && !i.is_open_double_quote)
 			i.is_open_single_quote = !i.is_open_single_quote;
-		else if (v->cmd_to_exec[i.i] == '\'' && i.is_open_single_quote)
-			i.is_open_single_quote = !i.is_open_single_quote;
+		else if (v->cmd_to_exec[i.i] == '\"' && !i.is_open_single_quote)
+			i.is_open_double_quote = !i.is_open_double_quote;
 		if (v->cmd_to_exec[i.i] == '$' && !i.is_open_single_quote)
 		{
 			i.temp = get_var_name(v->cmd_to_exec + i.i + 1, cmds, str_cmd, v);

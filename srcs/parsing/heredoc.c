@@ -6,7 +6,7 @@
 /*   By: aapenko <aapenko@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/07 14:02:11 by lbapart           #+#    #+#             */
-/*   Updated: 2023/11/08 16:02:36 by aapenko          ###   ########.fr       */
+/*   Updated: 2023/11/09 17:07:00 by aapenko          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -57,7 +57,7 @@ int	exec_heredoc(t_redirection *redir, int pid)
 			free(line);
 			break ;
 		}
-		(free(line), ft_putendl_fd(line, fd));
+		(write(fd, line, ft_strlen(line)), write(fd, "\n", 1), free(line));
 	}
 	if (close(fd) == -1)
 		return (perror("close"), 0);
