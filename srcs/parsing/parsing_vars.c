@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   parsing_vars.c                                     :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: aapenko <aapenko@student.42.fr>            +#+  +:+       +#+        */
+/*   By: lbapart <lbapart@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/06 22:58:21 by lbapart           #+#    #+#             */
-/*   Updated: 2023/11/08 16:30:31 by aapenko          ###   ########.fr       */
+/*   Updated: 2023/11/09 11:57:31 by lbapart          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -83,5 +83,5 @@ t_cmd	*replace_all_vars_redir(t_cmd *cmd, t_shell *shell, char *strcmd)
 		}
 		temp = temp->next;
 	}
-	return (cmd);
+	return (replace_with_absolute_path(cmd, shell, strcmd));
 }
