@@ -6,7 +6,7 @@
 /*   By: aapenko <aapenko@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/28 20:45:58 by lbapart           #+#    #+#             */
-/*   Updated: 2023/11/08 16:17:54 by aapenko          ###   ########.fr       */
+/*   Updated: 2023/11/09 10:49:04 by aapenko          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -81,6 +81,8 @@ int	check_redirection_before(char *cmd, size_t n)
 		else
 			return (0);
 	}
+	if (is_redirection(cmd[n]))
+		return (1);
 	return (0);
 }
 
