@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   parsing_init.c                                     :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: lbapart <lbapart@student.42.fr>            +#+  +:+       +#+        */
+/*   By: aapenko <aapenko@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/28 20:52:41 by lbapart           #+#    #+#             */
-/*   Updated: 2023/11/06 22:56:03 by lbapart          ###   ########.fr       */
+/*   Updated: 2023/11/10 16:31:22 by aapenko          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -36,6 +36,7 @@ t_redirection	*init_redir(void)
 	redir->file = NULL;
 	redir->type = 0;
 	redir->next = NULL;
+	redir->to_delete = 0;
 	return (redir);
 }
 

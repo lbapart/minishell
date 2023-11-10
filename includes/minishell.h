@@ -51,6 +51,7 @@ typedef struct s_redirection
 	char					*file;
 	int						type; // 0 for no redirection, 1 for <, 2 for <<, 3 for >, 4 for >>
 	struct s_redirection	*next;
+	int						to_delete; // if 0 no need to delete, if 1 - need to be deleted
 } t_redirection;
 
 typedef struct s_smplcmd
