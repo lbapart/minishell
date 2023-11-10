@@ -6,11 +6,27 @@
 /*   By: aapenko <aapenko@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/08 13:29:34 by lbapart           #+#    #+#             */
-/*   Updated: 2023/11/10 10:37:10 by aapenko          ###   ########.fr       */
+/*   Updated: 2023/11/10 17:21:01 by aapenko          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "minishell.h"
+
+static char	*check_quote_var_str(char *str, t_shell *shell, t_cmd *cmd, char *strcmd)
+{
+	char	*res;
+
+	if (str[0] == '\'' || str[0] == '\"')
+	{
+		res = ft_strdup("");
+		if (!res)
+			return (free_structs(&cmd), free_all_envs(&shell->env),
+				free_all_envs(&shell->exported_vars), free(strcmd),
+				malloc_err(), NULL);
+		return (res);
+	}
+	return (NULL);
+}
 
 char	*get_var_name_str(char *str, t_shell *shell, t_cmd *cmd, char *strcmd)
 {
@@ -30,7 +46,7 @@ char	*get_var_name_str(char *str, t_shell *shell, t_cmd *cmd, char *strcmd)
 	while (str[i] && is_var_char(str[i]))
 		i++;
 	if (i == 0)
-		return (NULL);
+		return (check_quote_var_str(str, shell, cmd, strcmd));
 	res = (char *)malloc(i + 1);
 	if (!res)
 		return (free_structs(&cmd), free_all_envs(&shell->env), free(strcmd),

@@ -6,7 +6,7 @@
 /*   By: aapenko <aapenko@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/28 20:45:58 by lbapart           #+#    #+#             */
-/*   Updated: 2023/11/09 10:52:25 by aapenko          ###   ########.fr       */
+/*   Updated: 2023/11/10 17:14:24 by aapenko          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -86,6 +86,20 @@ int	check_redirection_before(char *cmd, size_t n)
 	return (0);
 }
 
+static char	*check_quote_var(char *var, t_cmd **struct_cmd, char **cmd, t_pars_vars *v)
+{
+	char	*res;
+
+	if (var[0] == '\'' || var[0] == '\"')
+	{
+		res = ft_strdup("");
+		if (!res)
+			return (free_get_var_name_and_err(struct_cmd, cmd, v), NULL);
+		return (res);
+	}
+	return (NULL);
+}
+
 char	*get_var_name(char *var, t_cmd **struct_cmd, char **cmd, t_pars_vars *v)
 {
 	size_t	i;
@@ -102,10 +116,9 @@ char	*get_var_name(char *var, t_cmd **struct_cmd, char **cmd, t_pars_vars *v)
 	while (var[i] && is_var_char(var[i]))
 		i++;
 	if (i == 0)
-		return (NULL);
+		return (check_quote_var(var, struct_cmd, cmd, v));
 	res = (char *)malloc(i + 1);
 	if (!res)
 		return (free_get_var_name_and_err(struct_cmd, cmd, v), NULL);
-	ft_strncpy(res, var, i);
-	return (res);
+	return (ft_strncpy(res, var, i), res);
 }

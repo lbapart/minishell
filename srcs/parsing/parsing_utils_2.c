@@ -6,7 +6,7 @@
 /*   By: aapenko <aapenko@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/06 22:26:08 by lbapart           #+#    #+#             */
-/*   Updated: 2023/11/09 13:10:52 by aapenko          ###   ########.fr       */
+/*   Updated: 2023/11/10 17:31:51 by aapenko          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -47,7 +47,10 @@ void	replace_dollar_sign(char *cmd, size_t *i,
 	while (cmd[*i] && !(!*in_quotes && (is_whitespace(cmd[*i])
 				|| is_redirection(cmd[*i]) || cmd[*i] == '|')))
 	{
-		if (cmd[*i] == '$')
+		if (dollar_type == REDIR_HIDDEN_DOLLAR && cmd[*i] == '$'
+			&& (cmd[*i + 1] == '\'' || cmd[*i + 1] == '\"'))
+			;
+		else if (cmd[*i] == '$')
 			cmd[*i] = dollar_type;
 		(*i)++;
 		set_in_quotes_var(cmd[*i], in_quotes);
