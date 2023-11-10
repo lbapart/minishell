@@ -23,6 +23,7 @@
 # include <errno.h> // TODO: Are we allowed to use it?
 # include <readline/readline.h>
 # include <readline/history.h>
+# include <signal.h>
 
 # define ERROR_FATAL 4200
 # define ERROR_INVALID_ARGS 4201
@@ -41,6 +42,11 @@
 # define HIDDEN_QUOTE -20
 # define HEREDOC_HIDDEN_DOLLAR -21
 # define REDIR_HIDDEN_DOLLAR -22
+# define GLOBAL_MODE 0
+# define CHILD_MODE 1
+# define HEREDOC_MODE 2
+
+extern int signal_received;
 
 typedef struct s_redirection
 {
@@ -246,6 +252,8 @@ char	*ft_not_free_strjoin(char const *s1, char const *s2);
 char	**get_paths(t_vars *env, t_cmd *cmd, t_shell *shell, char *strcmd);
 char	*get_command_path(char **paths, char *command_name);
 t_cmd   *replace_with_absolute_path(t_cmd *cmd, t_shell *shell, char *strcmd);
+// signals.c
+void	init_signals(int mode);
 //temp.c
 void			print_commands(t_cmd *cmds);
 
