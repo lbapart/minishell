@@ -6,7 +6,7 @@
 /*   By: ppfiel <ppfiel@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/02 15:45:19 by lbapart           #+#    #+#             */
-/*   Updated: 2023/11/10 10:17:04 by ppfiel           ###   ########.fr       */
+/*   Updated: 2023/11/10 15:00:29 by ppfiel           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -28,71 +28,9 @@ int	exec_builtin(t_smplcmd *smplcmd, t_shell *shell)
 		return (execute_env(*smplcmd, *shell));
 	if (smplcmd->builtin == EXIT)
 		return (execute_exit(*smplcmd, shell));
-	return (1);
+	return (EXIT_FAILURE);
 }
-
-// void	exec_commands(char *cmd, t_shell *shell)
-// {
-// 	t_cmd	*cmds;
-// 	t_cmd	*temp;
-// 	int		fd[2];
-// 	int		prev_fd = STDIN_FILENO;
-
-// 	cmds = parse_commands(cmd, shell);
-// 	if (!cmds)
-// 		return ;
-// 	temp = cmds;
-// 	while (temp)
-// 	{
-// 		if (temp->next)
-// 		{
-// 			if (pipe(fd) == -1)
-// 				(perror("pipe"), exit(EXIT_FAILURE)); //free also
-// 		}
-// 		pid_t pid = fork();
-// 		if (pid == -1)
-// 			(perror("fork"), exit(EXIT_FAILURE)); // free also	
-// 		else if (pid == 0)
-// 		{
-// 			if (temp->next)
-// 			{
-// 				if (dup2(fd[1], STDOUT_FILENO) == -1)
-// 					(perror("dup2"), exit(EXIT_FAILURE)); // free also
-// 				if (close(fd[0]) == -1 || close(fd[1]) == -1)
-// 					(perror("close"), exit(EXIT_FAILURE)); // free also
-// 			}
-// 			if (prev_fd != STDIN_FILENO)
-// 			{
-// 				if (dup2(prev_fd, STDIN_FILENO) == -1)
-// 					(perror("dup2"), exit(EXIT_FAILURE)); // free also
-// 				if (close(prev_fd) == -1)
-// 					(perror("close"), exit(EXIT_FAILURE)); // free also
-// 			}
-// 			if (temp->smplcmd->builtin == 0)
-// 				exec_simple_command(temp->smplcmd, shell);
-// 			else
-// 				exec_builtin(temp->smplcmd, shell);
-// 		}
-// 		else
-// 		{
-// 			if (prev_fd != STDIN_FILENO)
-// 				close(prev_fd);
-// 			if (temp->next)
-// 			{
-// 				close(fd[1]);
-// 				prev_fd = fd[0];
-// 			}
-// 			else
-// 				prev_fd = STDIN_FILENO;
-// 			waitpid(pid, NULL, 0);
-// 		}
-// 		temp = temp->next;
-// 	}
-// 	free_structs(&cmds);
-// 	return ;
-// }
-
-int	handle_redirect(char *filename, int open_flags, int redirect_target)
+int	do_redirection(char *filename, int open_flags, int redirect_target)
 {
 	int	fd;
 
@@ -106,31 +44,34 @@ int	handle_redirect(char *filename, int open_flags, int redirect_target)
 	return (EXIT_SUCCESS);
 }
 
+int	handle_redirection_per_type(t_redirection *redirection)
+{
+	int	exit_heredoc;
+
+	if (redirection->type == 1)
+		return (do_redirection(redirection->file, O_RDONLY, STDIN_FILENO));
+	else if (redirection->type == 2)
+	{
+		exit_heredoc = exec_heredoc(redirection, 1);
+		if (exit_heredoc != EXIT_SUCCESS)
+			return (exit_heredoc);
+		return (do_redirection(redirection->file, O_RDONLY, STDIN_FILENO));
+	}
+	else if (redirection->type == 3)
+		return (do_redirection(redirection->file, O_TRUNC | O_CREAT | O_RDWR, STDOUT_FILENO));
+	else
+		return (do_redirection(redirection->file, O_APPEND | O_CREAT | O_RDWR, STDOUT_FILENO));
+}
+
 int	handle_redirections(t_redirection *redirections)
 {
+	int	exit_redirection;
+
 	while (redirections)
 	{
-		if (redirections->type == 1)
-		{
-			if (handle_redirect(redirections->file, O_RDONLY, STDIN_FILENO) != EXIT_SUCCESS)
-				return (EXIT_FAILURE);
-		}
-		else if (redirections->type == 2)
-		{
-			exec_heredoc(redirections, 1);
-			if (handle_redirect(redirections->file, O_RDONLY, STDIN_FILENO) != EXIT_SUCCESS)
-				return (EXIT_FAILURE);
-		}
-		else if (redirections->type == 3)
-		{
-			if (handle_redirect(redirections->file, O_TRUNC | O_CREAT | O_RDWR, STDOUT_FILENO) != EXIT_SUCCESS)
-				return (EXIT_FAILURE);
-		}
-		else
-		{
-			if (handle_redirect(redirections->file, O_APPEND | O_CREAT | O_RDWR, STDOUT_FILENO) != EXIT_SUCCESS)
-				return (EXIT_FAILURE);
-		}
+		exit_redirection = handle_redirection_per_type(redirections);
+		if (exit_redirection != EXIT_SUCCESS)
+			return (exit_redirection);
 		redirections = redirections->next;
 	}
 	return (EXIT_SUCCESS);
@@ -141,13 +82,15 @@ int	init_pipe(t_cmd *cmd)
 	if (cmd->next)
 	{
 		if (pipe(cmd->pipe) == -1)
-			(perror("pipe"), exit(EXIT_FAILURE)); //free also
+			return (perror("pipe"), EXIT_FAILURE);
 	}
 	return (EXIT_SUCCESS);
 }
 
 void	handle_child_process(t_cmd *cmd, t_shell *shell)
 {
+	int	exit_redirections;
+
 	if (cmd->prev)
 	{
 		if (dup2(cmd->prev->pipe[0], STDIN_FILENO) == -1)
@@ -159,16 +102,12 @@ void	handle_child_process(t_cmd *cmd, t_shell *shell)
 	{
 		if (dup2(cmd->pipe[1], STDOUT_FILENO) == -1)
 			return (perror("dup2"), exit(EXIT_FAILURE)); // free also
-		// if (close(cmd->pipe[0]) == -1)
-		// 	return (perror("close"), close(cmd->pipe[1]), exit(EXIT_FAILURE)); // free also
-		if (close(cmd->pipe[1]) == -1)
+		if (close(cmd->pipe[1]) == -1 || close(cmd->pipe[0]) == -1)
 			return (perror("close"), exit(EXIT_FAILURE)); // free also
-		if (close(cmd->pipe[0]) == -1)
-			return (perror("close"), exit(EXIT_FAILURE)); // free also
-	}		
-	if (handle_redirections(cmd->smplcmd->redir))
-		exit(EXIT_FAILURE); //TODO: Error Handling
-	//TODO: Refactor this
+	}
+	exit_redirections = handle_redirections(cmd->smplcmd->redir);
+	if (exit_redirections != EXIT_SUCCESS)
+		exit(exit_redirections);
 	if (cmd->smplcmd->builtin == 0)
 		exit(exec_simple_command(cmd->smplcmd, shell));
 	else
@@ -177,27 +116,35 @@ void	handle_child_process(t_cmd *cmd, t_shell *shell)
 
 int	handle_parent_process(t_cmd *cmd)
 {
-	if (cmd->prev)
+	if (cmd->prev && close(cmd->prev->pipe[0]) == -1)
 	{
-		if (close(cmd->prev->pipe[0]) == -1)
-			return (perror("close"), EXIT_FAILURE); // free also
+		perror("close");
+		if (cmd->next)
+		{
+			close(cmd->pipe[1]);
+			close(cmd->pipe[0]);
+		}
+		return (EXIT_FAILURE);
 	}
-	if (cmd->next)
+	if (cmd->next && close(cmd->pipe[1]) == -1)
 	{
-		if (close(cmd->pipe[1]) == -1)
-			return (perror("close"), EXIT_FAILURE); // free and close also
+		return (perror("close"), close(cmd->pipe[0]), EXIT_FAILURE); // free and close also
 	}
 	return (EXIT_SUCCESS);
 }
 
 int	handle_single_command(t_shell *shell, t_cmd *cmd)
 {
-	if (handle_redirections(cmd->smplcmd->redir))
-		return (EXIT_FAILURE); //TODO: Error Handling
-	//TODO: Refactor this
+	int	exit_redirections;
+
+	exit_redirections = handle_redirections(cmd->smplcmd->redir);
+	if (exit_redirections != EXIT_SUCCESS)
+		return (exit_redirections);
 	if (cmd->smplcmd->builtin == 0)
 	{
 		cmd->pid = fork();
+		if (cmd->pid == -1)
+			return (perror("fork"), EXIT_FAILURE); // free all cmds before
 		if (cmd->pid == 0)
 			exit(exec_simple_command(cmd->smplcmd, shell));
 	}
@@ -206,21 +153,52 @@ int	handle_single_command(t_shell *shell, t_cmd *cmd)
 	return (EXIT_SUCCESS);
 }
 
+int	wait_all_commands_on_error(t_cmd *start, t_cmd *cmd)
+{
+	int		status;
+
+	status = EXIT_FAILURE;
+	while (start != cmd)
+	{
+		waitpid(start->pid, &status, 0);
+		start = start->next;
+	}
+	return (EXIT_FAILURE);
+}
+
+int	handle_pipe_error(t_cmd *start, t_cmd *cmd)
+{
+	if (cmd->prev)
+		close(cmd->prev->pipe[0]);
+	return (wait_all_commands_on_error(start, cmd));
+}
+
+int	handle_fork_error(t_cmd *start, t_cmd *cmd)
+{
+	perror("fork");
+	close(cmd->pipe[0]);
+	close(cmd->pipe[1]);
+	return (handle_pipe_error(start, cmd));
+}
+
 int	handle_multiple_commands(t_shell *shell, t_cmd *cmd)
 {
+	t_cmd	*start;
+
+	start = cmd;
 	while (cmd)
 	{
 		if (init_pipe(cmd) != EXIT_SUCCESS)
-			return (EXIT_FAILURE); //TODO: Error Handling
+			return (handle_pipe_error(start, cmd));
 		cmd->pid = fork();
 		if (cmd->pid == -1)
-			(perror("fork"), exit(EXIT_FAILURE)); // free all cmds before
+			return (handle_fork_error(start, cmd));
 		else if (cmd->pid == 0)
 			handle_child_process(cmd, shell);
 		else
 		{
 			if (handle_parent_process(cmd) != EXIT_SUCCESS)
-				return (EXIT_FAILURE); //TODO: Error Handling;
+				return (wait_all_commands_on_error(start, cmd) ,EXIT_FAILURE); //TODO: Error Handling;
 		}
 		cmd = cmd->next;
 	}
@@ -229,23 +207,56 @@ int	handle_multiple_commands(t_shell *shell, t_cmd *cmd)
 
 int	handle_waiting_processes(t_cmd *cmd, t_shell *shell)
 {
-	int	status;
+	int		status;
+	t_cmd	*temp;
+	int		is_error;
 
 	status = 0;
-	while (cmd)
+	temp = cmd;
+	is_error = 0;
+	while (temp)
 	{
-		if (waitpid(cmd->pid, &status, 0) == -1)
+		if (waitpid(temp->pid, &status, 0) == -1)
 		{
 			perror("waitpid"); //TODO: Free and close stuff
-			printf("PID: %d\n", cmd->pid);
-			return (EXIT_FAILURE); //TODO: Error Handling
+			is_error = 1;
 		}
 		status = WEXITSTATUS(status);
-		//TODO: Heredoc check with deleting tmp file
-		cmd = cmd->next;
+		temp = temp->next;
 	}
+	temp = cmd;
+	while (temp)
+	{
+		if (temp->smplcmd->redir != NULL && temp->smplcmd->redir->type == 2)
+		{
+			if (unlink(temp->smplcmd->redir->file) != 0) {
+				perror("unlink");
+				is_error = 1;
+			}
+		}
+		temp = temp->next;
+	}
+	if (is_error)
+		return (EXIT_FAILURE);
 	shell->last_exit_code = status;
 	return (EXIT_SUCCESS);
+}
+void	free_set_failure_unlink(t_cmd **cmds, t_shell *shell)
+{
+	t_cmd	*temp;
+	temp = *cmds;
+	while (temp)
+	{
+		if (temp->smplcmd->redir != NULL && temp->smplcmd->redir->type == 2)
+		{
+			if (access(temp->smplcmd->redir->file, F_OK) != -1)
+				unlink(temp->smplcmd->redir->file);			
+		}
+		temp = temp->next;
+	}
+	free_structs(cmds);
+	shell->last_exit_code = EXIT_FAILURE;
+	return ;
 }
 
 void	exec_commands(char *cmd, t_shell *shell)
@@ -258,17 +269,19 @@ void	exec_commands(char *cmd, t_shell *shell)
 	if (cmds->next)
 	{
 		if (handle_multiple_commands(shell, cmds) != EXIT_SUCCESS)
-			return ; //TODO: Error Handling
+			return (free_set_failure_unlink(&cmds, shell));
 	}
 	else
 	{
 		if (handle_single_command(shell, cmds) != EXIT_SUCCESS)
-			return ; //TODO: Error Handling
+			return (free_set_failure_unlink(&cmds, shell));
+
 	}
 	if (cmds->next || cmds->smplcmd->builtin == 0)
 	{
 		if (handle_waiting_processes(cmds, shell) != EXIT_SUCCESS)
-			return ; //TODO: Error Handling
+			return (free_set_failure_unlink(&cmds, shell));
+
 	}
 	free_structs(&cmds);
 	return ;
@@ -331,8 +344,13 @@ int	exec_simple_command(t_smplcmd *smplcmd, t_shell *shell)
 	// 	env_path = get_env_path(shell->exported_vars);
 	// path = get_path(env_path, smplcmd->path);
 	// need to handle exit code here
-	if (path && execve(path, args, NULL) == -1) // need to set env 
-		return (free(path), perror("execve"), 1);
-	else
-		return (free(path), 1);
+	if (access(path, X_OK) != 0)
+	{
+		ft_putstr_fd(args[0], 2);
+		ft_putendl_fd(": command not found", 2);
+		exit(127);
+	}
+	if (execve(path, args, NULL) == -1) // need to set env 
+		return (perror("execve"), 1);
+	return (EXIT_FAILURE);
 }

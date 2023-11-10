@@ -89,48 +89,65 @@ int main(int argc, char **argv, char **envp)
 	char 	*line;
 	t_shell shell;
 	int		exit_code;
-	int 	saved_stdout = dup(STDOUT_FILENO);
-	int 	saved_stdin = dup(STDIN_FILENO);
+	int 	saved_stdout;
+	int 	saved_stdin;
 
-
+	saved_stdout = dup(STDOUT_FILENO);
+	if (saved_stdout == -1)
+		return (perror("dup"), EXIT_FAILURE);
+	saved_stdin = dup(STDIN_FILENO);
+	if (saved_stdin == -1)
+		return (perror("dup"), close(saved_stdout), EXIT_FAILURE);
 	if (init_env(envp, &shell) != EXIT_SUCCESS)
 		return (EXIT_FAILURE);
 	shell.last_exit_code = 0;
 	shell.exported_vars = NULL;
 	shell.is_exit = 0;
+	line = NULL;
+
+	//TODO: Increment SHLVL 
 
 	while (!shell.is_exit)
 	{
-		if (isatty(fileno(stdin)))
-			line = readline("🤡clownshell🤡$ ");
-		else 
-		{
-			char *temp;
-			temp = get_next_line(fileno(stdin));
-			line = ft_strtrim(temp, "\n");
-			free(temp);
-		}
+		// if (isatty(fileno(stdin)))
+		// 	line = readline("🤡clownshell🤡$ ");
+		// else 
+		// {
+		// 	char *temp;
+		// 	temp = get_next_line(fileno(stdin));
+		// 	line = ft_strtrim(temp, "\n");
+		// 	free(temp);
+		// }
 		// if (line == NULL)
 		// {
 		// 	break;
 		// }
-		if (line[0] != '\0')
+		
+		line = ft_strdup("ls | cat");
+		if (!line)
+			break;
+		if (line && line[0] != '\0')
 			add_history(line);
 		exec_commands(line, &shell);
 		free(line);
 		if (dup2(saved_stdout, STDOUT_FILENO) == -1)
-			return (perror("dup2"), exit(EXIT_FAILURE), (1)); // free also
+			return (perror("dup2"), exit(EXIT_FAILURE), rl_clear_history(), free_all_envs(&(shell.exported_vars)), free_all_envs(&(shell.env)), (1)); // free also
 		if (dup2(saved_stdin, STDIN_FILENO) == -1)
-			return (perror("dup2"), exit(EXIT_FAILURE), (1)); // free also
+			return (perror("dup2"), exit(EXIT_FAILURE), rl_clear_history(), free_all_envs(&(shell.exported_vars)), free_all_envs(&(shell.env)), (1)); // free also
 		// printf("%d\n", shell.last_exit_code);
 		if (!shell.is_exit)
 			printf("Exit Code: %d\n", shell.last_exit_code);
 		//rl_redisplay();
 		//rl_on_new_line();
+		shell.is_exit = 1;
 	}
 	exit_code = shell.last_exit_code;
 	//TODO: Free shell-props
-	clear_history();
+	free_all_envs(&(shell.exported_vars));
+	free_all_envs(&(shell.env));
+	rl_clear_history();
+	close(saved_stdin);
+	close(saved_stdout);
 	return (exit_code);
 }
 

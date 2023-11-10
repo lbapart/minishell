@@ -52,7 +52,7 @@ int	execute_cd(t_smplcmd command, t_shell *shell)
 	if (error_code != EXIT_SUCCESS)
 		return (error_code);
 	if (chdir(path) != 0)
-		return (perror("cd"), free(old_pwd_path), (ERROR_FATAL));
+		return (perror("cd"), free(old_pwd_path), (EXIT_FAILURE));
 	error_code = get_pwd_string(&pwd_path);
 	if (error_code != EXIT_SUCCESS)
 		return (free(old_pwd_path), error_code);

@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   builtin_cd_utils.c                                 :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: lbapart <lbapart@student.42.fr>            +#+  +:+       +#+        */
+/*   By: ppfiel <ppfiel@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/06 11:13:01 by ppfiel            #+#    #+#             */
-/*   Updated: 2023/11/06 15:23:44 by lbapart          ###   ########.fr       */
+/*   Updated: 2023/11/10 12:07:34 by ppfiel           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,10 +19,10 @@ int	add_pwd_to_env(char *keystr, char *value, t_shell *shell)
 
 	key = ft_strdup(keystr);
 	if (!key)
-		return (perror("cd"), ERROR_FATAL);
+		return (perror("cd"), EXIT_FAILURE);
 	pwd_env = new_env(key, value);
 	if (!pwd_env)
-		return (free(key), ERROR_FATAL);
+		return (free(key), EXIT_FAILURE);
 	add_env(&(shell->env), pwd_env);
 	return (EXIT_SUCCESS);
 }
@@ -44,7 +44,7 @@ int	edit_shell_env(t_shell *shell, char *pwd, char *old_pwd)
 	else
 	{
 		if (add_pwd_to_env("PWD", pwd, shell) != EXIT_SUCCESS)
-			return (ERROR_FATAL);
+			return (EXIT_FAILURE);
 	}
 	old_pwd_env = find_key("OLDPWD", shell->env);
 	if (old_pwd_env)
@@ -52,7 +52,7 @@ int	edit_shell_env(t_shell *shell, char *pwd, char *old_pwd)
 	else
 	{
 		if (add_pwd_to_env("OLDPWD", old_pwd, shell) != EXIT_SUCCESS)
-			return (ERROR_FATAL);
+			return (EXIT_FAILURE);
 	}
 	return (EXIT_SUCCESS);
 }

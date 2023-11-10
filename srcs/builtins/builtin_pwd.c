@@ -25,19 +25,17 @@ if (!shell.env)
 int	get_pwd_string(char **pwd)
 {
 	char	path[4096];
-	int		error_code;
 
 	if (getcwd(path, sizeof(path)))
 	{
 		*pwd = ft_strdup(path);
 		if (!(*pwd))
-			return (perror("Allocation Error"), (ERROR_FATAL));
+			return (perror("Allocation Error"), (EXIT_FAILURE));
 		return (EXIT_SUCCESS);
 	}
 	else
 	{
-		error_code = errno;
-		return (perror("Error while executing getcwd"), (error_code));
+		return (perror("Error while executing getcwd"), (EXIT_FAILURE));
 	}
 }
 

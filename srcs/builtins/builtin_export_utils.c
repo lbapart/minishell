@@ -55,18 +55,18 @@ int	copy_vars(t_vars **dest, t_vars *src)
 	{
 		key = ft_strdup(src->key);
 		if (!key)
-			return (free_all_envs(dest), ERROR_FATAL);
+			return (free_all_envs(dest), EXIT_FAILURE);
 		if (src->value)
 		{
 			value = ft_strdup(src->value);
 			if (!value)
-				return (free_all_envs(dest), free(key), ERROR_FATAL);
+				return (free_all_envs(dest), free(key), EXIT_FAILURE);
 		}
 		else
 			value = NULL;
 		temp = new_env(key, value);
 		if (!temp)
-			return (free_all_envs(dest), free(key), free(value), ERROR_FATAL);
+			return (free_all_envs(dest), free(key), free(value), EXIT_FAILURE);
 		add_env(dest, temp);
 		src = src->next;
 	}
@@ -95,7 +95,7 @@ int	handle_add_to_env(char *key, char *value, t_shell *shell)
 	if (!to_add)
 	{
 		perror("Allocation failed");
-		return (free(key), free(value), ERROR_FATAL);
+		return (free(key), free(value), EXIT_FAILURE);
 	}
 	add_env(&shell->env, to_add);
 	exported_env = find_key(key, shell->exported_vars);

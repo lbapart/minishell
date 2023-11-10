@@ -20,12 +20,10 @@
 # include <unistd.h>
 # include <sys/types.h>
 # include <sys/wait.h>
-# include <errno.h> // TODO: Are we allowed to use it?
 # include <readline/readline.h>
 # include <readline/history.h>
 # include <signal.h>
 
-# define ERROR_FATAL 4200
 # define ERROR_INVALID_ARGS 4201
 # define MALLOCEXIT 1
 # define NOQUOTES 0

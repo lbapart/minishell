@@ -6,7 +6,7 @@
 /*   By: ppfiel <ppfiel@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/07 14:02:11 by lbapart           #+#    #+#             */
-/*   Updated: 2023/11/10 10:33:07 by ppfiel           ###   ########.fr       */
+/*   Updated: 2023/11/10 12:35:01 by ppfiel           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -43,10 +43,10 @@ int	exec_heredoc(t_redirection *redir, int pid)
 
 	filename = generate_filename(pid);
 	if (!filename)
-		return (-1);
+		return (EXIT_FAILURE);
 	fd = open(filename, O_WRONLY | O_CREAT | O_TRUNC, 0644);
 	if (fd == -1)
-		return (perror(filename), 0);
+		return (perror(filename), EXIT_FAILURE);
 	while (1)
 	{
 		line = readline("> ");
@@ -60,6 +60,6 @@ int	exec_heredoc(t_redirection *redir, int pid)
 		(write(fd, line, ft_strlen(line)), write(fd, "\n", 1), free(line));
 	}
 	if (close(fd) == -1)
-		return (perror("close"), 0);
-	return (replace_redir_filename(redir, filename), 1);
+		return (perror("close"), EXIT_FAILURE);
+	return (replace_redir_filename(redir, filename), EXIT_SUCCESS);
 }

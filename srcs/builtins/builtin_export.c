@@ -18,11 +18,11 @@ int	print_env_and_exported(t_shell *shell)
 	t_vars	*temp_exported;
 
 	if (copy_vars(&temp_env, shell->env) != EXIT_SUCCESS)
-		return (ERROR_FATAL);
+		return (EXIT_FAILURE);
 	if (shell->exported_vars)
 	{
 		if (copy_vars(&temp_exported, shell->exported_vars) != EXIT_SUCCESS)
-			return (free_all_envs(&temp_env), (ERROR_FATAL));
+			return (free_all_envs(&temp_env), (EXIT_FAILURE));
 		add_last_env(&temp_env, temp_exported);
 	}
 	temp_env = sort_vars(temp_env);
@@ -39,10 +39,10 @@ int	handle_add_replace_to_env(char *str, t_shell *shell, int equals_index)
 
 	key = ft_substr(str, 0, equals_index);
 	if (!key)
-		return (perror("Allocation failed"), ERROR_FATAL);
+		return (perror("Allocation failed"), EXIT_FAILURE);
 	value = ft_substr(str, equals_index + 1, ft_strlen(str) - equals_index + 1);
 	if (!value)
-		return (perror("Allocation failed"), free(key), ERROR_FATAL);
+		return (perror("Allocation failed"), free(key), EXIT_FAILURE);
 	old_env = find_key(str, shell->env);
 	if (old_env)
 	{
@@ -65,13 +65,13 @@ int	handle_add_to_exported(char *str, t_shell *shell)
 	{
 		key = ft_strdup(str);
 		if (!key)
-			return (perror("Allocation failed"), ERROR_FATAL);
+			return (perror("Allocation failed"), EXIT_FAILURE);
 		value = NULL;
 		to_add = new_env(key, value);
 		if (!to_add)
 		{
 			perror("Allocation failed");
-			return (free(key), free(value), ERROR_FATAL);
+			return (free(key), free(value), EXIT_FAILURE);
 		}
 		add_env(&(shell->exported_vars), to_add);
 	}
@@ -104,7 +104,7 @@ int	handle_variable_assignment(char *arg, t_shell *shell)
 			return (EXIT_FAILURE);
 		}
 		if (handle_add_replace_to_env(arg, shell, equal_pos) != EXIT_SUCCESS)
-			return (ERROR_FATAL);
+			return (EXIT_FAILURE);
 		return (EXIT_SUCCESS);
 	}
 	if (minus_address != NULL)
@@ -130,14 +130,12 @@ int	execute_export(t_shell *shell, t_smplcmd command)
 	while (command.args[i])
 	{
 		error_code = handle_variable_assignment(command.args[i], shell);
-		if (error_code == ERROR_FATAL)
-			return (ERROR_FATAL);
-		else if (error_code == EXIT_FAILURE)
+		if (error_code == EXIT_FAILURE)
 			exit_code = EXIT_FAILURE;
 		else if (error_code == -1)
 		{
 			if (handle_add_to_exported(command.args[i], shell) != EXIT_SUCCESS)
-				return (ERROR_FATAL);
+				return (EXIT_FAILURE);
 		}
 		i++;
 	}
