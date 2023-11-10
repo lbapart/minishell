@@ -3,14 +3,16 @@
 /*                                                        :::      ::::::::   */
 /*   signals.c                                          :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: lbapart <lbapart@student.42.fr>            +#+  +:+       +#+        */
+/*   By: aapenko <aapenko@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/10 11:21:32 by lbapart           #+#    #+#             */
-/*   Updated: 2023/11/10 14:26:30 by lbapart          ###   ########.fr       */
+/*   Updated: 2023/11/10 16:35:46 by aapenko          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "minishell.h"
+
+int	g_signal_received = 0;
 
 static void	sigint_handler(int sig)
 {
@@ -23,7 +25,7 @@ static void	sigint_handler(int sig)
 static void	sigquit_handler(int sig)
 {
 	(void)sig;
-	signal_received = SIGQUIT;
+	g_signal_received = SIGQUIT;
 	rl_on_new_line();
 	rl_replace_line("", 0);
 	rl_redisplay();
@@ -33,7 +35,7 @@ static void	heredoc_sigint_handler(int sig)
 {
 	(void)sig;
 	write(1, "\n", 1);
-	signal_received = SIGINT;
+	g_signal_received = SIGINT;
 	rl_replace_line("", 0);
 	rl_on_new_line();
 }

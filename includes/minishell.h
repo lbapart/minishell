@@ -44,7 +44,7 @@
 # define CHILD_MODE 1
 # define HEREDOC_MODE 2
 
-extern int signal_received;
+extern int g_signal_received;
 
 typedef struct s_redirection
 {
