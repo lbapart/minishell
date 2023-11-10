@@ -6,7 +6,7 @@
 /*   By: aapenko <aapenko@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/21 14:50:26 by lbapart           #+#    #+#             */
-/*   Updated: 2023/11/08 17:06:03 by aapenko          ###   ########.fr       */
+/*   Updated: 2023/11/10 10:47:40 by aapenko          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -40,7 +40,7 @@ int	extract_cmd(char **str_cmd, t_pars_vars *p, t_shell *shell)
 	if (!v.tokens)
 		return (free_extract_cmd(&p->cmds, str_cmd, shell), malloc_err(), 0);
 	if (!check_redir_tokens(v.tokens))
-		return (free_extract_cmd_2(&p->cmds, &v), redir_token_err(), 0);
+		return (free_extract_cmd_2(&p->cmds, &v), redir_token_err(shell), 0);
 	while (v.tokens && v.tokens[v.i])
 		remove_unnecessary_quotes(v.tokens[v.i++]);
 	v.smplcmd = put_tokens_to_struct(v.tokens, p->cmds);
@@ -60,7 +60,7 @@ int	parse_init_check(char *cmd, t_pars_vars *v, t_shell *shell)
 	if (!cmd || !cmd[0])
 		return (0);
 	if (!check_unclosed_quotes(cmd))
-		return (unclosed_quotes_err(), 0);
+		return (unclosed_quotes_err(shell), 0);
 	init_vars(v, NULL, shell);
 	return (1);
 }
@@ -91,9 +91,9 @@ t_cmd	*parse_commands(char *cmd, t_shell *shell)
 		else if (cmd[v.i] == '"' && !v.iosq)
 			v.iodq = !v.iodq;
 		else if (cmd[v.i] == '|' && cmd[v.i + 1] == '|' && !v.iosq && !v.iodq)
-			return (free_structs(&v.cmds), double_pipe_err(), NULL);
+			return (free_structs(&v.cmds), double_pipe_err(shell), NULL);
 		else if (is_unsupported_char(cmd[v.i]) && !v.iosq && !v.iodq)
-			return (free_structs(&v.cmds), unsup_char_err(cmd[v.i]), NULL);
+			return (free_structs(&v.cmds), char_err(cmd[v.i], shell), NULL);
 		else if (cmd[v.i] == '|' && !v.iosq && !v.iodq)
 		{
 			if (!extract_cmd(&cmd, &v, shell))
