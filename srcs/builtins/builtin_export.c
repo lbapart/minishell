@@ -81,22 +81,38 @@ int	handle_add_to_exported(char *str, t_shell *shell)
 int	handle_variable_assignment(char *arg, t_shell *shell)
 {
 	char	*equal_address;
+	char	*minus_address;
 	int		equal_pos;
 
+	if (ft_isdigit(arg[0]))
+	{
+		ft_putstr_fd("export: `", 2);
+		ft_putstr_fd(arg, 2);
+		ft_putendl_fd("': not a valid identifier", 2);
+		return (EXIT_FAILURE);
+	}
 	equal_address = ft_strchr(arg, '=');
+	minus_address = ft_strchr(arg, '-');
 	if (equal_address)
 	{
 		equal_pos = equal_address - arg;
-		if (equal_pos == 0)
+		if (equal_pos == 0 || (minus_address != NULL && minus_address < equal_address))
 		{
 			ft_putstr_fd("export: `", 2);
 			ft_putstr_fd(arg, 2);
-			ft_putstr_fd("': not a valid identifier", 2);
+			ft_putendl_fd("': not a valid identifier", 2);
 			return (EXIT_FAILURE);
 		}
 		if (handle_add_replace_to_env(arg, shell, equal_pos) != EXIT_SUCCESS)
 			return (ERROR_FATAL);
 		return (EXIT_SUCCESS);
+	}
+	if (minus_address != NULL)
+	{
+		ft_putstr_fd("export: `", 2);
+		ft_putstr_fd(arg, 2);
+		ft_putendl_fd("': not a valid identifier", 2);
+		return (EXIT_FAILURE);
 	}
 	return (-1);
 }

@@ -86,19 +86,20 @@ int main(int argc, char **argv, char **envp)
 	(void)argc;
 	(void) argv;
 
-	char *line;
+	char 	*line;
 	t_shell shell;
-
-	int saved_stdout = dup(STDOUT_FILENO);
-	int saved_stdin = dup(STDIN_FILENO);
+	int		exit_code;
+	int 	saved_stdout = dup(STDOUT_FILENO);
+	int 	saved_stdin = dup(STDIN_FILENO);
 
 
 	if (init_env(envp, &shell) != EXIT_SUCCESS)
 		return (EXIT_FAILURE);
 	shell.last_exit_code = 0;
 	shell.exported_vars = NULL;
+	shell.is_exit = 0;
 
-	while (1)
+	while (!shell.is_exit)
 	{
 		if (isatty(fileno(stdin)))
 			line = readline("🤡clownshell🤡$ ");
@@ -121,11 +122,16 @@ int main(int argc, char **argv, char **envp)
 			return (perror("dup2"), exit(EXIT_FAILURE), (1)); // free also
 		if (dup2(saved_stdin, STDIN_FILENO) == -1)
 			return (perror("dup2"), exit(EXIT_FAILURE), (1)); // free also
+		// printf("%d\n", shell.last_exit_code);
+		if (!shell.is_exit)
+			printf("Exit Code: %d\n", shell.last_exit_code);
 		//rl_redisplay();
 		//rl_on_new_line();
 	}
+	exit_code = shell.last_exit_code;
+	//TODO: Free shell-props
 	clear_history();
-	return (0);
+	return (exit_code);
 }
 
 // int	main(int argc, char **argv, char **envp)

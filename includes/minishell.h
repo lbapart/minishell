@@ -105,6 +105,7 @@ typedef struct s_shell
 	t_vars 	*env;
 	t_vars	*exported_vars;
 	int		last_exit_code;
+	int		is_exit;
 } t_shell;
 
 
@@ -115,7 +116,7 @@ int		execute_env(t_smplcmd command, t_shell shell);
 int		execute_echo(t_smplcmd command);
 int		execute_export(t_shell *shell, t_smplcmd command);
 int		execute_unset(t_smplcmd command, t_shell *shell);
-int		execute_exit(t_smplcmd command);
+int		execute_exit(t_smplcmd command, t_shell *shell);
 
 int		get_array_size(char **arr);
 int		init_env(char **envp, t_shell *shell);

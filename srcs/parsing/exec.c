@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   exec.c                                             :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: lbapart <lbapart@student.42.fr>            +#+  +:+       +#+        */
+/*   By: ppfiel <ppfiel@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/02 15:45:19 by lbapart           #+#    #+#             */
-/*   Updated: 2023/11/08 11:18:26 by lbapart          ###   ########.fr       */
+/*   Updated: 2023/11/10 10:17:04 by ppfiel           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -27,7 +27,7 @@ int	exec_builtin(t_smplcmd *smplcmd, t_shell *shell)
 	if (smplcmd->builtin == ENV)
 		return (execute_env(*smplcmd, *shell));
 	if (smplcmd->builtin == EXIT)
-		return (execute_exit(*smplcmd));
+		return (execute_exit(*smplcmd, shell));
 	return (1);
 }
 
@@ -92,212 +92,184 @@ int	exec_builtin(t_smplcmd *smplcmd, t_shell *shell)
 // 	return ;
 // }
 
+int	handle_redirect(char *filename, int open_flags, int redirect_target)
+{
+	int	fd;
+
+	fd = open(filename, open_flags, 0000644);
+	if (fd == -1)
+		return (perror(filename), EXIT_FAILURE);
+	if (dup2(fd, redirect_target) == -1)
+		return (perror("dup2"), close(fd), EXIT_FAILURE); // free also
+	if (close(fd) == -1)
+		return (perror("close"), EXIT_FAILURE); // free also
+	return (EXIT_SUCCESS);
+}
+
+int	handle_redirections(t_redirection *redirections)
+{
+	while (redirections)
+	{
+		if (redirections->type == 1)
+		{
+			if (handle_redirect(redirections->file, O_RDONLY, STDIN_FILENO) != EXIT_SUCCESS)
+				return (EXIT_FAILURE);
+		}
+		else if (redirections->type == 2)
+		{
+			exec_heredoc(redirections, 1);
+			if (handle_redirect(redirections->file, O_RDONLY, STDIN_FILENO) != EXIT_SUCCESS)
+				return (EXIT_FAILURE);
+		}
+		else if (redirections->type == 3)
+		{
+			if (handle_redirect(redirections->file, O_TRUNC | O_CREAT | O_RDWR, STDOUT_FILENO) != EXIT_SUCCESS)
+				return (EXIT_FAILURE);
+		}
+		else
+		{
+			if (handle_redirect(redirections->file, O_APPEND | O_CREAT | O_RDWR, STDOUT_FILENO) != EXIT_SUCCESS)
+				return (EXIT_FAILURE);
+		}
+		redirections = redirections->next;
+	}
+	return (EXIT_SUCCESS);
+}
+
+int	init_pipe(t_cmd *cmd)
+{
+	if (cmd->next)
+	{
+		if (pipe(cmd->pipe) == -1)
+			(perror("pipe"), exit(EXIT_FAILURE)); //free also
+	}
+	return (EXIT_SUCCESS);
+}
+
+void	handle_child_process(t_cmd *cmd, t_shell *shell)
+{
+	if (cmd->prev)
+	{
+		if (dup2(cmd->prev->pipe[0], STDIN_FILENO) == -1)
+			return (perror("dup2"), exit(EXIT_FAILURE)); // free also
+		if (close(cmd->prev->pipe[0]) == -1)
+			return (perror("close"), exit(EXIT_FAILURE)); // free and close others if hasNext also
+	}
+	if (cmd->next)
+	{
+		if (dup2(cmd->pipe[1], STDOUT_FILENO) == -1)
+			return (perror("dup2"), exit(EXIT_FAILURE)); // free also
+		// if (close(cmd->pipe[0]) == -1)
+		// 	return (perror("close"), close(cmd->pipe[1]), exit(EXIT_FAILURE)); // free also
+		if (close(cmd->pipe[1]) == -1)
+			return (perror("close"), exit(EXIT_FAILURE)); // free also
+		if (close(cmd->pipe[0]) == -1)
+			return (perror("close"), exit(EXIT_FAILURE)); // free also
+	}		
+	if (handle_redirections(cmd->smplcmd->redir))
+		exit(EXIT_FAILURE); //TODO: Error Handling
+	//TODO: Refactor this
+	if (cmd->smplcmd->builtin == 0)
+		exit(exec_simple_command(cmd->smplcmd, shell));
+	else
+		exit(exec_builtin(cmd->smplcmd, shell));
+}
+
+int	handle_parent_process(t_cmd *cmd)
+{
+	if (cmd->prev)
+	{
+		if (close(cmd->prev->pipe[0]) == -1)
+			return (perror("close"), EXIT_FAILURE); // free also
+	}
+	if (cmd->next)
+	{
+		if (close(cmd->pipe[1]) == -1)
+			return (perror("close"), EXIT_FAILURE); // free and close also
+	}
+	return (EXIT_SUCCESS);
+}
+
+int	handle_single_command(t_shell *shell, t_cmd *cmd)
+{
+	if (handle_redirections(cmd->smplcmd->redir))
+		return (EXIT_FAILURE); //TODO: Error Handling
+	//TODO: Refactor this
+	if (cmd->smplcmd->builtin == 0)
+	{
+		cmd->pid = fork();
+		if (cmd->pid == 0)
+			exit(exec_simple_command(cmd->smplcmd, shell));
+	}
+	else
+		shell->last_exit_code = exec_builtin(cmd->smplcmd, shell);
+	return (EXIT_SUCCESS);
+}
+
+int	handle_multiple_commands(t_shell *shell, t_cmd *cmd)
+{
+	while (cmd)
+	{
+		if (init_pipe(cmd) != EXIT_SUCCESS)
+			return (EXIT_FAILURE); //TODO: Error Handling
+		cmd->pid = fork();
+		if (cmd->pid == -1)
+			(perror("fork"), exit(EXIT_FAILURE)); // free all cmds before
+		else if (cmd->pid == 0)
+			handle_child_process(cmd, shell);
+		else
+		{
+			if (handle_parent_process(cmd) != EXIT_SUCCESS)
+				return (EXIT_FAILURE); //TODO: Error Handling;
+		}
+		cmd = cmd->next;
+	}
+	return (EXIT_SUCCESS);
+}
+
+int	handle_waiting_processes(t_cmd *cmd, t_shell *shell)
+{
+	int	status;
+
+	status = 0;
+	while (cmd)
+	{
+		if (waitpid(cmd->pid, &status, 0) == -1)
+		{
+			perror("waitpid"); //TODO: Free and close stuff
+			printf("PID: %d\n", cmd->pid);
+			return (EXIT_FAILURE); //TODO: Error Handling
+		}
+		status = WEXITSTATUS(status);
+		//TODO: Heredoc check with deleting tmp file
+		cmd = cmd->next;
+	}
+	shell->last_exit_code = status;
+	return (EXIT_SUCCESS);
+}
+
 void	exec_commands(char *cmd, t_shell *shell)
 {
 	t_cmd	*cmds;
-	t_cmd	*temp;
 
 	cmds = parse_commands(cmd, shell);
 	if (!cmds)
 		return ;
-	temp = cmds;
-	if (!temp->next)
+	if (cmds->next)
 	{
-		t_redirection *redirections = temp->smplcmd->redir;
-			int	file_descriptor;
-			while (redirections)
-			{
-				// 0 for no redirection, 1 for <, 2 for <<, 3 for >, 4 for >>
-				printf("%s: type=%d next=%p\n", redirections->file, redirections->type, redirections->next);
-				if (redirections->type == 1)
-				{
-					//TODO: Input redirect
-					file_descriptor = open(redirections->file, O_RDONLY, 0000644);
-					if (file_descriptor == -1)
-						return (perror(redirections->file));
-					if (dup2(file_descriptor, STDIN_FILENO) == -1)
-						return (perror("dup2"), close(file_descriptor), exit(EXIT_FAILURE)); // free also
-					if (close(file_descriptor) == -1)
-						return (perror("close"), exit(EXIT_FAILURE)); // free also
-				}
-				else if (redirections->type == 2)
-				{
-					//TODO: Heredoc: Call heredoc function and then redirect STDIN to filedescriptor
-					exec_heredoc(redirections, 1);
-					file_descriptor = open(redirections->file, O_RDONLY, 0000644);
-					if (file_descriptor == -1)
-						return (perror(redirections->file));
-					if (dup2(file_descriptor, STDIN_FILENO) == -1)
-						return (perror("dup2"), close(file_descriptor), exit(EXIT_FAILURE)); // free also
-					if (close(file_descriptor) == -1)
-						return (perror("close"), exit(EXIT_FAILURE));
-				}
-				else if (redirections->type == 3)
-				{
-					//TODO: Output redirect
-					file_descriptor = open(redirections->file, O_TRUNC | O_CREAT | O_RDWR, 0000644);
-					if (file_descriptor == -1)
-						return (perror(redirections->file));
-					if (dup2(file_descriptor, STDOUT_FILENO) == -1)
-						return (perror("dup2"), close(file_descriptor), exit(EXIT_FAILURE)); // free also
-					if (close(file_descriptor) == -1)
-						return (perror("close"), exit(EXIT_FAILURE)); // free also
-				}
-				else
-				{
-					//TODO: Output append redirect
-					file_descriptor = open(redirections->file, O_APPEND | O_CREAT | O_RDWR, 0000644);
-					if (file_descriptor == -1)
-						return (perror(redirections->file));
-					if (dup2(file_descriptor, STDOUT_FILENO) == -1)
-						return (perror("dup2"), close(file_descriptor), exit(EXIT_FAILURE)); // free also
-					if (close(file_descriptor) == -1)
-						return (perror("close"), exit(EXIT_FAILURE)); // free also
-				}
-				redirections = redirections->next;
-			}
-			//TODO: Refactor this
-			if (temp->smplcmd->builtin == 0)
-			{
-				temp->pid = fork();
-				if (temp->pid == 0)
-				{
-					exec_simple_command(temp->smplcmd, shell);
-					return ;
-				}
-			}
-			else
-				exec_builtin(temp->smplcmd, shell);
+		if (handle_multiple_commands(shell, cmds) != EXIT_SUCCESS)
+			return ; //TODO: Error Handling
 	}
 	else
 	{
-	while (temp)
+		if (handle_single_command(shell, cmds) != EXIT_SUCCESS)
+			return ; //TODO: Error Handling
+	}
+	if (cmds->next || cmds->smplcmd->builtin == 0)
 	{
-		if (temp->next)
-		{
-			if (pipe(temp->pipe) == -1)
-				(perror("pipe"), exit(EXIT_FAILURE)); //free also
-		}
-		temp->pid = fork();
-		if (temp->pid == -1)
-			(perror("fork"), exit(EXIT_FAILURE)); // free all cmds before
-		else if (temp->pid == 0) //Child Process
-		{
-			if (temp->prev)
-			{
-				if (dup2(temp->prev->pipe[0], STDIN_FILENO) == -1)
-					return (perror("dup2"), exit(EXIT_FAILURE)); // free also
-				if (close(temp->prev->pipe[0]) == -1)
-					return (perror("close"), exit(EXIT_FAILURE)); // free and close others if hasNext also
-			}
-			if (temp->next)
-			{
-				if (dup2(temp->pipe[1], STDOUT_FILENO) == -1)
-					return (perror("dup2"), exit(EXIT_FAILURE)); // free also
-				// if (close(temp->pipe[0]) == -1)
-				// 	return (perror("close"), close(temp->pipe[1]), exit(EXIT_FAILURE)); // free also
-				if (close(temp->pipe[1]) == -1)
-					return (perror("close"), exit(EXIT_FAILURE)); // free also
-				
-				if (close(temp->pipe[0]) == -1)
-					return (perror("close"), exit(EXIT_FAILURE)); // free also
-				
-			}
-			t_redirection *redirections = temp->smplcmd->redir;
-			int	file_descriptor;
-			while (redirections)
-			{
-				// 0 for no redirection, 1 for <, 2 for <<, 3 for >, 4 for >>
-				printf("%s: type=%d next=%p\n", redirections->file, redirections->type, redirections->next);
-				if (redirections->type == 1)
-				{
-					//TODO: Input redirect
-					file_descriptor = open(redirections->file, O_RDONLY, 0000644);
-					if (file_descriptor == -1)
-						return (perror(redirections->file));
-					if (dup2(file_descriptor, STDIN_FILENO) == -1)
-						return (perror("dup2"), close(file_descriptor), exit(EXIT_FAILURE)); // free also
-					if (close(file_descriptor) == -1)
-						return (perror("close"), exit(EXIT_FAILURE)); // free also
-				}
-				else if (redirections->type == 2)
-				{
-					//TODO: Heredoc: Call heredoc function and then redirect STDIN to filedescriptor
-					exec_heredoc(redirections, temp->pid);
-					file_descriptor = open(redirections->file, O_RDONLY, 0000644);
-					if (file_descriptor == -1)
-						return (perror(redirections->file));
-					if (dup2(file_descriptor, STDIN_FILENO) == -1)
-						return (perror("dup2"), close(file_descriptor), exit(EXIT_FAILURE)); // free also
-					if (close(file_descriptor) == -1)
-						return (perror("close"), exit(EXIT_FAILURE));
-				}
-				else if (redirections->type == 3)
-				{
-					//TODO: Output redirect
-					file_descriptor = open(redirections->file, O_TRUNC | O_CREAT | O_RDWR, 0000644);
-					if (file_descriptor == -1)
-						return (perror(redirections->file));
-					if (dup2(file_descriptor, STDOUT_FILENO) == -1)
-						return (perror("dup2"), close(file_descriptor), exit(EXIT_FAILURE)); // free also
-					if (close(file_descriptor) == -1)
-						return (perror("close"), exit(EXIT_FAILURE)); // free also
-				}
-				else
-				{
-					//TODO: Output append redirect
-					file_descriptor = open(redirections->file, O_APPEND | O_CREAT | O_RDWR, 0000644);
-					if (file_descriptor == -1)
-						return (perror(redirections->file));
-					if (dup2(file_descriptor, STDOUT_FILENO) == -1)
-						return (perror("dup2"), close(file_descriptor), exit(EXIT_FAILURE)); // free also
-					if (close(file_descriptor) == -1)
-						return (perror("close"), exit(EXIT_FAILURE)); // free also
-				}
-				redirections = redirections->next;
-			}
-			//TODO: Refactor this
-			if (temp->smplcmd->builtin == 0)
-				exec_simple_command(temp->smplcmd, shell);
-			else
-				exec_builtin(temp->smplcmd, shell);
-			return ;
-		}
-		else //parent process
-		{
-			if (temp->prev)
-			{
-				if (close(temp->prev->pipe[0]) == -1)
-					return (perror("close"), exit(EXIT_FAILURE)); // free also
-			}
-			if (temp->next)
-			{
-				if (close(temp->pipe[1]) == -1)
-					return (perror("close"), exit(EXIT_FAILURE)); // free and close also
-				
-			}
-		}
-		temp = temp->next;
+		if (handle_waiting_processes(cmds, shell) != EXIT_SUCCESS)
+			return ; //TODO: Error Handling
 	}
-	}
-	temp = cmds;
-	int status = 0;
-	if (temp->next || temp->smplcmd->builtin == 0)
-	{
-		while (temp)
-		{
-			if (waitpid(temp->pid, &status, 0) == -1)
-			{
-				perror("waitpid"); //TODO: Free and close stuff
-				printf("PID: %d\n", temp->pid);
-			}
-			status = WEXITSTATUS(status);
-			//TODO: Heredoc check with deleting tmp file
-			temp = temp->next;
-		}
-	}
-	
-	shell->last_exit_code = status;
 	free_structs(&cmds);
 	return ;
 }

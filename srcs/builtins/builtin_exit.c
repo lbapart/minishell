@@ -41,7 +41,7 @@ int	is_valid_number(char *str, int is_negative)
 	return (1);
 }
 
-int	exit_code_parse(char *str)
+int	exit_code_parse(char *str, t_shell *shell)
 {
 	long long	num;
 	int			sign;
@@ -63,10 +63,11 @@ int	exit_code_parse(char *str)
 		num = num * 10 + (str[i] - '0');
 		i++;
 	}
+	shell->is_exit = 1;
 	return ((unsigned char)(num * sign));
 }
 
-int	execute_exit(t_smplcmd command)
+int	execute_exit(t_smplcmd command, t_shell *shell)
 {
 	if (get_array_size(command.args) > 2)
 	{
@@ -74,6 +75,9 @@ int	execute_exit(t_smplcmd command)
 		return (EXIT_FAILURE);
 	}
 	if (get_array_size(command.args) == 1)
+	{
+		shell->is_exit = 1;
 		return (EXIT_SUCCESS);
-	return (exit_code_parse(command.args[1]));
+	}
+	return (exit_code_parse(command.args[1], shell));
 }
