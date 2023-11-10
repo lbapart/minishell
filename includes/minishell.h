@@ -153,14 +153,14 @@ void			exec_commands(char *cmd, t_shell *shell);
 int				exec_simple_command(t_smplcmd *smplcmd, t_shell *shell);
 int				exec_builtin(t_smplcmd *smplcmd, t_shell *shell);
 // parsing_error_2.c
-void			unexpected_near_pipe_err(void);
-void			amb_redir_err(void);
+void			near_pipe_err(t_shell *shell);
+void			amb_redir_err(t_shell *shell);
 // parsing_error.c
 void			malloc_err(void);
-void			unsup_char_err(char c);
-void			unclosed_quotes_err(void);
-void			double_pipe_err(void);
-void			redir_token_err(void);
+void			char_err(char c, t_shell *shell);
+void			unclosed_quotes_err(t_shell *shell);
+void			double_pipe_err(t_shell *shell);
+void			redir_token_err(t_shell *shell);
 // parsing_free_2.c
 void			free_extract_cmd_2(t_cmd **cmds, t_pars_vars *v);
 void			free_extract_cmd_3(char **str_cmd, t_shell *shell);

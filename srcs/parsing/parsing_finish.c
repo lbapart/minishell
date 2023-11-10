@@ -6,7 +6,7 @@
 /*   By: aapenko <aapenko@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/30 22:22:49 by lbapart           #+#    #+#             */
-/*   Updated: 2023/11/09 13:20:27 by aapenko          ###   ########.fr       */
+/*   Updated: 2023/11/10 10:44:15 by aapenko          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -95,7 +95,7 @@ t_cmd	*finish_pars(t_cmd *cmd, t_shell *shell, char *strcmd)
 		if (!temp->smplcmd->args && !temp->smplcmd->redir)
 		{
 			if (temp->next || count > 0)
-				return (free_structs(&cmd), unexpected_near_pipe_err(), NULL);
+				return (free_structs(&cmd), near_pipe_err(shell), NULL);
 			else
 				return (free_structs(&cmd), NULL);
 		}
