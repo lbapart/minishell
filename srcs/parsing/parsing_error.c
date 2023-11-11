@@ -6,7 +6,7 @@
 /*   By: aapenko <aapenko@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/30 17:01:32 by lbapart           #+#    #+#             */
-/*   Updated: 2023/11/10 10:47:40 by aapenko          ###   ########.fr       */
+/*   Updated: 2023/11/11 18:54:44 by aapenko          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,6 +14,7 @@
 
 void	malloc_err(void)
 {
+	rl_clear_history();
 	ft_putstr_fd("🤡🤡🤡Malloc failed🤡🤡🤡\n", 2);
 	exit(MALLOCEXIT);
 }

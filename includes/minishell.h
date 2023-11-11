@@ -237,7 +237,7 @@ int				is_unsupported_char(char c);
 // heredoc.c
 char			*generate_filename(int pid);
 void			replace_redir_filename(t_redirection *redir, char *filename);
-int				exec_heredoc(t_redirection *redir, int pid);
+int	exec_heredoc(t_redirection *redir, int pid, t_shell *shell);
 // parsing_vars_2.c
 char	*get_var_name_str(char *str, t_shell *shell, t_cmd *cmd, char *strcmd);
 char	*get_var_value_str(char *var_name, t_shell *shell, t_cmd *cmd, char *strcmd);
