@@ -6,7 +6,7 @@
 /*   By: aapenko <aapenko@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/07 14:02:11 by lbapart           #+#    #+#             */
-/*   Updated: 2023/11/11 19:07:51 by aapenko          ###   ########.fr       */
+/*   Updated: 2023/11/11 19:09:14 by aapenko          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -195,6 +195,7 @@ int	exec_heredoc(t_redirection *redir, int pid, t_shell *shell)
 	if (fd == -1)
 		return (free(eof), perror(filename), free(filename), EXIT_FAILURE);
 	replace_redir_filename(redir, filename);
+	redir->to_delete = 1;
 	if (read_and_put_in_file(fd, eof, shell) == EXIT_FAILURE)
 		return (free(eof), EXIT_FAILURE);
 	if (close(fd) == -1)
