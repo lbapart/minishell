@@ -6,7 +6,7 @@
 /*   By: aapenko <aapenko@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/07 14:02:11 by lbapart           #+#    #+#             */
-/*   Updated: 2023/11/11 19:05:28 by aapenko          ###   ########.fr       */
+/*   Updated: 2023/11/11 19:07:51 by aapenko          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -162,8 +162,7 @@ int	read_and_put_in_file(int fd, char *eof, t_shell *shell)
 
 	while (1)
 	{
-		// line = readline("> ");
-		line = ft_strdup("$USER");
+		line = readline("> ");
 		if (!line)
 			return (EXIT_FAILURE);
 		if (ft_strcmp(line, eof) == 0)
