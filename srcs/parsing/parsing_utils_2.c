@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   parsing_utils_2.c                                  :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: aapenko <aapenko@student.42.fr>            +#+  +:+       +#+        */
+/*   By: ppfiel <ppfiel@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/06 22:26:08 by lbapart           #+#    #+#             */
-/*   Updated: 2023/11/10 17:40:12 by aapenko          ###   ########.fr       */
+/*   Updated: 2023/11/13 11:10:10 by ppfiel           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -52,8 +52,8 @@ void	replace_dollar_sign(char *cmd, size_t *i,
 			;
 		else if (cmd[*i] == '$')
 			cmd[*i] = dollar_type;
-		(*i)++;
 		set_in_quotes_var(cmd[*i], in_quotes);
+		(*i)++;
 	}
 }
 

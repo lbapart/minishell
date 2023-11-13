@@ -31,7 +31,7 @@ int	is_valid_number(char *str, int is_negative)
 	max_value = "9223372036854775807";
 	if (is_negative)
 		max_value = "9223372036854775808";
-	if (ft_strncmp(str, max_value, 20) > 0)
+	if (ft_strlen(str) > 19 || (ft_strlen(str) == 19 && ft_strncmp(str, max_value, 20) > 0))
 	{
 		ft_putstr_fd("exit: ", 2);
 		ft_putstr_fd(str, 2);

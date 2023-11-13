@@ -6,7 +6,7 @@
 /*   By: ppfiel <ppfiel@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/02 15:45:19 by lbapart           #+#    #+#             */
-/*   Updated: 2023/11/13 08:13:02 by ppfiel           ###   ########.fr       */
+/*   Updated: 2023/11/13 11:12:39 by ppfiel           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -82,6 +82,7 @@ void	handle_child_process(t_cmd *cmd, t_shell *shell)
 {
 	int	exit_redirections;
 
+	init_signals(CHILD_MODE);
 	if (cmd->prev)
 	{
 		if (dup2(cmd->prev->pipe[0], STDIN_FILENO) == -1)
@@ -239,7 +240,9 @@ void	free_set_failure_unlink(t_cmd **cmds, t_shell *shell)
 	while (temp)
 	{
 		if (temp->smplcmd->redir != NULL && temp->smplcmd->redir->type == 2 && temp->smplcmd->redir->to_delete == 1)
+		{
 			unlink(temp->smplcmd->redir->file);
+		}
 		temp = temp->next;
 	}
 	free_structs(cmds);
@@ -254,6 +257,7 @@ int	init_heredoc_execution(t_cmd *cmds, t_shell *shell)
 
 	i = 0;
 	temp = cmds;
+	init_signals(HEREDOC_MODE);
 	while (temp)
 	{
 		if (temp->smplcmd->redir != NULL && temp->smplcmd->redir->type == 2)
@@ -274,8 +278,12 @@ void	exec_commands(char *cmd, t_shell *shell)
 	cmds = parse_commands(cmd, shell);
 	if (!cmds)
 		return ;
+
 	if (init_heredoc_execution(cmds, shell) != EXIT_SUCCESS)
+	{
 		return (free_set_failure_unlink(&cmds, shell));
+	}
+	init_signals(GLOBAL_MODE);
 	if (cmds->next)
 	{
 		if (handle_multiple_commands(shell, cmds) != EXIT_SUCCESS)
@@ -297,49 +305,6 @@ void	exec_commands(char *cmd, t_shell *shell)
 	return ;
 }
 
-
-// also need to handle ctrl + c and ctrl + d here
-// int	redirect_input_output(t_redirection *redir)
-// {
-// 	int fd;
-
-// 	if (redir->type == 1)
-// 	{
-// 		fd = open(redir->file, O_RDONLY);
-// 		if (fd == -1)
-// 			return (perror(redir->file), 1);
-// 		if (dup2(fd, STDIN_FILENO) == -1)
-// 			return (perror("dup2"), close(fd), 1);
-// 		if (close(fd) == -1)
-// 			return (perror("close")), 1;
-// 	}
-// 	else if (redir->type == 2)
-// 	{
-// 		return (exec_heredoc(redir));
-// 	}
-// 	else if (redir->type == 3)
-// 	{
-// 		fd = open(redir->file, O_WRONLY | O_CREAT | O_TRUNC, 0644);
-// 		if (fd == -1)
-// 			return (perror(redir->file), 1);
-// 		if (dup2(fd, STDOUT_FILENO) == -1)
-// 			return (perror("dup2"), close(fd), 1);
-// 		if (close(fd) == -1)
-// 			return (perror("close"), 1);
-// 	}
-// 	else if (redir->type == 4)
-// 	{
-// 		fd = open(redir->file, O_WRONLY | O_CREAT | O_APPEND, 0644);
-// 		if (fd == -1)
-// 			return (perror(redir->file), 1);
-// 		if (dup2(fd, STDOUT_FILENO) == -1)
-// 			return (perror("dup2"), close(fd), 1);
-// 		if (close(fd) == -1)
-// 			return (perror("close"), 1);
-// 	}
-// 	return (1);
-// }
-
 int	exec_simple_command(t_smplcmd *smplcmd, t_shell *shell)
 {
 	char	*path;
@@ -354,6 +319,7 @@ int	exec_simple_command(t_smplcmd *smplcmd, t_shell *shell)
 	// 	env_path = get_env_path(shell->exported_vars);
 	// path = get_path(env_path, smplcmd->path);
 	// need to handle exit code here
+	init_signals(CHILD_MODE);
 	if (access(path, X_OK) != 0)
 	{
 		ft_putstr_fd(args[0], 2);

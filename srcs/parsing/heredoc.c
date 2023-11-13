@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   heredoc.c                                          :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: aapenko <aapenko@student.42.fr>            +#+  +:+       +#+        */
+/*   By: ppfiel <ppfiel@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/07 14:02:11 by lbapart           #+#    #+#             */
-/*   Updated: 2023/11/13 08:19:42 by ppfiel           ###   ########.fr       */
+/*   Updated: 2023/11/13 11:06:39 by ppfiel           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,6 +20,7 @@ char	*generate_filename(int pid)
 	filename = ft_itoa(pid);
 	if (!filename)
 		return (NULL);
+	//TODO: join with shlvl 
 	tmp = ft_not_free_strjoin(".tmp", filename);
 	if (!tmp)
 		return (free(filename), NULL);
@@ -166,14 +167,20 @@ int	read_and_put_in_file(int fd, char *eof, t_shell *shell)
 	{
 		line = readline("> ");
 		if (!line)
+		{
+			ft_putstr_fd("warning: here-document delimited by end-of-file (wanted `", 2);
+			ft_putstr_fd(eof, 2);
+			ft_putendl_fd("')", 2);
+			return (EXIT_FAILURE);
+		}
+		if (g_signal_received == 2)
 			return (EXIT_FAILURE);
 		if (ft_strcmp(line, eof) == 0)
 			return (free(line), EXIT_SUCCESS);
 		result_line = replace_vars_heredoc(line, shell, NULL);
 		if (!result_line)
 			return (EXIT_FAILURE);
-		ft_putstr_fd(result_line, fd);
-		ft_putchar_fd('\n', fd);
+		ft_putendl_fd(result_line, fd);
 		free(result_line);
 	}
 	return (1);
@@ -189,7 +196,7 @@ int	exec_heredoc(t_redirection *redir, int pid, t_shell *shell)
 	eof = ft_strdup(redir->file);
 	if (!eof)
 		return (EXIT_FAILURE);
-	filename = generate_filename(pid);
+	filename = generate_filename(pid); // TODO: PP: Should also take in account shlvl? Would happends if you execute minishell in a pipe that creates also .tmps? Is it even possible?
 	if (!filename)
 		return (free(eof), EXIT_FAILURE);
 	fd = open(filename, O_WRONLY | O_CREAT | O_TRUNC, 0644);
@@ -198,7 +205,7 @@ int	exec_heredoc(t_redirection *redir, int pid, t_shell *shell)
 	replace_redir_filename(redir, filename);
 	redir->to_delete = 1;
 	if (read_and_put_in_file(fd, eof, shell) == EXIT_FAILURE)
-		return (free(eof), EXIT_FAILURE); //TODO: PP: shouldnt fd be closed?
+		return (free(eof), close(fd), EXIT_FAILURE); //TODO: PP: shouldnt fd be closed?
 	if (close(fd) == -1)
 		return (free(eof), perror("close"), EXIT_FAILURE);
 	return (free(eof), EXIT_SUCCESS);

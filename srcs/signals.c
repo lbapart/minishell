@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   signals.c                                          :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: aapenko <aapenko@student.42.fr>            +#+  +:+       +#+        */
+/*   By: ppfiel <ppfiel@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/10 11:21:32 by lbapart           #+#    #+#             */
-/*   Updated: 2023/11/12 15:06:54 by aapenko          ###   ########.fr       */
+/*   Updated: 2023/11/13 10:51:52 by ppfiel           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -32,6 +32,8 @@ static void	heredoc_sigint_handler(int sig)
 	g_signal_received = SIGINT;
 	rl_replace_line("", 0);
 	rl_on_new_line();
+	ft_putendl_fd("CTRL C", 2);
+	//rl_redisplay();
 }
 
 void	init_signals(int mode)

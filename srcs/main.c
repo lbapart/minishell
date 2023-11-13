@@ -81,6 +81,30 @@ char	*get_next_line(int fd)
 	return (finish_get_next_line(buffer, ft_strlen(buffer), read_bytes));
 }
 
+int	is_valid_shell_lvl(char *str)
+{
+	int		i;
+
+	i = 0;
+	while (str[i])
+	{
+		if (!ft_isdigit(str[i++]))
+		{
+			ft_putstr_fd("Invalid SHLVL: ", 2);
+			ft_putendl_fd(str, 2);
+			return (0);
+		}
+	}
+	
+	if (ft_strlen(str) > 10 || (ft_strlen(str) == 10 && ft_strncmp(str, "2147483646", 11) > 0))
+	{
+		ft_putstr_fd("Invalid SHLVL: ", 2);
+		ft_putendl_fd(str, 2);
+		return (0);
+	}
+	return (1);
+}
+
 int	handle_shell_lvl(t_shell *shell)
 {
 	char	*key;
@@ -91,26 +115,29 @@ int	handle_shell_lvl(t_shell *shell)
 	shlvl_var = find_key("SHLVL", shell->env);
 	if (shlvl_var)
 	{
-		shlvl = ft_atoi(shlvl_var->value); //TODO: Validate shlvl_var->value
+		if (!is_valid_shell_lvl(shlvl_var->value))
+			return (EXIT_FAILURE);
+		shlvl = ft_atoi(shlvl_var->value);
 		shlvl++;
 		free(shlvl_var->value);
 		shlvl_var->value = ft_itoa(shlvl);
 		if (!shlvl_var->value)
-			return (EXIT_FAILURE);
+			return (perror("Allocation failed"), EXIT_FAILURE);
 	}
 	else
 	{
 		key = ft_strdup("SHLVL");
 		if (!key)
-			return (EXIT_FAILURE);
+			return (perror("Allocation failed"), EXIT_FAILURE);
 		value = ft_strdup("1");
 		if (!value)
-			return (free(key), EXIT_FAILURE);
+			return (free(key), perror("Allocation failed"), EXIT_FAILURE);
 		shlvl_var = new_env(key, value);
 		if (!shlvl_var)
-			return (free(key), free(value), EXIT_FAILURE);
+			return (free(key), free(value), perror("Allocation failed"), EXIT_FAILURE);
 		add_env(&(shell->env), shlvl_var);
 	}
+	return (EXIT_SUCCESS);
 }
 
 int main(int argc, char **argv, char **envp)
@@ -137,43 +164,58 @@ int main(int argc, char **argv, char **envp)
 	shell.is_exit = 0;
 	line = NULL;
 
-	handle_shell_lvl(&shell);
+	if (handle_shell_lvl(&shell) != EXIT_SUCCESS)
+	{
+		free_all_envs(&(shell.env));
+		close(saved_stdin);
+		close(saved_stdout);
+		return (EXIT_FAILURE);
+	}
 
 	while (!shell.is_exit)
 	{
-		// if (isatty(fileno(stdin)))
-		// 	line = readline("🤡clownshell🤡$ ");
-		// else 
-		// {
-		// 	char *temp;
-		// 	temp = get_next_line(fileno(stdin));
-		// 	line = ft_strtrim(temp, "\n");
-		// 	free(temp);
-		// }
-		// if (line == NULL)
-		// {
-		// 	break;
-		// }
-		
-		line = ft_strdup("cat << eof");
+		init_signals(GLOBAL_MODE);
+		g_signal_received = 0;
+		if (isatty(fileno(stdin)))
+			line = readline("🤡clownshell🤡$ ");
+		else 
+		{
+			char *temp;
+			temp = get_next_line(fileno(stdin));
+			line = ft_strtrim(temp, "\n");
+			free(temp);
+		}
+		if (line == NULL)
+		{
+			break;
+		}
+		// line = ft_strdup("cat << eof | cat << eof | echo < doesnotexist");
 		if (!line)
 			break;
 		if (line && line[0] != '\0')
 			add_history(line);
-
+		if (g_signal_received == SIGINT)
+		{
+			shell.last_exit_code = 130;
+			g_signal_received = 0;
+		}
 		exec_commands(line, &shell);
-
+		if (g_signal_received == SIGINT)
+		{
+			shell.last_exit_code = 130;
+		}
 		free(line);
 		if (dup2(saved_stdout, STDOUT_FILENO) == -1)
 			return (perror("dup2"), rl_clear_history(), free_all_envs(&(shell.exported_vars)), free_all_envs(&(shell.env)), exit(EXIT_FAILURE), (1)); // free also
 		if (dup2(saved_stdin, STDIN_FILENO) == -1)
 			return (perror("dup2"), rl_clear_history(), free_all_envs(&(shell.exported_vars)), free_all_envs(&(shell.env)), exit(EXIT_FAILURE), (1)); // free also
 		// printf("%d\n", shell.last_exit_code);
-		if (!shell.is_exit)
-			printf("Exit Code: %d\n", shell.last_exit_code);
-		//rl_redisplay();
-		//rl_on_new_line();
-		shell.is_exit = 1;
+		// if (!shell.is_exit)
+		// 	printf("Exit Code: %d\n", shell.last_exit_code);
+		// rl_redisplay();
+		// rl_on_new_line();
+		// shell.is_exit = 1;
+
 	}
 	exit_code = shell.last_exit_code;
 	//TODO: Free shell-props
