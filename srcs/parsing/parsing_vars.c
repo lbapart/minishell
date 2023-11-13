@@ -6,7 +6,7 @@
 /*   By: aapenko <aapenko@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/06 22:58:21 by lbapart           #+#    #+#             */
-/*   Updated: 2023/11/09 16:24:57 by aapenko          ###   ########.fr       */
+/*   Updated: 2023/11/13 18:32:56 by aapenko          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -84,4 +84,23 @@ t_cmd	*replace_all_vars_redir(t_cmd *cmd, t_shell *shell, char *strcmd)
 		temp = temp->next;
 	}
 	return (replace_with_absolute_path(cmd, shell, strcmd));
+}
+
+int	replace_vars_in_redir(t_redirection *redir, t_shell *shell,
+					t_cmd *cmd, char *strcmd)
+{
+	t_redirection	*temp;
+
+	temp = redir;
+	while (temp)
+	{
+		if (temp->file)
+		{
+			temp->file = replace_vars_in_str(&temp->file, shell, cmd, strcmd);
+			if (!temp->file || check_whitespace(temp->file))
+				return (free_structs(&cmd), amb_redir_err(shell), 0);
+		}
+		temp = temp->next;
+	}
+	return (1);
 }

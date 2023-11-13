@@ -6,13 +6,14 @@
 /*   By: aapenko <aapenko@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/08 13:29:34 by lbapart           #+#    #+#             */
-/*   Updated: 2023/11/10 17:21:01 by aapenko          ###   ########.fr       */
+/*   Updated: 2023/11/13 18:33:32 by aapenko          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "minishell.h"
 
-static char	*check_quote_var_str(char *str, t_shell *shell, t_cmd *cmd, char *strcmd)
+char	*check_quote_var_str(char *str, t_shell *shell,
+					t_cmd *cmd, char *strcmd)
 {
 	char	*res;
 
@@ -126,23 +127,4 @@ char	*replace_vars_in_str(char **str, t_shell *shell,
 		i++;
 	}
 	return (*str);
-}
-
-int	replace_vars_in_redir(t_redirection *redir, t_shell *shell,
-					t_cmd *cmd, char *strcmd)
-{
-	t_redirection	*temp;
-
-	temp = redir;
-	while (temp)
-	{
-		if (temp->file)
-		{
-			temp->file = replace_vars_in_str(&temp->file, shell, cmd, strcmd);
-			if (!temp->file || check_whitespace(temp->file))
-				return (free_structs(&cmd), amb_redir_err(shell), 0);
-		}
-		temp = temp->next;
-	}
-	return (1);
 }

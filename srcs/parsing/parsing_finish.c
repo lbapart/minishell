@@ -6,7 +6,7 @@
 /*   By: aapenko <aapenko@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/30 22:22:49 by lbapart           #+#    #+#             */
-/*   Updated: 2023/11/13 15:53:59 by aapenko          ###   ########.fr       */
+/*   Updated: 2023/11/13 18:14:54 by aapenko          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -71,55 +71,6 @@ void	unset_hidden_dollar(t_cmd *cmd)
 					redir->file[i] = '$';
 				i++;
 			}
-			redir = redir->next;
-		}
-		temp = temp->next;
-	}
-}
-
-void 	replace_bullshit_in_str(char *str)
-{
-	size_t	i;
-
-	i = 0;
-	while (str[i + 1])
-	{
-		str[i] = str[i + 1];
-		i++;
-	}
-	i = 0;
-	while (str[i])
-	{
-		if (str[i] == BULLSHIT)
-			str[i] = '\0';
-		i++;
-	}
-}
-
-void	replace_bullshit(t_cmd *cmd)
-{
-	t_cmd	*temp;
-	t_redirection *redir;
-	size_t	i;
-
-	i = 0;
-	temp = cmd;
-	while (temp)
-	{
-		if (temp->smplcmd->path && temp->smplcmd->path[0] == BULLSHIT)
-			replace_bullshit_in_str(temp->smplcmd->path);
-		i = 0;
-		while (temp->smplcmd->args && temp->smplcmd->args[i])
-		{
-			if (temp->smplcmd->args[i][0] == BULLSHIT)
-				replace_bullshit_in_str(temp->smplcmd->args[i]);
-			i++;
-		}
-		redir = temp->smplcmd->redir;
-		while (redir)
-		{
-			if (redir->file && redir->file[0] == BULLSHIT)
-				replace_bullshit_in_str(redir->file);
 			redir = redir->next;
 		}
 		temp = temp->next;

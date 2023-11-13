@@ -3,27 +3,14 @@
 /*                                                        :::      ::::::::   */
 /*   parsing_redirections.c                             :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: lbapart <lbapart@student.42.fr>            +#+  +:+       +#+        */
+/*   By: aapenko <aapenko@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/30 23:14:19 by lbapart           #+#    #+#             */
-/*   Updated: 2023/11/06 22:07:45 by lbapart          ###   ########.fr       */
+/*   Updated: 2023/11/13 18:23:32 by aapenko          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "minishell.h"
-
-// to libft
-int	ft_strcmp(char *s1, char *s2)
-{
-	size_t	i;
-
-	i = 0;
-	if (!s1 || !s2)
-		return (-1);
-	while (s1[i] && s2[i] && s1[i] == s2[i])
-		i++;
-	return ((int)(s1[i] - s2[i]));
-}
 
 int	is_redir_token(char *token)
 {
