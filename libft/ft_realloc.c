@@ -6,7 +6,7 @@
 /*   By: aapenko <aapenko@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/28 20:37:11 by lbapart           #+#    #+#             */
-/*   Updated: 2023/11/06 20:01:20 by aapenko          ###   ########.fr       */
+/*   Updated: 2023/11/13 19:00:29 by aapenko          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,7 +14,7 @@
 
 void	*ft_realloc(void *ptr, size_t size, size_t old_size)
 {
-	void *new_ptr;
+	void	*new_ptr;
 
 	new_ptr = malloc(size);
 	if (!new_ptr)
