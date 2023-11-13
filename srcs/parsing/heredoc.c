@@ -3,14 +3,74 @@
 /*                                                        :::      ::::::::   */
 /*   heredoc.c                                          :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: ppfiel <ppfiel@student.42.fr>              +#+  +:+       +#+        */
+/*   By: aapenko <aapenko@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/07 14:02:11 by lbapart           #+#    #+#             */
-/*   Updated: 2023/11/13 11:06:39 by ppfiel           ###   ########.fr       */
+/*   Updated: 2023/11/13 16:07:19 by aapenko          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "minishell.h"
+
+static char	*ft_temp_realloc(char *old_buf, char c)
+{
+	int		len;
+	char	*res;
+	int		i;
+
+	len = ft_strlen(old_buf);
+	res = (char *)malloc(len + 2);
+	if (!res)
+		return (free(old_buf), NULL);
+	i = 0;
+	while (old_buf[i])
+	{
+		res[i] = old_buf[i];
+		i++;
+	}
+	res[i++] = c;
+	res[i] = '\0';
+	free(old_buf);
+	return (res);
+}
+
+static char	*finish_get_next_line(char *buffer, int i, int read_bytes)
+{
+	buffer[i] = '\0';
+	if (i == 0 || (!buffer[i - 1] && !read_bytes))
+		return (free(buffer), NULL);
+	return (buffer);
+}
+
+static char	*get_next_line(int fd)
+{
+	//int		i;
+	int		read_bytes;
+	char	c;
+	char	*buffer;
+
+	buffer = (char *)malloc(1);
+	if (!buffer)
+		return (NULL);
+	buffer[0] = '\0';
+	//i = 0;
+	read_bytes = 1;
+	while (read_bytes > 0)
+	{
+		read_bytes = read(fd, &c, 1);
+		if (read_bytes == -1)
+			return (free(buffer), NULL);
+		else if (read_bytes == 0)
+			break ;
+		buffer = ft_temp_realloc(buffer, c);
+		if (!buffer)
+			return (NULL);
+		if (c == '\n')
+			break ;
+	}
+	return (finish_get_next_line(buffer, ft_strlen(buffer), read_bytes));
+}
+
 
 char	*generate_filename(int pid)
 {
@@ -118,14 +178,13 @@ int	check_key_exists(char *var_name, t_shell *shell)
 
 int	check_varname(char *var_name, size_t *i, t_shell *shell)
 {
+	(void)shell;
 	if (!var_name[0])
 	{
 		(*i)++;
 		free(var_name);
 		return (1);
 	}
-	if (!check_key_exists(var_name, shell))
-		return (free(var_name), 1);
 	return (0);
 }
 
@@ -140,11 +199,14 @@ char	*replace_vars_heredoc(char *str, t_shell *shell, char *var_value)
 		if (str[i] == '$')
 		{
 			var_name = get_var_name_heredoc(str + i + 1);
+			printf("name: %s (p=%p)\n", var_name, var_name);
 			if (!var_name)
 				return (free(str), NULL);
 			if (check_varname(var_name, &i, shell))
 				continue ;
 			var_value = get_var_value_heredoc(var_name, shell);
+			printf("value: %s (p=%p)\n", var_value, var_value);
+			puts("value got");
 			if (!var_value)
 				return (free(var_name), free(str), NULL);
 			str = replace_var_with_value_heredoc(str, var_value, var_name, i);
@@ -165,7 +227,17 @@ int	read_and_put_in_file(int fd, char *eof, t_shell *shell)
 
 	while (1)
 	{
-		line = readline("> ");
+		if (isatty(fileno(stdin)))
+			line = readline("🤡clownshell🤡$ ");
+		else 
+		{
+			char *temp;
+			temp = get_next_line(fileno(stdin));
+			if (temp == NULL)
+				break ;
+			line = ft_strtrim(temp, "\n");
+			free(temp);
+		}
 		if (!line)
 		{
 			ft_putstr_fd("warning: here-document delimited by end-of-file (wanted `", 2);

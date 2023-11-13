@@ -182,6 +182,8 @@ int main(int argc, char **argv, char **envp)
 		{
 			char *temp;
 			temp = get_next_line(fileno(stdin));
+			if (temp == NULL)
+				break ;
 			line = ft_strtrim(temp, "\n");
 			free(temp);
 		}

@@ -43,6 +43,7 @@
 # define GLOBAL_MODE 0
 # define CHILD_MODE 1
 # define HEREDOC_MODE 2
+# define BULLSHIT 17
 
 extern int g_signal_received;
 

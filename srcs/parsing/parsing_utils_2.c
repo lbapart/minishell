@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   parsing_utils_2.c                                  :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: ppfiel <ppfiel@student.42.fr>              +#+  +:+       +#+        */
+/*   By: aapenko <aapenko@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/06 22:26:08 by lbapart           #+#    #+#             */
-/*   Updated: 2023/11/13 11:10:10 by ppfiel           ###   ########.fr       */
+/*   Updated: 2023/11/13 12:18:29 by aapenko          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -67,7 +67,12 @@ int	check_unclosed_quotes(char *cmd)
 	while (cmd[i])
 	{
 		set_in_quotes_var(cmd[i], &in_quotes);
-		if (i > 0 && check_heredoc_before(cmd, i - 1) && in_quotes == 0)
+		if (!in_quotes && (cmd[i] == '\"' || cmd[i] == '\''))
+		{
+			i++;
+			continue ;
+		}
+		else if (i > 0 && check_heredoc_before(cmd, i - 1) && in_quotes == 0)
 			replace_dollar_sign(cmd, &i, &in_quotes, HEREDOC_HIDDEN_DOLLAR);
 		else if (i > 0 && check_redirection_before(cmd, i - 1)
 			&& in_quotes == 0)

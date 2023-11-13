@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   exec.c                                             :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: ppfiel <ppfiel@student.42.fr>              +#+  +:+       +#+        */
+/*   By: aapenko <aapenko@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/02 15:45:19 by lbapart           #+#    #+#             */
-/*   Updated: 2023/11/13 11:12:39 by ppfiel           ###   ########.fr       */
+/*   Updated: 2023/11/13 15:37:45 by aapenko          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -320,7 +320,7 @@ int	exec_simple_command(t_smplcmd *smplcmd, t_shell *shell)
 	// path = get_path(env_path, smplcmd->path);
 	// need to handle exit code here
 	init_signals(CHILD_MODE);
-	if (access(path, X_OK) != 0)
+	if (access(path, X_OK) != 0 || ft_strlen(smplcmd->args[0]) == 0 || (ft_strncmp(smplcmd->args[0], ".", 2)) == 0)
 	{
 		ft_putstr_fd(args[0], 2);
 		ft_putendl_fd(": command not found", 2);

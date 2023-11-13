@@ -6,11 +6,37 @@
 /*   By: aapenko <aapenko@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/28 20:45:58 by lbapart           #+#    #+#             */
-/*   Updated: 2023/11/10 17:14:24 by aapenko          ###   ########.fr       */
+/*   Updated: 2023/11/13 12:54:13 by aapenko          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "minishell.h"
+
+int	is_redir_in_quotes(char *str)
+{
+	if (!ft_strcmp(str, "\">>\"") || !ft_strcmp(str, "\'>>\'"))
+		return (1);
+	if (!ft_strcmp(str, "\"<<\"") || !ft_strcmp(str, "\'<<\'"))
+		return (1);
+	if (!ft_strcmp(str, "\">\"") || !ft_strcmp(str, "\'>\'"))
+		return (1);
+	if (!ft_strcmp(str, "\"<\"") || !ft_strcmp(str, "\'<\'"))
+		return (1);
+	return (0);
+}
+
+void	replace_with_bullshit(char *str)
+{
+	size_t	i;
+
+	i = 0;
+	while (str[i])
+	{
+		if (str[i] == '\'' || str[i] == '\"')
+			str[i] = BULLSHIT;
+		i++;
+	}
+}
 
 void	remove_unnecessary_quotes(char *str)
 {
@@ -21,6 +47,8 @@ void	remove_unnecessary_quotes(char *str)
 
 	if (!str)
 		return ;
+	if (is_redir_in_quotes(str))
+		return (replace_with_bullshit(str));
 	str_in = str;
 	str_out = str;
 	in_single_quotes = 0;

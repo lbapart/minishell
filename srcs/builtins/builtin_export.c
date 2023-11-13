@@ -43,7 +43,7 @@ int	handle_add_replace_to_env(char *str, t_shell *shell, int equals_index)
 	value = ft_substr(str, equals_index + 1, ft_strlen(str) - equals_index + 1);
 	if (!value)
 		return (perror("Allocation failed"), free(key), EXIT_FAILURE);
-	old_env = find_key(str, shell->env);
+	old_env = find_key(key, shell->env);
 	if (old_env)
 	{
 		free(old_env->value);
@@ -61,7 +61,7 @@ int	handle_add_to_exported(char *str, t_shell *shell)
 	char	*key;
 	char	*value;
 
-	if (!find_key(str, shell->exported_vars))
+	if (!find_key(str, shell->exported_vars) && !find_key(str, shell->env))
 	{
 		key = ft_strdup(str);
 		if (!key)
