@@ -18,8 +18,8 @@ int	execute_env(t_smplcmd command, t_shell shell)
 
 	if (get_array_size(command.args) != 1)
 	{
-		ft_putstr_fd("Invalid args!", 2);
-		return (EXIT_FAILURE);
+		ft_putendl_fd("Invalid args!", 2);
+		return (127);
 	}
 	env = shell.env;
 	while (env)
