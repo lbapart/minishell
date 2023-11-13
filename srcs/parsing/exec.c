@@ -6,7 +6,7 @@
 /*   By: ppfiel <ppfiel@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/02 15:45:19 by lbapart           #+#    #+#             */
-/*   Updated: 2023/11/10 15:00:29 by ppfiel           ###   ########.fr       */
+/*   Updated: 2023/11/13 08:13:02 by ppfiel           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -46,17 +46,8 @@ int	do_redirection(char *filename, int open_flags, int redirect_target)
 
 int	handle_redirection_per_type(t_redirection *redirection)
 {
-	int	exit_heredoc;
-
-	if (redirection->type == 1)
+	if (redirection->type == 1 || redirection->type == 2)
 		return (do_redirection(redirection->file, O_RDONLY, STDIN_FILENO));
-	else if (redirection->type == 2)
-	{
-		exit_heredoc = exec_heredoc(redirection, 1);
-		if (exit_heredoc != EXIT_SUCCESS)
-			return (exit_heredoc);
-		return (do_redirection(redirection->file, O_RDONLY, STDIN_FILENO));
-	}
 	else if (redirection->type == 3)
 		return (do_redirection(redirection->file, O_TRUNC | O_CREAT | O_RDWR, STDOUT_FILENO));
 	else
@@ -227,7 +218,7 @@ int	handle_waiting_processes(t_cmd *cmd, t_shell *shell)
 	temp = cmd;
 	while (temp)
 	{
-		if (temp->smplcmd->redir != NULL && temp->smplcmd->redir->type == 2)
+		if (temp->smplcmd->redir != NULL && temp->smplcmd->redir->type == 2 && temp->smplcmd->redir->to_delete == 1)
 		{
 			if (unlink(temp->smplcmd->redir->file) != 0) {
 				perror("unlink");
@@ -247,16 +238,33 @@ void	free_set_failure_unlink(t_cmd **cmds, t_shell *shell)
 	temp = *cmds;
 	while (temp)
 	{
-		if (temp->smplcmd->redir != NULL && temp->smplcmd->redir->type == 2)
-		{
-			if (access(temp->smplcmd->redir->file, F_OK) != -1)
-				unlink(temp->smplcmd->redir->file);			
-		}
+		if (temp->smplcmd->redir != NULL && temp->smplcmd->redir->type == 2 && temp->smplcmd->redir->to_delete == 1)
+			unlink(temp->smplcmd->redir->file);
 		temp = temp->next;
 	}
 	free_structs(cmds);
 	shell->last_exit_code = EXIT_FAILURE;
 	return ;
+}
+
+int	init_heredoc_execution(t_cmd *cmds, t_shell *shell)
+{
+	int		i;
+	t_cmd	*temp;
+
+	i = 0;
+	temp = cmds;
+	while (temp)
+	{
+		if (temp->smplcmd->redir != NULL && temp->smplcmd->redir->type == 2)
+		{
+			if (exec_heredoc(temp->smplcmd->redir, i, shell) != EXIT_SUCCESS)
+				return (EXIT_FAILURE);
+			i++;
+		}
+		temp = temp->next;
+	}
+	return (EXIT_SUCCESS);
 }
 
 void	exec_commands(char *cmd, t_shell *shell)
@@ -266,6 +274,8 @@ void	exec_commands(char *cmd, t_shell *shell)
 	cmds = parse_commands(cmd, shell);
 	if (!cmds)
 		return ;
+	if (init_heredoc_execution(cmds, shell) != EXIT_SUCCESS)
+		return (free_set_failure_unlink(&cmds, shell));
 	if (cmds->next)
 	{
 		if (handle_multiple_commands(shell, cmds) != EXIT_SUCCESS)

@@ -6,7 +6,7 @@
 /*   By: ppfiel <ppfiel@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/06 11:13:01 by ppfiel            #+#    #+#             */
-/*   Updated: 2023/11/10 12:07:34 by ppfiel           ###   ########.fr       */
+/*   Updated: 2023/11/11 19:14:48 by ppfiel           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -27,7 +27,7 @@ int	add_pwd_to_env(char *keystr, char *value, t_shell *shell)
 	return (EXIT_SUCCESS);
 }
 
-void static	replace_env_value(t_vars *env, char *value)
+static void	replace_env_value(t_vars *env, char *value)
 {
 	free(env->value);
 	env->value = value;

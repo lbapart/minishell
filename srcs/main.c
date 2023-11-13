@@ -6,11 +6,11 @@
 /*   By: ppfiel <ppfiel@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/10 13:43:11 by ppfiel            #+#    #+#             */
-/*   Updated: 2023/11/04 11:48:03 by ppfiel           ###   ########.fr       */
+/*   Updated: 2023/11/13 09:07:43 by ppfiel           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "minishell.h"
+#include "../includes/minishell.h" //TODO: change back
 
 int	get_array_size(char **arr)
 {
@@ -54,7 +54,7 @@ char	*finish_get_next_line(char *buffer, int i, int read_bytes)
 
 char	*get_next_line(int fd)
 {
-	int		i;
+	//int		i;
 	int		read_bytes;
 	char	c;
 	char	*buffer;
@@ -63,7 +63,7 @@ char	*get_next_line(int fd)
 	if (!buffer)
 		return (NULL);
 	buffer[0] = '\0';
-	i = 0;
+	//i = 0;
 	read_bytes = 1;
 	while (read_bytes > 0)
 	{
@@ -79,6 +79,38 @@ char	*get_next_line(int fd)
 			break ;
 	}
 	return (finish_get_next_line(buffer, ft_strlen(buffer), read_bytes));
+}
+
+int	handle_shell_lvl(t_shell *shell)
+{
+	char	*key;
+	char	*value;
+	int 	shlvl;
+	t_vars	*shlvl_var;
+
+	shlvl_var = find_key("SHLVL", shell->env);
+	if (shlvl_var)
+	{
+		shlvl = ft_atoi(shlvl_var->value); //TODO: Validate shlvl_var->value
+		shlvl++;
+		free(shlvl_var->value);
+		shlvl_var->value = ft_itoa(shlvl);
+		if (!shlvl_var->value)
+			return (EXIT_FAILURE);
+	}
+	else
+	{
+		key = ft_strdup("SHLVL");
+		if (!key)
+			return (EXIT_FAILURE);
+		value = ft_strdup("1");
+		if (!value)
+			return (free(key), EXIT_FAILURE);
+		shlvl_var = new_env(key, value);
+		if (!shlvl_var)
+			return (free(key), free(value), EXIT_FAILURE);
+		add_env(&(shell->env), shlvl_var);
+	}
 }
 
 int main(int argc, char **argv, char **envp)
@@ -105,7 +137,7 @@ int main(int argc, char **argv, char **envp)
 	shell.is_exit = 0;
 	line = NULL;
 
-	//TODO: Increment SHLVL 
+	handle_shell_lvl(&shell);
 
 	while (!shell.is_exit)
 	{
@@ -123,17 +155,19 @@ int main(int argc, char **argv, char **envp)
 		// 	break;
 		// }
 		
-		line = ft_strdup("ls | cat");
+		line = ft_strdup("cat << eof");
 		if (!line)
 			break;
 		if (line && line[0] != '\0')
 			add_history(line);
+
 		exec_commands(line, &shell);
+
 		free(line);
 		if (dup2(saved_stdout, STDOUT_FILENO) == -1)
-			return (perror("dup2"), exit(EXIT_FAILURE), rl_clear_history(), free_all_envs(&(shell.exported_vars)), free_all_envs(&(shell.env)), (1)); // free also
+			return (perror("dup2"), rl_clear_history(), free_all_envs(&(shell.exported_vars)), free_all_envs(&(shell.env)), exit(EXIT_FAILURE), (1)); // free also
 		if (dup2(saved_stdin, STDIN_FILENO) == -1)
-			return (perror("dup2"), exit(EXIT_FAILURE), rl_clear_history(), free_all_envs(&(shell.exported_vars)), free_all_envs(&(shell.env)), (1)); // free also
+			return (perror("dup2"), rl_clear_history(), free_all_envs(&(shell.exported_vars)), free_all_envs(&(shell.env)), exit(EXIT_FAILURE), (1)); // free also
 		// printf("%d\n", shell.last_exit_code);
 		if (!shell.is_exit)
 			printf("Exit Code: %d\n", shell.last_exit_code);

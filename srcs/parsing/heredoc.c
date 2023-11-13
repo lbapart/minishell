@@ -6,7 +6,7 @@
 /*   By: aapenko <aapenko@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/07 14:02:11 by lbapart           #+#    #+#             */
-/*   Updated: 2023/11/11 19:33:55 by aapenko          ###   ########.fr       */
+/*   Updated: 2023/11/13 08:19:42 by ppfiel           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -168,7 +168,7 @@ int	read_and_put_in_file(int fd, char *eof, t_shell *shell)
 		if (!line)
 			return (EXIT_FAILURE);
 		if (ft_strcmp(line, eof) == 0)
-			return (free(line), 1);
+			return (free(line), EXIT_SUCCESS);
 		result_line = replace_vars_heredoc(line, shell, NULL);
 		if (!result_line)
 			return (EXIT_FAILURE);
@@ -198,7 +198,7 @@ int	exec_heredoc(t_redirection *redir, int pid, t_shell *shell)
 	replace_redir_filename(redir, filename);
 	redir->to_delete = 1;
 	if (read_and_put_in_file(fd, eof, shell) == EXIT_FAILURE)
-		return (free(eof), EXIT_FAILURE);
+		return (free(eof), EXIT_FAILURE); //TODO: PP: shouldnt fd be closed?
 	if (close(fd) == -1)
 		return (free(eof), perror("close"), EXIT_FAILURE);
 	return (free(eof), EXIT_SUCCESS);
