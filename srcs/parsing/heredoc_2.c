@@ -6,7 +6,7 @@
 /*   By: aapenko <aapenko@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/13 18:00:39 by aapenko           #+#    #+#             */
-/*   Updated: 2023/11/14 12:44:27 by aapenko          ###   ########.fr       */
+/*   Updated: 2023/11/14 15:31:21 by aapenko          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -77,17 +77,7 @@ int	read_and_put_in_file(int fd, char *eof, t_shell *shell)
 
 	while (1)
 	{
-		if (isatty(fileno(stdin)))
 		line = readline("> ");
-		else
-		{
-			char *temp;
-			temp = get_next_line(fileno(stdin));
-			if (temp == NULL)
-				break;
-			line = ft_strtrim(temp, "\n");
-			free(temp);
-		}
 		if (!line)
 		{
 			ft_putstr_fd("warning: here-document delimited by end-of-file", 2);
@@ -109,7 +99,6 @@ int	read_and_put_in_file(int fd, char *eof, t_shell *shell)
 	return (1);
 }
 
-//  1 = success, 0 = error, -1 = malloc error
 int	exec_heredoc(t_redirection *redir, int pid, t_shell *shell)
 {
 	int		fd;

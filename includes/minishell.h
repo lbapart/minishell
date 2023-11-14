@@ -153,12 +153,12 @@ void			swap_vars(t_vars *first, t_vars *second);
 int				handle_add_to_env(char *key, char *value, t_shell *t_shell);
 
 // builtin_export.c
-int	handle_variable_assignment(char *arg, t_shell *shell);
-int	handle_add_to_exported(char *str, t_shell *shell);
+int				handle_variable_assignment(char *arg, t_shell *shell);
+int				handle_add_to_exported(char *str, t_shell *shell);
 
 // builtin_export_validating.c
-int	is_valid_key(char *str);
-int	handle_export(char *arg, t_shell *shell, int *exit_code);
+int				is_valid_key(char *str);
+int				handle_export(char *arg, t_shell *shell, int *exit_code);
 
 // env_create.c
 void			add_env(t_vars **env, t_vars *new);
@@ -264,6 +264,8 @@ int				check_heredoc_before(char *cmd, size_t n);
 int				check_redirection_before(char *cmd, size_t n);
 char			*get_var_name(char *var, t_cmd **struct_cmd,
 					char **cmd, t_pars_vars *v);
+void			replace_dollar_sign_test(char *cmd, size_t *i,
+					int *in_quotes, int dollar_type);
 // parsing_vars_2.c
 char			*check_quote_var_str(char *str, t_shell *shell,
 					t_cmd *cmd, char *strcmd);
@@ -308,53 +310,58 @@ int				is_unsupported_char(char c);
 void			init_signals(int mode);
 
 // exec_redirection.c
-int	handle_redirections(t_redirection *redirections);
+int				handle_redirections(t_redirection *redirections);
 
 // exec_heredoc.c
-int	init_heredoc_execution(t_cmd *cmds, t_shell *shell);
+int				init_heredoc_execution(t_cmd *cmds, t_shell *shell);
 
 // exec_waiting.c
-int	handle_waiting_processes(t_cmd *cmd, t_shell *shell);
-int	wait_all_commands_on_error(t_cmd *start, t_cmd *cmd);
+int				handle_waiting_processes(t_cmd *cmd, t_shell *shell);
+int				wait_all_commands_on_error(t_cmd *start, t_cmd *cmd);
 
 // exec_pipe.c
-int		init_pipe(t_cmd *cmd);
-void	redirect_pipe_input(t_cmd *cmd, t_shell *shell);
-void	redirect_pipe_output(t_cmd *cmd, t_shell *shell);
-void	close_pipe(t_cmd *cmd);
+int				init_pipe(t_cmd *cmd);
+void			redirect_pipe_input(t_cmd *cmd, t_shell *shell);
+void			redirect_pipe_output(t_cmd *cmd, t_shell *shell);
+void			close_pipe(t_cmd *cmd);
 
 // exec_execve.c
-int		exec_simple_command(t_smplcmd *smplcmd, t_shell *shell);
+int				exec_simple_command(t_smplcmd *smplcmd, t_shell *shell);
 
 // exec_builtins.c
-int	exec_builtin(t_smplcmd *smplcmd, t_shell *shell);
+int				exec_builtin(t_smplcmd *smplcmd, t_shell *shell);
 
 // exec_error.c
-void	free_child_process(t_cmd *cmd, t_shell *shell);
-void	free_set_failure_unlink(t_cmd **cmds, t_shell *shell);
-int		handle_pipe_error(t_cmd *start, t_cmd *cmd);
-int		handle_fork_error(t_cmd *start, t_cmd *cmd);
+void			free_child_process(t_cmd *cmd, t_shell *shell);
+void			free_set_failure_unlink(t_cmd **cmds, t_shell *shell);
+int				handle_pipe_error(t_cmd *start, t_cmd *cmd);
+int				handle_fork_error(t_cmd *start, t_cmd *cmd);
 
 // exec_handle_parent_process.c
-int	handle_parent_process(t_cmd *cmd);
+int				handle_parent_process(t_cmd *cmd);
 
 //exec_handle_child_process.c
-void	handle_child_process(t_cmd *cmd, t_shell *shell);
-void	close_unused_fds(t_cmd *cmd, t_shell *shell);
-void	close_pipe_free_process_exit(t_cmd *cmd, t_shell *shell);
+void			handle_child_process(t_cmd *cmd, t_shell *shell);
+void			close_unused_fds(t_cmd *cmd, t_shell *shell);
+void			close_pipe_free_process_exit(t_cmd *cmd, t_shell *shell);
 
 // exec_handle_single_command.c
-int	handle_single_command(t_shell *shell, t_cmd *cmd);
+int				handle_single_command(t_shell *shell, t_cmd *cmd);
 
 // exec_handle_multiple_commands.c
-int	handle_multiple_commands(t_shell *shell, t_cmd *cmd);
+int				handle_multiple_commands(t_shell *shell, t_cmd *cmd);
 
 // exec_waiting.c
-int	wait_all_commands_on_error(t_cmd *start, t_cmd *cmd);
-int	handle_waiting_processes(t_cmd *cmd, t_shell *shell);
+int				wait_all_commands_on_error(t_cmd *start, t_cmd *cmd);
+int				handle_waiting_processes(t_cmd *cmd, t_shell *shell);
 
 //temp.c
 void			print_commands(t_cmd *cmds);
 char			*get_next_line(int fd);
+
+// main_utils.c
+int				init_clownshell(t_shell *shell, char **envp);
+int				main_while(char *line, t_shell *shell);
+void			close_clownshell(t_shell *shell);
 
 #endif
