@@ -6,7 +6,7 @@
 /*   By: aapenko <aapenko@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/13 18:00:39 by aapenko           #+#    #+#             */
-/*   Updated: 2023/11/14 19:41:29 by aapenko          ###   ########.fr       */
+/*   Updated: 2023/11/14 20:24:32 by aapenko          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -77,24 +77,30 @@ int	read_and_put_in_file(int fd, char *eof, t_shell *shell)
 
 	while (1)
 	{
-		// if (isatty(STDIN_FILENO))
+		if (isatty(STDIN_FILENO))
 		 	line = readline("> ");
-		// else
-		// {
-			// char *temp;
-			// temp = get_next_line(STDIN_FILENO);
-			// if (temp == NULL)
-			// 	break ;
-			// line = ft_strtrim(temp, "\n");
-			// free(temp);
-		//}
+		else
+		{
+			char *temp;
+			temp = get_next_line(STDIN_FILENO);
+			if (temp == NULL)
+			{
+				ft_putstr_fd("warning: here-document delimited by end-of-file", 2);
+				ft_putstr_fd(" (wanted `", 2);
+				ft_putstr_fd(eof, 2);
+				ft_putendl_fd("')", 2);
+				return (EXIT_SUCCESS);
+			}
+			line = ft_strtrim(temp, "\n");
+			free(temp);
+		}
 		if (!line)
 		{
 			ft_putstr_fd("warning: here-document delimited by end-of-file", 2);
 			ft_putstr_fd(" (wanted `", 2);
 			ft_putstr_fd(eof, 2);
 			ft_putendl_fd("')", 2);
-			return (EXIT_FAILURE);
+			return (EXIT_SUCCESS);
 		}
 		if (g_signal_received == SIGINT)
 			return (EXIT_FAILURE);
@@ -106,7 +112,7 @@ int	read_and_put_in_file(int fd, char *eof, t_shell *shell)
 		ft_putendl_fd(result_line, fd);
 		free(result_line);
 	}
-	return (1);
+	return (EXIT_SUCCESS);
 }
 
 int	exec_heredoc(t_redirection *redir, int pid, t_shell *shell)

@@ -365,4 +365,5 @@ void			close_clownshell(t_shell *shell, int print_exit);
 
 // temp.c
 char			*get_next_line(int fd);
+void			print_commands(t_cmd *cmds);
 #endif

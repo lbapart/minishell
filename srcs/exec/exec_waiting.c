@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   exec_waiting.c                                     :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: ppfiel <ppfiel@student.42.fr>              +#+  +:+       +#+        */
+/*   By: aapenko <aapenko@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/14 14:27:55 by ppfiel            #+#    #+#             */
-/*   Updated: 2023/11/14 15:16:26 by ppfiel           ###   ########.fr       */
+/*   Updated: 2023/11/14 20:10:25 by aapenko          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -27,16 +27,19 @@ int	wait_all_commands_on_error(t_cmd *start, t_cmd *cmd)
 
 static void	delete_tmp_heredocs_files(t_cmd	*cmd, int *is_error)
 {
+	t_redirection	*redir;
 	while (cmd)
 	{
-		if (cmd->smplcmd->redir != NULL && cmd->smplcmd->redir->type == 2
-			&& cmd->smplcmd->redir->to_delete == 1)
+		redir = cmd->smplcmd->redir;
+		while (redir != NULL && redir->type == 2
+			&& redir->to_delete == 1)
 		{
-			if (unlink(cmd->smplcmd->redir->file) != 0)
+			if (unlink(redir->file) != 0)
 			{
 				perror("unlink");
 				*is_error = 1;
 			}
+			redir = redir->next;
 		}
 		cmd = cmd->next;
 	}
