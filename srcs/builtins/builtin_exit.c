@@ -12,14 +12,14 @@
 
 #include "minishell.h"
 
-void	print_error_numeric_arg(char *arg)
+static void	print_error_numeric_arg(char *arg)
 {
 	ft_putstr_fd("exit: ", 2);
 	ft_putstr_fd(arg, 2);
 	ft_putendl_fd(": numeric argument required", 2);
 }
 
-int	is_valid_number(char *str, int is_negative)
+static int	is_valid_number(char *str, int is_negative)
 {
 	int		i;
 	char	*max_value;
@@ -41,7 +41,7 @@ int	is_valid_number(char *str, int is_negative)
 	return (1);
 }
 
-int	exit_code_parse(char *str, t_shell *shell)
+static int	exit_code_parse(char *str)
 {
 	long long	num;
 	int			sign;
@@ -65,7 +65,6 @@ int	exit_code_parse(char *str, t_shell *shell)
 		num = num * 10 + (str[i] - '0');
 		i++;
 	}
-	shell->is_exit = 1;
 	return ((unsigned char)(num * sign));
 }
 
@@ -78,7 +77,7 @@ int	execute_exit(t_smplcmd command, t_shell *shell)
 		shell->is_exit = 1;
 		return (EXIT_SUCCESS);
 	}
-	exit_code = exit_code_parse(command.args[1], shell);
+	exit_code = exit_code_parse(command.args[1]);
 	if (exit_code == -1)
 		return (2);
 	if (get_array_size(command.args) > 2)
@@ -86,5 +85,6 @@ int	execute_exit(t_smplcmd command, t_shell *shell)
 		ft_putendl_fd("exit: too many arguments", 2);
 		return (EXIT_FAILURE);
 	}
+	shell->is_exit = 1;
 	return (exit_code);
 }
