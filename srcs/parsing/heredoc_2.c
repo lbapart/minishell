@@ -6,7 +6,7 @@
 /*   By: aapenko <aapenko@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/13 18:00:39 by aapenko           #+#    #+#             */
-/*   Updated: 2023/11/14 18:53:27 by aapenko          ###   ########.fr       */
+/*   Updated: 2023/11/14 19:41:29 by aapenko          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -77,15 +77,17 @@ int	read_and_put_in_file(int fd, char *eof, t_shell *shell)
 
 	while (1)
 	{
-		if (isatty(STDIN_FILENO))
-			line = readline("> ");
-		else
-		{
-			line = get_next_line(STDIN_FILENO);
-			if (line == NULL)
-				break ;
-			line = ft_strtrim(line, "\n");
-		}
+		// if (isatty(STDIN_FILENO))
+		 	line = readline("> ");
+		// else
+		// {
+			// char *temp;
+			// temp = get_next_line(STDIN_FILENO);
+			// if (temp == NULL)
+			// 	break ;
+			// line = ft_strtrim(temp, "\n");
+			// free(temp);
+		//}
 		if (!line)
 		{
 			ft_putstr_fd("warning: here-document delimited by end-of-file", 2);
