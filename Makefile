@@ -23,8 +23,20 @@ SRC_FILES =		main.c \
 				builtins/builtin_unset.c \
 				builtins/builtin_exit.c \
 				builtins/builtin_cd.c builtins/builtin_cd_utils.c \
-				builtins/builtin_export.c builtins/builtin_export_utils.c builtins/builtin_export_validating.c\
-				parsing/exec.c parsing/parsing_error.c parsing/parsing_finish.c \
+				builtins/builtin_export.c builtins/builtin_export_utils.c builtins/builtin_export_validating.c \
+				exec/exec.c \
+				exec/exec_redirection.c \
+				exec/exec_pipe.c \
+				exec/exec_heredoc.c \
+				exec/exec_handle_single_command.c \
+				exec/exec_handle_multiple_commands.c \
+				exec/exec_handle_parent_process.c \
+				exec/exec_handle_child_process.c \
+				exec/exec_execve.c \
+				exec/exec_error.c \
+				exec/exec_waiting.c \
+				exec/exec_builtins.c \
+				parsing/parsing_error.c parsing/parsing_finish.c \
 				parsing/parsing_free.c parsing/parsing_init.c parsing/parsing_list_utils.c \
 				parsing/parsing_redirections.c parsing/parsing_tokens_2.c parsing/parsing_tokens.c \
 				parsing/parsing_utils.c parsing/parsing.c parsing/utils.c parsing/temp.c \
