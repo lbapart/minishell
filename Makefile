@@ -39,7 +39,7 @@ SRC_FILES =		main.c \
 				parsing/parsing_error.c parsing/parsing_finish.c \
 				parsing/parsing_free.c parsing/parsing_init.c parsing/parsing_list_utils.c \
 				parsing/parsing_redirections.c parsing/parsing_tokens_2.c parsing/parsing_tokens.c \
-				parsing/parsing_utils.c parsing/parsing.c parsing/utils.c parsing/temp.c \
+				parsing/parsing_utils.c parsing/parsing.c parsing/utils.c \
 				parsing/parsing_utils_2.c parsing/parsing_vars.c parsing/parsing_error_2.c \
 				parsing/parsing_free_2.c parsing/parsing_free_3.c parsing/heredoc.c parsing/heredoc_2.c \
 				parsing/parsing_vars_2.c parsing/path_utils.c signals.c parsing/bullshit.c \
@@ -50,7 +50,7 @@ SRC_OBJS =		$(SRCS:.c=.o)
 
 # Compiler settings
 CC =			cc
-CFLAGS =		-Wall -Wextra -Werror -g
+CFLAGS =		-Wall -Wextra -Werror
 INC_FLAGS =		-I $(INC_DIR)
 LIBFT =			-L $(LIBFT_DIR) -lft
 
