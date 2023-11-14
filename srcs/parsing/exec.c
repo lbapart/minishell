@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   exec.c                                             :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: aapenko <aapenko@student.42.fr>            +#+  +:+       +#+        */
+/*   By: ppfiel <ppfiel@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/02 15:45:19 by lbapart           #+#    #+#             */
-/*   Updated: 2023/11/13 15:37:45 by aapenko          ###   ########.fr       */
+/*   Updated: 2023/11/14 09:40:04 by ppfiel           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -305,10 +305,61 @@ void	exec_commands(char *cmd, t_shell *shell)
 	return ;
 }
 
+char	*get_env_entry_str(t_vars *env)
+{
+	int		i;
+	int		j;
+	char	*env_entry;
+
+	i = 0;
+	j = 0;
+	env_entry = ft_calloc(2 + ft_strlen(env->key) + ft_strlen(env->value), 1);
+	if (!env_entry)
+		return (NULL); //TODO: free all entries before
+	while (env->key[j])
+		env_entry[i++] = env->key[j++];
+	env_entry[i++] = '=';
+	j = 0;
+	while (env->value[j])
+		env_entry[i++] = env->value[j++];
+	env_entry[i] = '\0';
+	return (env_entry);
+}
+
+char	**get_env_as_char_arr(t_shell *shell)
+{
+	int		size;
+	t_vars	*env;
+	char	**env_as_char_arr;
+	int		i;
+
+	env = shell->env;
+	size = 0;
+	while(env)
+	{
+		size++;
+		env = env->next;
+	}
+	env_as_char_arr = ft_calloc(size + 1, sizeof(char *));
+	if (!env_as_char_arr)
+		return (perror("Allocation failed"), NULL);
+	env = shell->env;
+	i = 0;
+	while(env)
+	{
+		env_as_char_arr[i] = get_env_entry_str(env);
+		if (!env_as_char_arr[i++])
+			return (free(env_as_char_arr), NULL); //TODO: Free all entries before
+		env = env->next;
+	}
+	return (env_as_char_arr);
+}
+
 int	exec_simple_command(t_smplcmd *smplcmd, t_shell *shell)
 {
 	char	*path;
 	char	**args;
+	char	**env;
 	//char	**env_path;
 
 	(void)shell; // temp
@@ -326,7 +377,10 @@ int	exec_simple_command(t_smplcmd *smplcmd, t_shell *shell)
 		ft_putendl_fd(": command not found", 2);
 		exit(127);
 	}
-	if (execve(path, args, NULL) == -1) // need to set env 
-		return (perror("execve"), 1);
-	return (EXIT_FAILURE);
+	env = get_env_as_char_arr(shell);
+	if (!env)
+		return (EXIT_FAILURE);
+	if (execve(path, args, env) == -1) // need to set env 
+		return (perror("execve"), free(env), 1);
+	return (free(env), EXIT_FAILURE);
 }

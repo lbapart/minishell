@@ -12,6 +12,13 @@
 
 #include "minishell.h"
 
+void	print_error_numeric_arg(char *arg)
+{
+	ft_putstr_fd("exit: ", 2);
+	ft_putstr_fd(arg, 2);
+	ft_putendl_fd(": numeric argument required", 2);
+}
+
 int	is_valid_number(char *str, int is_negative)
 {
 	int		i;
@@ -21,22 +28,15 @@ int	is_valid_number(char *str, int is_negative)
 	while (str[i])
 	{
 		if (!ft_isdigit(str[i++]))
-		{
-			ft_putstr_fd("exit: ", 2);
-			ft_putstr_fd(str, 2);
-			ft_putendl_fd(": numeric argument required", 2);
-			return (0);
-		}
+			return (print_error_numeric_arg(str), 0);
 	}
 	max_value = "9223372036854775807";
 	if (is_negative)
 		max_value = "9223372036854775808";
-	if (ft_strlen(str) > 19 || (ft_strlen(str) == 19 && ft_strncmp(str, max_value, 20) > 0))
+	if (ft_strlen(str) > 19
+		|| (ft_strlen(str) == 19 && ft_strncmp(str, max_value, 20) > 0))
 	{
-		ft_putstr_fd("exit: ", 2);
-		ft_putstr_fd(str, 2);
-		ft_putendl_fd(": numeric argument required", 2);
-		return (0);
+		return (print_error_numeric_arg(str), 0);
 	}
 	return (1);
 }
@@ -47,6 +47,8 @@ int	exit_code_parse(char *str, t_shell *shell)
 	int			sign;
 	int			i;
 
+	if (str[0] == '\0')
+		return (ft_putendl_fd("exit: : numeric argument required", 2), 2);
 	i = 0;
 	num = 0;
 	sign = 1;

@@ -150,6 +150,14 @@ int				copy_vars(t_vars **dest, t_vars *src);
 void			swap_vars(t_vars *first, t_vars *second);
 int				handle_add_to_env(char *key, char *value, t_shell *t_shell);
 
+// builtin_export.c
+int	handle_variable_assignment(char *arg, t_shell *shell);
+int	handle_add_to_exported(char *str, t_shell *shell);
+
+// builtin_export_validating.c
+int	is_valid_key(char *str);
+int	handle_export(char *arg, t_shell *shell, int *exit_code);
+
 // env_create.c
 void			add_env(t_vars **env, t_vars *new);
 void			add_last_env(t_vars **env, t_vars *new);

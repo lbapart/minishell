@@ -16,7 +16,14 @@ INC_DIR =	./includes/
 LIBFT_DIR =	./libft/
 
 SRC_FILES =		main.c \
-				./builtins/builtin_cd.c ./builtins/builtin_cd_utils.c ./builtins/builtin_env.c ./builtins/builtin_pwd.c ./builtins/builtin_echo.c ./builtins/builtin_export.c ./builtins/builtin_export_utils.c ./builtins/builtin_unset.c ./builtins/builtin_exit.c env_utils.c env_create.c \
+				env_utils.c env_create.c \
+				builtins/builtin_env.c \
+				builtins/builtin_pwd.c \
+				builtins/builtin_echo.c \
+				builtins/builtin_unset.c \
+				builtins/builtin_exit.c \
+				builtins/builtin_cd.c builtins/builtin_cd_utils.c \
+				builtins/builtin_export.c builtins/builtin_export_utils.c builtins/builtin_export_validating.c\
 				parsing/exec.c parsing/parsing_error.c parsing/parsing_finish.c \
 				parsing/parsing_free.c parsing/parsing_init.c parsing/parsing_list_utils.c \
 				parsing/parsing_redirections.c parsing/parsing_tokens_2.c parsing/parsing_tokens.c \
