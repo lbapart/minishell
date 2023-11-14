@@ -116,6 +116,8 @@ typedef struct s_shell
 	t_vars	*exported_vars;
 	int		last_exit_code;
 	int		is_exit;
+	int		std_stdin;
+	int		std_stdout;
 }	t_shell;
 
 // builtins:

@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   exec.c                                             :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: aapenko <aapenko@student.42.fr>            +#+  +:+       +#+        */
+/*   By: ppfiel <ppfiel@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/02 15:45:19 by lbapart           #+#    #+#             */
-/*   Updated: 2023/11/14 10:53:08 by aapenko          ###   ########.fr       */
+/*   Updated: 2023/11/14 12:41:15 by ppfiel           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -30,6 +30,7 @@ int	exec_builtin(t_smplcmd *smplcmd, t_shell *shell)
 		return (execute_exit(*smplcmd, shell));
 	return (EXIT_FAILURE);
 }
+
 int	do_redirection(char *filename, int open_flags, int redirect_target)
 {
 	int	fd;
@@ -78,32 +79,92 @@ int	init_pipe(t_cmd *cmd)
 	return (EXIT_SUCCESS);
 }
 
+void	free_child_process(t_cmd *cmd, t_shell *shell)
+{
+	t_cmd	*begin;
+
+	begin = cmd;
+	while (begin->prev)
+		begin = begin->prev;
+	free_structs(&begin);
+	free_all_envs(&(shell->exported_vars));
+	free_all_envs(&(shell->env));
+	rl_clear_history();
+	//TODO: Check if dupped savedSTDIN/STDOUt should also be closed?
+}
+
 void	handle_child_process(t_cmd *cmd, t_shell *shell)
 {
 	int	exit_redirections;
+	int exit_code;
 
 	init_signals(CHILD_MODE);
+	if (close(shell->std_stdin)  == -1)
+	{
+		close(shell->std_stdout);
+		if (cmd->prev)
+			close(cmd->prev->pipe[0]);
+		if (cmd->next)
+			close(cmd->pipe[1]);
+		free_child_process(cmd, shell);
+		return exit(EXIT_FAILURE);
+	}
+	if (close(shell->std_stdout) == -1)
+	{
+		if (cmd->prev)
+			close(cmd->prev->pipe[0]);
+		if (cmd->next)
+			close(cmd->pipe[1]);
+		free_child_process(cmd, shell);
+		return exit(EXIT_FAILURE);
+	}
 	if (cmd->prev)
 	{
 		if (dup2(cmd->prev->pipe[0], STDIN_FILENO) == -1)
-			return (perror("dup2"), exit(EXIT_FAILURE)); // free also
+		{
+			perror("dup2");
+			close(cmd->prev->pipe[0]);
+			if (cmd->next)
+				close(cmd->pipe[1]);
+			free_child_process(cmd, shell);
+			return exit(EXIT_FAILURE);
+		}
 		if (close(cmd->prev->pipe[0]) == -1)
-			return (perror("close"), exit(EXIT_FAILURE)); // free and close others if hasNext also
+		{
+			perror("close");
+			if (cmd->next)
+				close(cmd->pipe[1]);
+			free_child_process(cmd, shell);
+			return exit(EXIT_FAILURE);
+		}
 	}
 	if (cmd->next)
 	{
 		if (dup2(cmd->pipe[1], STDOUT_FILENO) == -1)
-			return (perror("dup2"), exit(EXIT_FAILURE)); // free also
+		{
+			perror("dup2");
+			close(cmd->pipe[1]);
+			free_child_process(cmd, shell);
+			return (exit(EXIT_FAILURE));
+		}
 		if (close(cmd->pipe[1]) == -1 || close(cmd->pipe[0]) == -1)
-			return (perror("close"), exit(EXIT_FAILURE)); // free also
+			return (perror("close"), free_child_process(cmd, shell), exit(EXIT_FAILURE));
 	}
 	exit_redirections = handle_redirections(cmd->smplcmd->redir);
 	if (exit_redirections != EXIT_SUCCESS)
-		exit(exit_redirections);
+		return (free_child_process(cmd, shell), exit(exit_redirections));
 	if (cmd->smplcmd->builtin == 0)
-		exit(exec_simple_command(cmd->smplcmd, shell));
+	{
+		exit_code = exec_simple_command(cmd->smplcmd, shell);
+		free_child_process(cmd, shell);
+		exit(exit_code);
+	}
 	else
-		exit(exec_builtin(cmd->smplcmd, shell));
+	{
+		exit_code = exec_builtin(cmd->smplcmd, shell);
+		free_child_process(cmd, shell);
+		exit(exit_code);
+	}
 }
 
 int	handle_parent_process(t_cmd *cmd)
@@ -120,7 +181,7 @@ int	handle_parent_process(t_cmd *cmd)
 	}
 	if (cmd->next && close(cmd->pipe[1]) == -1)
 	{
-		return (perror("close"), close(cmd->pipe[0]), EXIT_FAILURE); // free and close also
+		return (perror("close"), close(cmd->pipe[0]), EXIT_FAILURE);
 	}
 	return (EXIT_SUCCESS);
 }
@@ -136,9 +197,30 @@ int	handle_single_command(t_shell *shell, t_cmd *cmd)
 	{
 		cmd->pid = fork();
 		if (cmd->pid == -1)
-			return (perror("fork"), EXIT_FAILURE); // free all cmds before
+			return (perror("fork"), EXIT_FAILURE);
 		if (cmd->pid == 0)
+		{
+			if (close(shell->std_stdin)  == -1)
+			{
+				close(shell->std_stdout);
+				if (cmd->prev)
+					close(cmd->prev->pipe[0]);
+				if (cmd->next)
+					close(cmd->pipe[1]);
+				free_child_process(cmd, shell);
+				exit(EXIT_FAILURE);
+			}
+			if (close(shell->std_stdout) == -1)
+			{
+				if (cmd->prev)
+					close(cmd->prev->pipe[0]);
+				if (cmd->next)
+					close(cmd->pipe[1]);
+				free_child_process(cmd, shell);
+				exit(EXIT_FAILURE);
+			}
 			exit(exec_simple_command(cmd->smplcmd, shell));
+		}
 	}
 	else
 		shell->last_exit_code = exec_builtin(cmd->smplcmd, shell);
@@ -190,7 +272,7 @@ int	handle_multiple_commands(t_shell *shell, t_cmd *cmd)
 		else
 		{
 			if (handle_parent_process(cmd) != EXIT_SUCCESS)
-				return (wait_all_commands_on_error(start, cmd) ,EXIT_FAILURE);
+				return (wait_all_commands_on_error(start, cmd), EXIT_FAILURE);
 		}
 		cmd = cmd->next;
 	}
@@ -219,9 +301,11 @@ int	handle_waiting_processes(t_cmd *cmd, t_shell *shell)
 	temp = cmd;
 	while (temp)
 	{
-		if (temp->smplcmd->redir != NULL && temp->smplcmd->redir->type == 2 && temp->smplcmd->redir->to_delete == 1)
+		if (temp->smplcmd->redir != NULL && temp->smplcmd->redir->type == 2
+			&& temp->smplcmd->redir->to_delete == 1)
 		{
-			if (unlink(temp->smplcmd->redir->file) != 0) {
+			if (unlink(temp->smplcmd->redir->file) != 0)
+			{
 				perror("unlink");
 				is_error = 1;
 			}
@@ -233,13 +317,16 @@ int	handle_waiting_processes(t_cmd *cmd, t_shell *shell)
 	shell->last_exit_code = status;
 	return (EXIT_SUCCESS);
 }
+
 void	free_set_failure_unlink(t_cmd **cmds, t_shell *shell)
 {
 	t_cmd	*temp;
+
 	temp = *cmds;
 	while (temp)
 	{
-		if (temp->smplcmd->redir != NULL && temp->smplcmd->redir->type == 2 && temp->smplcmd->redir->to_delete == 1)
+		if (temp->smplcmd->redir != NULL && temp->smplcmd->redir->type == 2
+			&& temp->smplcmd->redir->to_delete == 1)
 		{
 			unlink(temp->smplcmd->redir->file);
 		}
@@ -278,11 +365,8 @@ void	exec_commands(char *cmd, t_shell *shell)
 	cmds = parse_commands(cmd, shell);
 	if (!cmds)
 		return ;
-
 	if (init_heredoc_execution(cmds, shell) != EXIT_SUCCESS)
-	{
 		return (free_set_failure_unlink(&cmds, shell));
-	}
 	init_signals(GLOBAL_MODE);
 	if (cmds->next)
 	{
@@ -293,13 +377,11 @@ void	exec_commands(char *cmd, t_shell *shell)
 	{
 		if (handle_single_command(shell, cmds) != EXIT_SUCCESS)
 			return (free_set_failure_unlink(&cmds, shell));
-
 	}
 	if (cmds->next || cmds->smplcmd->builtin == 0)
 	{
 		if (handle_waiting_processes(cmds, shell) != EXIT_SUCCESS)
 			return (free_set_failure_unlink(&cmds, shell));
-
 	}
 	free_structs(&cmds);
 	return ;
@@ -315,7 +397,7 @@ char	*get_env_entry_str(t_vars *env)
 	j = 0;
 	env_entry = ft_calloc(2 + ft_strlen(env->key) + ft_strlen(env->value), 1);
 	if (!env_entry)
-		return (NULL); //TODO: free all entries before
+		return (NULL);
 	while (env->key[j])
 		env_entry[i++] = env->key[j++];
 	env_entry[i++] = '=';
@@ -324,6 +406,19 @@ char	*get_env_entry_str(t_vars *env)
 		env_entry[i++] = env->value[j++];
 	env_entry[i] = '\0';
 	return (env_entry);
+}
+
+void	free_env_arr(char ***env_as_char_arr)
+{
+	int	i;
+
+	i = 0;
+	if (*env_as_char_arr)
+	{
+		while ((*env_as_char_arr)[i])
+			free((*env_as_char_arr)[i++]);
+		free((*env_as_char_arr));
+	}
 }
 
 char	**get_env_as_char_arr(t_shell *shell)
@@ -335,7 +430,7 @@ char	**get_env_as_char_arr(t_shell *shell)
 
 	env = shell->env;
 	size = 0;
-	while(env)
+	while (env)
 	{
 		size++;
 		env = env->next;
@@ -345,11 +440,11 @@ char	**get_env_as_char_arr(t_shell *shell)
 		return (perror("Allocation failed"), NULL);
 	env = shell->env;
 	i = 0;
-	while(env)
+	while (env)
 	{
 		env_as_char_arr[i] = get_env_entry_str(env);
 		if (!env_as_char_arr[i++])
-			return (free(env_as_char_arr), NULL); //TODO: Free all entries before
+			return (free_env_arr(&env_as_char_arr), NULL);
 		env = env->next;
 	}
 	return (env_as_char_arr);
@@ -360,18 +455,12 @@ int	exec_simple_command(t_smplcmd *smplcmd, t_shell *shell)
 	char	*path;
 	char	**args;
 	char	**env;
-	//char	**env_path;
 
-	(void)shell; // temp
 	args = smplcmd->args;
 	path = smplcmd->path;
-	// env_path = get_env_path(shell->env);
-	// if (!env_path)
-	// 	env_path = get_env_path(shell->exported_vars);
-	// path = get_path(env_path, smplcmd->path);
-	// need to handle exit code here
 	init_signals(CHILD_MODE);
-	if (access(path, X_OK) != 0 || ft_strlen(smplcmd->args[0]) == 0 || (ft_strncmp(smplcmd->args[0], ".", 2)) == 0)
+	if (access(path, X_OK) != 0 || ft_strlen(smplcmd->args[0]) == 0
+		|| (ft_strncmp(smplcmd->args[0], ".", 2)) == 0)
 	{
 		ft_putstr_fd(args[0], 2);
 		ft_putendl_fd(": command not found", 2);
@@ -379,8 +468,8 @@ int	exec_simple_command(t_smplcmd *smplcmd, t_shell *shell)
 	}
 	env = get_env_as_char_arr(shell);
 	if (!env)
-		return (EXIT_FAILURE);
-	if (execve(path, args, env) == -1) // need to set env 
-		return (perror("execve"), free(env), 1);
-	return (free(env), EXIT_FAILURE);
+		return (EXIT_FAILURE); 
+	if (execve(path, args, env) == -1)
+		return (perror("execve"), free_env_arr(&env), 1);
+	return (free_env_arr(&env), EXIT_FAILURE); 
 }
