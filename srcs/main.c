@@ -161,7 +161,6 @@ int main(int argc, char **argv, char **envp)
 
 	}
 	exit_code = shell.last_exit_code;
-	//TODO: Free shell-props
 	free_all_envs(&(shell.exported_vars));
 	free_all_envs(&(shell.env));
 	rl_clear_history();

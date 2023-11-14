@@ -6,7 +6,7 @@
 /*   By: aapenko <aapenko@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/13 18:00:39 by aapenko           #+#    #+#             */
-/*   Updated: 2023/11/13 18:05:15 by aapenko          ###   ########.fr       */
+/*   Updated: 2023/11/14 11:04:08 by aapenko          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -119,7 +119,7 @@ int	exec_heredoc(t_redirection *redir, int pid, t_shell *shell)
 	eof = ft_strdup(redir->file);
 	if (!eof)
 		return (EXIT_FAILURE);
-	filename = generate_filename(pid); // TODO: PP: Should also take in account shlvl? Would happends if you execute minishell in a pipe that creates also .tmps? Is it even possible?
+	filename = generate_filename(pid);
 	if (!filename)
 		return (free(eof), EXIT_FAILURE);
 	fd = open(filename, O_WRONLY | O_CREAT | O_TRUNC, 0644);

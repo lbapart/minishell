@@ -6,7 +6,7 @@
 /*   By: aapenko <aapenko@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/07 14:02:11 by lbapart           #+#    #+#             */
-/*   Updated: 2023/11/13 18:00:33 by aapenko          ###   ########.fr       */
+/*   Updated: 2023/11/14 11:04:15 by aapenko          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,7 +20,6 @@ char	*generate_filename(int pid)
 	filename = ft_itoa(pid);
 	if (!filename)
 		return (NULL);
-	//TODO: join with shlvl 
 	tmp = ft_not_free_strjoin(".tmp", filename);
 	if (!tmp)
 		return (free(filename), NULL);

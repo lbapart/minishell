@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   exec.c                                             :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: ppfiel <ppfiel@student.42.fr>              +#+  +:+       +#+        */
+/*   By: aapenko <aapenko@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/02 15:45:19 by lbapart           #+#    #+#             */
-/*   Updated: 2023/11/14 09:40:04 by ppfiel           ###   ########.fr       */
+/*   Updated: 2023/11/14 10:53:08 by aapenko          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -190,7 +190,7 @@ int	handle_multiple_commands(t_shell *shell, t_cmd *cmd)
 		else
 		{
 			if (handle_parent_process(cmd) != EXIT_SUCCESS)
-				return (wait_all_commands_on_error(start, cmd) ,EXIT_FAILURE); //TODO: Error Handling;
+				return (wait_all_commands_on_error(start, cmd) ,EXIT_FAILURE);
 		}
 		cmd = cmd->next;
 	}
@@ -210,7 +210,7 @@ int	handle_waiting_processes(t_cmd *cmd, t_shell *shell)
 	{
 		if (waitpid(temp->pid, &status, 0) == -1)
 		{
-			perror("waitpid"); //TODO: Free and close stuff
+			perror("waitpid");
 			is_error = 1;
 		}
 		status = WEXITSTATUS(status);
