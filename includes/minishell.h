@@ -19,6 +19,7 @@
 # include <fcntl.h>
 # include <unistd.h>
 # include <sys/types.h>
+# include <dirent.h>
 # include <sys/wait.h>
 # include <readline/readline.h>
 # include <readline/history.h>
@@ -301,6 +302,7 @@ char			**get_paths(t_vars *env, t_cmd *cmd,
 char			*get_command_path(char **paths, char *command_name);
 t_cmd			*replace_with_absolute_path(t_cmd *cmd,
 					t_shell *shell, char *strcmd);
+int				is_dir(char *str);
 // utils.c
 int				is_whitespace(char c);
 int				is_redirection(char c);
@@ -361,4 +363,6 @@ int				init_clownshell(t_shell *shell, char **envp);
 int				main_while(char *line, t_shell *shell);
 void			close_clownshell(t_shell *shell);
 
+// temp.c
+char			*get_next_line(int fd);
 #endif

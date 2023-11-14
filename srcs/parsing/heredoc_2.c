@@ -6,7 +6,7 @@
 /*   By: aapenko <aapenko@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/13 18:00:39 by aapenko           #+#    #+#             */
-/*   Updated: 2023/11/14 15:31:21 by aapenko          ###   ########.fr       */
+/*   Updated: 2023/11/14 18:53:27 by aapenko          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -77,7 +77,15 @@ int	read_and_put_in_file(int fd, char *eof, t_shell *shell)
 
 	while (1)
 	{
-		line = readline("> ");
+		if (isatty(STDIN_FILENO))
+			line = readline("> ");
+		else
+		{
+			line = get_next_line(STDIN_FILENO);
+			if (line == NULL)
+				break ;
+			line = ft_strtrim(line, "\n");
+		}
 		if (!line)
 		{
 			ft_putstr_fd("warning: here-document delimited by end-of-file", 2);
@@ -86,7 +94,7 @@ int	read_and_put_in_file(int fd, char *eof, t_shell *shell)
 			ft_putendl_fd("')", 2);
 			return (EXIT_FAILURE);
 		}
-		if (g_signal_received == 2)
+		if (g_signal_received == SIGINT)
 			return (EXIT_FAILURE);
 		if (ft_strcmp(line, eof) == 0)
 			return (free(line), EXIT_SUCCESS);

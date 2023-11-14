@@ -6,7 +6,7 @@
 /*   By: aapenko <aapenko@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/09 12:27:29 by ppfiel            #+#    #+#             */
-/*   Updated: 2023/11/14 14:01:28 by aapenko          ###   ########.fr       */
+/*   Updated: 2023/11/14 18:59:06 by aapenko          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -70,7 +70,7 @@ char	*get_command_path(char **paths, char *command_name)
 	i = 0;
 	if (command_name && (command_name[0] == '.' || command_name[0] == '/'))
 		return (ft_strdup(command_name));
-	if (access(command_name, X_OK) == 0)
+	if (access(command_name, X_OK) == 0 && !is_dir(command_name))
 		return (ft_strdup(command_name));
 	while (paths[i])
 	{
@@ -81,7 +81,7 @@ char	*get_command_path(char **paths, char *command_name)
 		if (!full_command)
 			return (NULL);
 		free(path_str);
-		if (access(full_command, X_OK) == 0)
+		if (access(full_command, X_OK) == 0 && !is_dir(full_command))
 			return (full_command);
 		free(full_command);
 		i++;
@@ -116,4 +116,17 @@ t_cmd	*replace_with_absolute_path(t_cmd *cmd, t_shell *shell, char *strcmd)
 		temp = temp->next;
 	}
 	return (free_dbl_ptr(paths), cmd);
+}
+
+int	is_dir(char *str)
+{
+	DIR	*dir;
+
+	dir = opendir(str);
+	if (dir)
+	{
+		closedir(dir);
+		return (1);
+	}
+	return (0);
 }

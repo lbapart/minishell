@@ -105,7 +105,15 @@ int	main(int argc, char **argv, char **envp)
 	{
 		init_signals(GLOBAL_MODE);
 		g_signal_received = 0;
-		line = readline("🤡clownshell🤡$ ");
+		if (isatty(STDIN_FILENO))
+			line = readline("🤡clownshell🤡$ ");
+		else
+		{
+			line = get_next_line(STDIN_FILENO);
+			if (line == NULL)
+				break ;
+			line = ft_strtrim(line, "\n");
+		}
 		if (g_signal_received == SIGINT)
 			shell.last_exit_code = 130;
 		if (line == NULL)
