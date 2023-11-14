@@ -19,6 +19,7 @@
 # include <fcntl.h>
 # include <unistd.h>
 # include <sys/types.h>
+# include <dirent.h>
 # include <sys/wait.h>
 # include <readline/readline.h>
 # include <readline/history.h>
@@ -43,6 +44,7 @@
 # define GLOBAL_MODE 0
 # define CHILD_MODE 1
 # define HEREDOC_MODE 2
+# define MAIN_WHEN_CHILD_MODE 3
 # define BULLSHIT 17
 
 extern int	g_signal_received;
@@ -300,6 +302,7 @@ char			**get_paths(t_vars *env, t_cmd *cmd,
 char			*get_command_path(char **paths, char *command_name);
 t_cmd			*replace_with_absolute_path(t_cmd *cmd,
 					t_shell *shell, char *strcmd);
+int				is_dir(char *str);
 // utils.c
 int				is_whitespace(char c);
 int				is_redirection(char c);
@@ -355,13 +358,11 @@ int				handle_multiple_commands(t_shell *shell, t_cmd *cmd);
 int				wait_all_commands_on_error(t_cmd *start, t_cmd *cmd);
 int				handle_waiting_processes(t_cmd *cmd, t_shell *shell);
 
-//temp.c
-void			print_commands(t_cmd *cmds);
-char			*get_next_line(int fd);
-
 // main_utils.c
 int				init_clownshell(t_shell *shell, char **envp);
 int				main_while(char *line, t_shell *shell);
 void			close_clownshell(t_shell *shell);
 
+// temp.c
+char			*get_next_line(int fd);
 #endif

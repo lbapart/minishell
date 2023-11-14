@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   signals.c                                          :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: ppfiel <ppfiel@student.42.fr>              +#+  +:+       +#+        */
+/*   By: aapenko <aapenko@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/10 11:21:32 by lbapart           #+#    #+#             */
-/*   Updated: 2023/11/14 10:28:52 by ppfiel           ###   ########.fr       */
+/*   Updated: 2023/11/14 17:16:31 by aapenko          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -34,6 +34,13 @@ static void	heredoc_sigint_handler(int sig)
 	rl_on_new_line();
 }
 
+static void	main_when_child_handler(int sig)
+{
+	(void)sig;
+	g_signal_received = SIGINT;
+	write(2, "\n", 1);
+}
+
 void	init_signals(int mode)
 {
 	if (mode == GLOBAL_MODE)
@@ -50,5 +57,10 @@ void	init_signals(int mode)
 	{
 		signal(SIGINT, SIG_DFL);
 		signal(SIGQUIT, SIG_DFL);
+	}
+	if (mode == MAIN_WHEN_CHILD_MODE)
+	{
+		signal(SIGINT, &main_when_child_handler);
+		signal(SIGQUIT, SIG_IGN);
 	}
 }

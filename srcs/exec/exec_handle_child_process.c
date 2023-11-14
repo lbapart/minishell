@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   exec_handle_child_process.c                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: ppfiel <ppfiel@student.42.fr>              +#+  +:+       +#+        */
+/*   By: aapenko <aapenko@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/14 14:40:46 by ppfiel            #+#    #+#             */
-/*   Updated: 2023/11/14 15:14:42 by ppfiel           ###   ########.fr       */
+/*   Updated: 2023/11/14 17:02:22 by aapenko          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -54,7 +54,6 @@ static void	overwrite_redirections(t_cmd *cmd, t_shell *shell)
 
 void	handle_child_process(t_cmd *cmd, t_shell *shell)
 {
-	init_signals(CHILD_MODE);
 	close_unused_fds(cmd, shell);
 	redirect_pipe_input(cmd, shell);
 	redirect_pipe_output(cmd, shell);

@@ -6,7 +6,7 @@
 /*   By: aapenko <aapenko@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/14 15:25:46 by aapenko           #+#    #+#             */
-/*   Updated: 2023/11/14 15:29:10 by aapenko          ###   ########.fr       */
+/*   Updated: 2023/11/14 18:30:11 by aapenko          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -55,7 +55,7 @@ int	main_while(char *line, t_shell *shell)
 
 void	close_clownshell(t_shell *shell)
 {
-	printf("exit\n");
+	// printf("exit\n");
 	rl_clear_history();
 	close(shell->std_stdin);
 	close(shell->std_stdout);
