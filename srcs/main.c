@@ -121,5 +121,5 @@ int	main(int argc, char **argv, char **envp)
 		main_while(line, &shell);
 	}
 	exit_code = shell.last_exit_code;
-	return (close_clownshell(&shell), exit_code);
+	return (close_clownshell(&shell, 1), exit_code);
 }
