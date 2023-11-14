@@ -6,7 +6,7 @@
 /*   By: ppfiel <ppfiel@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/02 15:45:19 by lbapart           #+#    #+#             */
-/*   Updated: 2023/11/14 12:41:15 by ppfiel           ###   ########.fr       */
+/*   Updated: 2023/11/14 14:07:06 by ppfiel           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -90,16 +90,15 @@ void	free_child_process(t_cmd *cmd, t_shell *shell)
 	free_all_envs(&(shell->exported_vars));
 	free_all_envs(&(shell->env));
 	rl_clear_history();
-	//TODO: Check if dupped savedSTDIN/STDOUt should also be closed?
 }
 
 void	handle_child_process(t_cmd *cmd, t_shell *shell)
 {
 	int	exit_redirections;
-	int exit_code;
+	int	exit_code;
 
 	init_signals(CHILD_MODE);
-	if (close(shell->std_stdin)  == -1)
+	if (close(shell->std_stdin) == -1)
 	{
 		close(shell->std_stdout);
 		if (cmd->prev)
@@ -107,7 +106,7 @@ void	handle_child_process(t_cmd *cmd, t_shell *shell)
 		if (cmd->next)
 			close(cmd->pipe[1]);
 		free_child_process(cmd, shell);
-		return exit(EXIT_FAILURE);
+		return (exit(EXIT_FAILURE));
 	}
 	if (close(shell->std_stdout) == -1)
 	{
@@ -116,7 +115,7 @@ void	handle_child_process(t_cmd *cmd, t_shell *shell)
 		if (cmd->next)
 			close(cmd->pipe[1]);
 		free_child_process(cmd, shell);
-		return exit(EXIT_FAILURE);
+		return (exit(EXIT_FAILURE));
 	}
 	if (cmd->prev)
 	{
@@ -127,7 +126,7 @@ void	handle_child_process(t_cmd *cmd, t_shell *shell)
 			if (cmd->next)
 				close(cmd->pipe[1]);
 			free_child_process(cmd, shell);
-			return exit(EXIT_FAILURE);
+			return (exit(EXIT_FAILURE));
 		}
 		if (close(cmd->prev->pipe[0]) == -1)
 		{
@@ -135,7 +134,7 @@ void	handle_child_process(t_cmd *cmd, t_shell *shell)
 			if (cmd->next)
 				close(cmd->pipe[1]);
 			free_child_process(cmd, shell);
-			return exit(EXIT_FAILURE);
+			return (exit(EXIT_FAILURE));
 		}
 	}
 	if (cmd->next)
@@ -200,7 +199,7 @@ int	handle_single_command(t_shell *shell, t_cmd *cmd)
 			return (perror("fork"), EXIT_FAILURE);
 		if (cmd->pid == 0)
 		{
-			if (close(shell->std_stdin)  == -1)
+			if (close(shell->std_stdin) == -1)
 			{
 				close(shell->std_stdout);
 				if (cmd->prev)
@@ -468,8 +467,8 @@ int	exec_simple_command(t_smplcmd *smplcmd, t_shell *shell)
 	}
 	env = get_env_as_char_arr(shell);
 	if (!env)
-		return (EXIT_FAILURE); 
+		return (EXIT_FAILURE);
 	if (execve(path, args, env) == -1)
 		return (perror("execve"), free_env_arr(&env), 1);
-	return (free_env_arr(&env), EXIT_FAILURE); 
+	return (free_env_arr(&env), EXIT_FAILURE);
 }

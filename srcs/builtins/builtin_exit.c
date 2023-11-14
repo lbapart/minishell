@@ -48,7 +48,7 @@ int	exit_code_parse(char *str, t_shell *shell)
 	int			i;
 
 	if (str[0] == '\0')
-		return (ft_putendl_fd("exit: : numeric argument required", 2), 2);
+		return (ft_putendl_fd("exit: : numeric argument required", 2), -1);
 	i = 0;
 	num = 0;
 	sign = 1;
@@ -59,7 +59,7 @@ int	exit_code_parse(char *str, t_shell *shell)
 		i++;
 	}
 	if (!is_valid_number(str + i, sign == -1))
-		return (2);
+		return (-1);
 	while (str[i])
 	{
 		num = num * 10 + (str[i] - '0');
@@ -71,15 +71,20 @@ int	exit_code_parse(char *str, t_shell *shell)
 
 int	execute_exit(t_smplcmd command, t_shell *shell)
 {
-	if (get_array_size(command.args) > 2)
-	{
-		ft_putendl_fd("exit: too many arguments", 2);
-		return (EXIT_FAILURE);
-	}
+	int	exit_code;
+
 	if (get_array_size(command.args) == 1)
 	{
 		shell->is_exit = 1;
 		return (EXIT_SUCCESS);
 	}
-	return (exit_code_parse(command.args[1], shell));
+	exit_code = exit_code_parse(command.args[1], shell);
+	if (exit_code == -1)
+		return (2);
+	if (get_array_size(command.args) > 2)
+	{
+		ft_putendl_fd("exit: too many arguments", 2);
+		return (EXIT_FAILURE);
+	}
+	return (exit_code);
 }
