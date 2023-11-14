@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   exec_handle_multiple_commands.c                    :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: ppfiel <ppfiel@student.42.fr>              +#+  +:+       +#+        */
+/*   By: aapenko <aapenko@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/14 15:03:10 by ppfiel            #+#    #+#             */
-/*   Updated: 2023/11/14 15:03:18 by ppfiel           ###   ########.fr       */
+/*   Updated: 2023/11/14 17:06:42 by aapenko          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,6 +21,7 @@ int	handle_multiple_commands(t_shell *shell, t_cmd *cmd)
 	{
 		if (init_pipe(cmd) != EXIT_SUCCESS)
 			return (handle_pipe_error(start, cmd));
+		init_signals(MAIN_WHEN_CHILD_MODE);
 		cmd->pid = fork();
 		if (cmd->pid == -1)
 			return (handle_fork_error(start, cmd));

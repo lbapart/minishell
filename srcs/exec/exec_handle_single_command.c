@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   exec_handle_single_command.c                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: ppfiel <ppfiel@student.42.fr>              +#+  +:+       +#+        */
+/*   By: aapenko <aapenko@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/14 14:59:02 by ppfiel            #+#    #+#             */
-/*   Updated: 2023/11/14 15:02:26 by ppfiel           ###   ########.fr       */
+/*   Updated: 2023/11/14 16:59:25 by aapenko          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,6 +21,7 @@ int	handle_single_command(t_shell *shell, t_cmd *cmd)
 		return (exit_redirections);
 	if (cmd->smplcmd->builtin == 0)
 	{
+		init_signals(MAIN_WHEN_CHILD_MODE);
 		cmd->pid = fork();
 		if (cmd->pid == -1)
 			return (perror("fork"), EXIT_FAILURE);

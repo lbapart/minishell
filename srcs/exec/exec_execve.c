@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   exec_execve.c                                      :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: ppfiel <ppfiel@student.42.fr>              +#+  +:+       +#+        */
+/*   By: aapenko <aapenko@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/14 14:32:55 by ppfiel            #+#    #+#             */
-/*   Updated: 2023/11/14 14:39:37 by ppfiel           ###   ########.fr       */
+/*   Updated: 2023/11/14 17:02:36 by aapenko          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -83,7 +83,6 @@ int	exec_simple_command(t_smplcmd *smplcmd, t_shell *shell)
 
 	args = smplcmd->args;
 	path = smplcmd->path;
-	init_signals(CHILD_MODE);
 	if (access(path, X_OK) != 0 || ft_strlen(smplcmd->args[0]) == 0
 		|| (ft_strncmp(smplcmd->args[0], ".", 2)) == 0)
 	{

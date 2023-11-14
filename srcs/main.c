@@ -96,8 +96,7 @@ int	main(int argc, char **argv, char **envp)
 
 	(void)argc;
 	(void) argv;
-	if (init_clownshell(&shell, envp)
-		== EXIT_FAILURE)
+	if (init_clownshell(&shell, envp) == EXIT_FAILURE)
 		return (EXIT_FAILURE);
 	if (handle_shell_lvl(&shell, NULL) != EXIT_SUCCESS)
 		return (free_all_envs(&(shell.env)), close(shell.std_stdin),
@@ -107,6 +106,8 @@ int	main(int argc, char **argv, char **envp)
 		init_signals(GLOBAL_MODE);
 		g_signal_received = 0;
 		line = readline("🤡clownshell🤡$ ");
+		if (g_signal_received == SIGINT)
+			shell.last_exit_code = 130;
 		if (line == NULL)
 			break ;
 		main_while(line, &shell);
