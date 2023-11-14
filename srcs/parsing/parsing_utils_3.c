@@ -6,7 +6,7 @@
 /*   By: aapenko <aapenko@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/13 18:30:21 by aapenko           #+#    #+#             */
-/*   Updated: 2023/11/13 18:31:22 by aapenko          ###   ########.fr       */
+/*   Updated: 2023/11/14 14:29:32 by aapenko          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -64,4 +64,22 @@ char	*get_var_name(char *var, t_cmd **struct_cmd, char **cmd, t_pars_vars *v)
 	if (!res)
 		return (free_get_var_name_and_err(struct_cmd, cmd, v), NULL);
 	return (ft_strncpy(res, var, i), res);
+}
+
+void	replace_dollar_sign_test(char *cmd, size_t *i,
+				int *in_quotes, int dollar_type)
+{
+	while (is_whitespace(cmd[*i]))
+		(*i)++;
+	while (cmd[*i] && !(!*in_quotes && (is_whitespace(cmd[*i])
+				|| is_redirection(cmd[*i]) || cmd[*i] == '|')))
+	{
+		if (cmd[*i] == '$'
+			&& (cmd[*i + 1] == '\'' || cmd[*i + 1] == '\"'))
+			;
+		else if (cmd[*i] == '$' && *in_quotes == 1)
+			cmd[*i] = dollar_type;
+		set_in_quotes_var(cmd[*i], in_quotes);
+		(*i)++;
+	}
 }

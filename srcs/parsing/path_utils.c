@@ -6,7 +6,7 @@
 /*   By: aapenko <aapenko@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/09 12:27:29 by ppfiel            #+#    #+#             */
-/*   Updated: 2023/11/09 12:45:30 by aapenko          ###   ########.fr       */
+/*   Updated: 2023/11/14 14:01:28 by aapenko          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -68,6 +68,8 @@ char	*get_command_path(char **paths, char *command_name)
 	char	*full_command;
 
 	i = 0;
+	if (command_name && (command_name[0] == '.' || command_name[0] == '/'))
+		return (ft_strdup(command_name));
 	if (access(command_name, X_OK) == 0)
 		return (ft_strdup(command_name));
 	while (paths[i])

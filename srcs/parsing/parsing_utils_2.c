@@ -6,7 +6,7 @@
 /*   By: aapenko <aapenko@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/06 22:26:08 by lbapart           #+#    #+#             */
-/*   Updated: 2023/11/13 12:18:29 by aapenko          ###   ########.fr       */
+/*   Updated: 2023/11/14 14:29:26 by aapenko          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -74,6 +74,8 @@ int	check_unclosed_quotes(char *cmd)
 		}
 		else if (i > 0 && check_heredoc_before(cmd, i - 1) && in_quotes == 0)
 			replace_dollar_sign(cmd, &i, &in_quotes, HEREDOC_HIDDEN_DOLLAR);
+		else if (i > 0 && check_redirection_before(cmd, i - 1) && !in_quotes)
+			replace_dollar_sign_test(cmd, &i, &in_quotes, -21);
 		else if (i > 0 && check_redirection_before(cmd, i - 1)
 			&& in_quotes == 0)
 			replace_dollar_sign(cmd, &i, &in_quotes, REDIR_HIDDEN_DOLLAR);
@@ -81,9 +83,7 @@ int	check_unclosed_quotes(char *cmd)
 			break ;
 		i++;
 	}
-	if (in_quotes)
-		return (0);
-	return (1);
+	return (!in_quotes);
 }
 
 int	check_whitespace(char *str)
