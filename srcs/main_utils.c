@@ -6,7 +6,7 @@
 /*   By: aapenko <aapenko@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/14 15:25:46 by aapenko           #+#    #+#             */
-/*   Updated: 2023/11/14 18:30:11 by aapenko          ###   ########.fr       */
+/*   Updated: 2023/11/14 19:18:16 by aapenko          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -43,19 +43,18 @@ int	main_while(char *line, t_shell *shell)
 		shell->last_exit_code = 130;
 	free(line);
 	if (dup2(shell->std_stdout, STDOUT_FILENO) == -1)
-		return (perror("dup2"), rl_clear_history(),
-			free_all_envs(&(shell->exported_vars)),
-			free_all_envs(&(shell->env)), exit(EXIT_FAILURE), (1));
+		return (perror("dup2"), close_clownshell(shell, 0),
+			exit(EXIT_FAILURE), (1));
 	if (dup2(shell->std_stdin, STDIN_FILENO) == -1)
-		return (perror("dup2"), rl_clear_history(),
-			free_all_envs(&(shell->exported_vars)),
-			free_all_envs(&(shell->env)), exit(EXIT_FAILURE), (1));
+		return (perror("dup2"), close_clownshell(shell, 0),
+			exit(EXIT_FAILURE), (1));
 	return (EXIT_SUCCESS);
 }
 
-void	close_clownshell(t_shell *shell)
+void	close_clownshell(t_shell *shell, int print_exit)
 {
-	// printf("exit\n");
+	if (print_exit)
+		;//printf("exit\n");
 	rl_clear_history();
 	close(shell->std_stdin);
 	close(shell->std_stdout);

@@ -109,10 +109,12 @@ int	main(int argc, char **argv, char **envp)
 			line = readline("🤡clownshell🤡$ ");
 		else
 		{
-			line = get_next_line(STDIN_FILENO);
-			if (line == NULL)
+			char *temp;
+			temp = get_next_line(STDIN_FILENO);
+			if (temp == NULL)
 				break ;
-			line = ft_strtrim(line, "\n");
+			line = ft_strtrim(temp, "\n");
+			free(temp);
 		}
 		if (g_signal_received == SIGINT)
 			shell.last_exit_code = 130;
@@ -121,5 +123,5 @@ int	main(int argc, char **argv, char **envp)
 		main_while(line, &shell);
 	}
 	exit_code = shell.last_exit_code;
-	return (close_clownshell(&shell), exit_code);
+	return (close_clownshell(&shell, 1), exit_code);
 }

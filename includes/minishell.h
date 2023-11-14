@@ -361,8 +361,9 @@ int				handle_waiting_processes(t_cmd *cmd, t_shell *shell);
 // main_utils.c
 int				init_clownshell(t_shell *shell, char **envp);
 int				main_while(char *line, t_shell *shell);
-void			close_clownshell(t_shell *shell);
+void			close_clownshell(t_shell *shell, int print_exit);
 
 // temp.c
 char			*get_next_line(int fd);
+void			print_commands(t_cmd *cmds);
 #endif
