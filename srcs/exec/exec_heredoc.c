@@ -6,7 +6,7 @@
 /*   By: aapenko <aapenko@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/14 14:26:38 by ppfiel            #+#    #+#             */
-/*   Updated: 2023/11/15 14:40:39 by aapenko          ###   ########.fr       */
+/*   Updated: 2023/11/15 15:35:50 by aapenko          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -57,8 +57,8 @@ int	delete_tmp_heredocs_files(t_cmd	*cmd)
 					perror("unlink");
 					exit_code = EXIT_FAILURE;
 				}
-				redir = redir->next;
 			}
+			redir = redir->next;
 		}
 		cmd = cmd->next;
 	}
