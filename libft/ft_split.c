@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   ft_split.c                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: ppfiel <ppfiel@student.42.fr>              +#+  +:+       +#+        */
+/*   By: aapenko <aapenko@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/04 17:05:10 by ppfiel            #+#    #+#             */
-/*   Updated: 2023/10/09 16:38:46 by ppfiel           ###   ########.fr       */
+/*   Updated: 2023/11/15 13:19:02 by aapenko          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,7 +19,7 @@ static int	count_parts(const char *str, char delimiter)
 
 	count = 0;
 	is_in_part = 0;
-	while (*str)
+	while (str && *str)
 	{
 		if (*str == delimiter && is_in_part)
 		{
