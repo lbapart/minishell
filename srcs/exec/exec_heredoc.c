@@ -6,7 +6,7 @@
 /*   By: aapenko <aapenko@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/14 14:26:38 by ppfiel            #+#    #+#             */
-/*   Updated: 2023/11/14 20:08:13 by aapenko          ###   ########.fr       */
+/*   Updated: 2023/11/15 12:29:32 by aapenko          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -24,10 +24,13 @@ int	init_heredoc_execution(t_cmd *cmds, t_shell *shell)
 	while (temp)
 	{
 		redir = temp->smplcmd->redir;
-		while (redir != NULL && redir->type == 2)
+		while (redir != NULL)
 		{
-			if (exec_heredoc(redir, i, shell) != EXIT_SUCCESS)
-				return (EXIT_FAILURE);
+			if (redir->type == 2)
+			{
+				if (exec_heredoc(redir, i, shell) != EXIT_SUCCESS)
+					return (EXIT_FAILURE);
+			}
 			i++;
 			redir = redir->next;
 		}
