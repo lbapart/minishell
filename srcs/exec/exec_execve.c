@@ -6,7 +6,7 @@
 /*   By: aapenko <aapenko@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/14 14:32:55 by ppfiel            #+#    #+#             */
-/*   Updated: 2023/11/15 15:14:37 by aapenko          ###   ########.fr       */
+/*   Updated: 2023/11/15 19:26:42 by ppfiel           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -75,6 +75,13 @@ static char	**get_env_as_char_arr(t_shell *shell)
 	return (env_as_char_arr);
 }
 
+static void	free_cmd_shell(t_smplcmd *smplcmd, t_shell *shell)
+{
+	free_smplcmd(smplcmd);
+	free_all_envs(&(shell->exported_vars));
+	free_all_envs(&(shell->env));
+}
+
 int	exec_simple_command(t_smplcmd *smplcmd, t_shell *shell)
 {
 	char	*path;
@@ -84,13 +91,13 @@ int	exec_simple_command(t_smplcmd *smplcmd, t_shell *shell)
 	args = smplcmd->args;
 	path = smplcmd->path;
 	if (!path)
-		return (EXIT_SUCCESS);
+		return (free_cmd_shell(smplcmd, shell), EXIT_SUCCESS);
 	if (access(path, X_OK) != 0 || ft_strlen(smplcmd->args[0]) == 0
 		|| (ft_strncmp(smplcmd->args[0], ".", 2)) == 0 || is_dir(path))
 	{
 		ft_putstr_fd(args[0], 2);
 		ft_putendl_fd(": command not found", 2);
-		exit(127);
+		return (127);
 	}
 	env = get_env_as_char_arr(shell);
 	if (!env)

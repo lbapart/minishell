@@ -6,7 +6,7 @@
 /*   By: ppfiel <ppfiel@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/27 15:25:05 by ppfiel            #+#    #+#             */
-/*   Updated: 2023/11/15 13:14:59 by ppfiel           ###   ########.fr       */
+/*   Updated: 2023/11/15 18:36:26 by ppfiel           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -171,8 +171,6 @@ t_vars			*new_env(char *key, char *value);
 
 // exec.c
 void			exec_commands(char *cmd, t_shell *shell);
-int				exec_simple_command(t_smplcmd *smplcmd, t_shell *shell);
-int				exec_builtin(t_smplcmd *smplcmd, t_shell *shell);
 
 // bullshit.c
 void			replace_bullshit_in_str(char *str);

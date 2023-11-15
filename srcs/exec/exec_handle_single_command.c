@@ -6,7 +6,7 @@
 /*   By: aapenko <aapenko@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/14 14:59:02 by ppfiel            #+#    #+#             */
-/*   Updated: 2023/11/15 15:20:15 by aapenko          ###   ########.fr       */
+/*   Updated: 2023/11/15 18:49:05 by ppfiel           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,6 +15,7 @@
 int	handle_single_command(t_shell *shell, t_cmd *cmd)
 {
 	int	exit_redirections;
+	int	exit_code;
 
 	exit_redirections = handle_redirections(cmd->smplcmd->redir);
 	if (exit_redirections != EXIT_SUCCESS)
@@ -28,7 +29,9 @@ int	handle_single_command(t_shell *shell, t_cmd *cmd)
 		if (cmd->pid == 0)
 		{
 			close_unused_fds(cmd, shell);
-			exit(exec_simple_command(cmd->smplcmd, shell));
+			exit_code = exec_simple_command(cmd->smplcmd, shell);
+			free_child_process(cmd, shell);
+			exit(exit_code);
 		}
 	}
 	else
