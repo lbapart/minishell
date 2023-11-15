@@ -6,7 +6,7 @@
 /*   By: aapenko <aapenko@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/02 15:45:19 by lbapart           #+#    #+#             */
-/*   Updated: 2023/11/15 14:41:03 by aapenko          ###   ########.fr       */
+/*   Updated: 2023/11/15 14:48:32 by aapenko          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -28,7 +28,6 @@ void	exec_commands(char *cmd, t_shell *shell)
 		return ;
 	if (init_heredoc_execution(cmds, shell) != EXIT_SUCCESS)
 		return (free_set_failure_unlink(&cmds, shell));
-	init_signals(GLOBAL_MODE);
 	if (cmds->next)
 	{
 		if (handle_multiple_commands(shell, cmds) != EXIT_SUCCESS)

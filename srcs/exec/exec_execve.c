@@ -6,7 +6,7 @@
 /*   By: aapenko <aapenko@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/14 14:32:55 by ppfiel            #+#    #+#             */
-/*   Updated: 2023/11/15 12:26:02 by aapenko          ###   ########.fr       */
+/*   Updated: 2023/11/15 15:14:37 by aapenko          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -83,8 +83,10 @@ int	exec_simple_command(t_smplcmd *smplcmd, t_shell *shell)
 
 	args = smplcmd->args;
 	path = smplcmd->path;
-	if (path && (access(path, X_OK) != 0 || ft_strlen(smplcmd->args[0]) == 0
-		|| (ft_strncmp(smplcmd->args[0], ".", 2)) == 0 || is_dir(path)))
+	if (!path)
+		return (EXIT_SUCCESS);
+	if (access(path, X_OK) != 0 || ft_strlen(smplcmd->args[0]) == 0
+		|| (ft_strncmp(smplcmd->args[0], ".", 2)) == 0 || is_dir(path))
 	{
 		ft_putstr_fd(args[0], 2);
 		ft_putendl_fd(": command not found", 2);
@@ -93,7 +95,7 @@ int	exec_simple_command(t_smplcmd *smplcmd, t_shell *shell)
 	env = get_env_as_char_arr(shell);
 	if (!env)
 		return (EXIT_FAILURE);
-	if (path && execve(path, args, env) == -1)
+	if (execve(path, args, env) == -1)
 		return (perror("execve"), free_env_arr(&env), 1);
 	return (free_env_arr(&env), EXIT_FAILURE);
 }
