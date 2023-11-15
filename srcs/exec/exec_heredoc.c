@@ -6,7 +6,7 @@
 /*   By: aapenko <aapenko@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/14 14:26:38 by ppfiel            #+#    #+#             */
-/*   Updated: 2023/11/15 14:33:21 by aapenko          ###   ########.fr       */
+/*   Updated: 2023/11/15 14:40:39 by aapenko          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -48,15 +48,17 @@ int	delete_tmp_heredocs_files(t_cmd	*cmd)
 	while (cmd)
 	{
 		redir = cmd->smplcmd->redir;
-		while (redir != NULL && redir->type == 2
-			   && redir->to_delete == 1)
+		while (redir != NULL)
 		{
-			if (unlink(redir->file) != 0)
+			if (redir->type == 2 && redir->to_delete == 1)
 			{
-				perror("unlink");
-				exit_code = EXIT_FAILURE;
+				if (unlink(redir->file) != 0)
+				{
+					perror("unlink");
+					exit_code = EXIT_FAILURE;
+				}
+				redir = redir->next;
 			}
-			redir = redir->next;
 		}
 		cmd = cmd->next;
 	}

@@ -6,7 +6,7 @@
 /*   By: aapenko <aapenko@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/14 14:27:55 by ppfiel            #+#    #+#             */
-/*   Updated: 2023/11/15 14:34:09 by aapenko          ###   ########.fr       */
+/*   Updated: 2023/11/15 14:39:34 by aapenko          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,28 +23,6 @@ int	wait_all_commands_on_error(t_cmd *start, t_cmd *cmd)
 		start = start->next;
 	}
 	return (EXIT_FAILURE);
-}
-
-static void	delete_tmp_heredocs_files(t_cmd	*cmd, int *is_error)
-{
-	t_redirection	*redir;
-	while (cmd)
-	{
-		redir = cmd->smplcmd->redir;
-		while (redir != NULL)
-		{
-			if (redir->type == 2 && redir->to_delete == 1)
-			{
-				if (unlink(redir->file) != 0)
-				{
-					perror("unlink");
-					*is_error = 1;
-				}
-			}
-			redir = redir->next;
-		}
-		cmd = cmd->next;
-	}
 }
 
 static int	wait_get_last_exit_code(t_cmd *cmd, int *is_error)

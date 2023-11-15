@@ -6,7 +6,7 @@
 /*   By: aapenko <aapenko@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/02 15:45:19 by lbapart           #+#    #+#             */
-/*   Updated: 2023/11/15 14:34:49 by aapenko          ###   ########.fr       */
+/*   Updated: 2023/11/15 14:41:03 by aapenko          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -43,13 +43,7 @@ void	exec_commands(char *cmd, t_shell *shell)
 	{
 		if (handle_waiting_processes(cmds, shell) != EXIT_SUCCESS)
 			return (free_set_failure_unlink(&cmds, shell));
-<<<<<<< HEAD
-	}	
-	free_structs(&cmds);
-	return ;
-}
-=======
+
 	}
 	return (clean_up(cmds, shell));
 }
->>>>>>> 0e4ca254fe6b6fb42abc85aee51f5ffad048fea0
