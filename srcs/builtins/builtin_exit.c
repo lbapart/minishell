@@ -6,7 +6,7 @@
 /*   By: ppfiel <ppfiel@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/04 11:11:12 by ppfiel            #+#    #+#             */
-/*   Updated: 2023/11/06 07:56:29 by ppfiel           ###   ########.fr       */
+/*   Updated: 2023/11/15 18:20:45 by ppfiel           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -71,20 +71,20 @@ static int	exit_code_parse(char *str)
 int	execute_exit(t_smplcmd command, t_shell *shell)
 {
 	int	exit_code;
+	int	arg_amount;
 
-	if (get_array_size(command.args) == 1)
-	{
-		shell->is_exit = 1;
-		return (EXIT_SUCCESS);
-	}
+	arg_amount = get_array_size(command.args);
+	shell->is_exit = 1;
+	if (arg_amount == 1)
+		return (shell->last_exit_code);
 	exit_code = exit_code_parse(command.args[1]);
 	if (exit_code == -1)
 		return (2);
 	if (get_array_size(command.args) > 2)
 	{
 		ft_putendl_fd("exit: too many arguments", 2);
+		shell->is_exit = 0;
 		return (EXIT_FAILURE);
 	}
-	shell->is_exit = 1;
 	return (exit_code);
 }

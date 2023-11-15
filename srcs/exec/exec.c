@@ -6,7 +6,7 @@
 /*   By: aapenko <aapenko@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/02 15:45:19 by lbapart           #+#    #+#             */
-/*   Updated: 2023/11/15 14:48:32 by aapenko          ###   ########.fr       */
+/*   Updated: 2023/11/15 18:20:50 by ppfiel           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -42,7 +42,6 @@ void	exec_commands(char *cmd, t_shell *shell)
 	{
 		if (handle_waiting_processes(cmds, shell) != EXIT_SUCCESS)
 			return (free_set_failure_unlink(&cmds, shell));
-
 	}
 	return (clean_up(cmds, shell));
 }
