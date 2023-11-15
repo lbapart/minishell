@@ -6,7 +6,7 @@
 /*   By: aapenko <aapenko@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/14 14:27:55 by ppfiel            #+#    #+#             */
-/*   Updated: 2023/11/15 12:07:54 by aapenko          ###   ########.fr       */
+/*   Updated: 2023/11/15 14:34:09 by aapenko          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -72,7 +72,6 @@ int	handle_waiting_processes(t_cmd *cmd, t_shell *shell)
 
 	is_error = 0;
 	exit_code = wait_get_last_exit_code(cmd, &is_error);
-	delete_tmp_heredocs_files(cmd, &is_error);
 	if (is_error)
 		return (EXIT_FAILURE);
 	shell->last_exit_code = exit_code;

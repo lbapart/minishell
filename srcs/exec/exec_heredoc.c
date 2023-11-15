@@ -6,7 +6,7 @@
 /*   By: aapenko <aapenko@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/14 14:26:38 by ppfiel            #+#    #+#             */
-/*   Updated: 2023/11/15 12:29:32 by aapenko          ###   ########.fr       */
+/*   Updated: 2023/11/15 14:33:21 by aapenko          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,9 +14,9 @@
 
 int	init_heredoc_execution(t_cmd *cmds, t_shell *shell)
 {
-	int		i;
-	t_cmd	*temp;
-	t_redirection *redir;
+	int				i;
+	t_cmd			*temp;
+	t_redirection	*redir;
 
 	i = 0;
 	temp = cmds;
@@ -37,4 +37,28 @@ int	init_heredoc_execution(t_cmd *cmds, t_shell *shell)
 		temp = temp->next;
 	}
 	return (EXIT_SUCCESS);
+}
+
+int	delete_tmp_heredocs_files(t_cmd	*cmd)
+{
+	t_redirection	*redir;
+	int				exit_code;
+
+	exit_code = EXIT_SUCCESS;
+	while (cmd)
+	{
+		redir = cmd->smplcmd->redir;
+		while (redir != NULL && redir->type == 2
+			   && redir->to_delete == 1)
+		{
+			if (unlink(redir->file) != 0)
+			{
+				perror("unlink");
+				exit_code = EXIT_FAILURE;
+			}
+			redir = redir->next;
+		}
+		cmd = cmd->next;
+	}
+	return (exit_code);
 }

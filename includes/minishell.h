@@ -6,7 +6,7 @@
 /*   By: ppfiel <ppfiel@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/27 15:25:05 by ppfiel            #+#    #+#             */
-/*   Updated: 2023/11/04 11:47:41 by ppfiel           ###   ########.fr       */
+/*   Updated: 2023/11/15 13:14:59 by ppfiel           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -317,6 +317,7 @@ int				handle_redirections(t_redirection *redirections);
 
 // exec_heredoc.c
 int				init_heredoc_execution(t_cmd *cmds, t_shell *shell);
+int				delete_tmp_heredocs_files(t_cmd	*cmd);
 
 // exec_waiting.c
 int				handle_waiting_processes(t_cmd *cmd, t_shell *shell);
