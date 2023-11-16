@@ -6,7 +6,7 @@
 /*   By: aapenko <aapenko@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/10 11:21:32 by lbapart           #+#    #+#             */
-/*   Updated: 2023/11/15 15:21:09 by aapenko          ###   ########.fr       */
+/*   Updated: 2023/11/16 09:37:05 by aapenko          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -38,9 +38,6 @@ static void	main_when_child_handler(int sig)
 {
 	(void)sig;
 	g_signal_received = SIGINT;
-	write(2, "fuck it", 7);
-	exit(130);
-	// rl_on_new_line();
 }
 
 void	init_signals(int mode)

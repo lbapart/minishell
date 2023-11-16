@@ -6,7 +6,7 @@
 /*   By: aapenko <aapenko@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/13 18:30:21 by aapenko           #+#    #+#             */
-/*   Updated: 2023/11/14 14:29:32 by aapenko          ###   ########.fr       */
+/*   Updated: 2023/11/16 09:32:41 by aapenko          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -69,6 +69,11 @@ char	*get_var_name(char *var, t_cmd **struct_cmd, char **cmd, t_pars_vars *v)
 void	replace_dollar_sign_test(char *cmd, size_t *i,
 				int *in_quotes, int dollar_type)
 {
+	int temp_in_quotes;
+	size_t temp_i;
+	
+	temp_i = *i;
+	temp_in_quotes = *in_quotes;
 	while (is_whitespace(cmd[*i]))
 		(*i)++;
 	while (cmd[*i] && !(!*in_quotes && (is_whitespace(cmd[*i])
@@ -82,4 +87,9 @@ void	replace_dollar_sign_test(char *cmd, size_t *i,
 		set_in_quotes_var(cmd[*i], in_quotes);
 		(*i)++;
 	}
+	*i = temp_i;
+	*in_quotes = temp_in_quotes;
+	if (*i > 0 && check_redirection_before(cmd, *i - 1)
+			&& *in_quotes == 0)
+			replace_dollar_sign(cmd, i, in_quotes, REDIR_HIDDEN_DOLLAR);
 }
